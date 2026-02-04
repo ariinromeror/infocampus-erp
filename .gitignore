@@ -1,0 +1,29 @@
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Python / Django
+*.pyc
+__pycache__/
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+
+# Node / React (ESTO ES LO QUE PONE LENTA TU PC)
+node_modules/
+dist/
+build/
+.eslintcache
+
+# Seguridad y Configuración
+.env
+.vscode/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+# Población de datos
+credenciales/
+scripts_logs.txt

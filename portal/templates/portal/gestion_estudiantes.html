@@ -1,0 +1,70 @@
+{% extends "portal/base.html" %}
+
+{% block content %}
+<header class="flex justify-between items-end mb-12">
+    <div>
+        <span class="text-campus-blue dark:text-blue-400 font-bold text-sm tracking-widest uppercase">Directorio</span>
+        <h2 class="text-5xl font-extrabold text-slate-900 dark:text-white mt-2 tracking-tighter">Estudiantes</h2>
+    </div>
+    <button onclick="toggleModal()" class="bg-campus-blue text-white font-bold py-4 px-8 rounded-2xl shadow-xl transition-all hover:-translate-y-1 active:scale-95">
+        + Registrar Estudiante
+    </button>
+</header>
+
+<div class="mb-8">
+    <input type="text" id="busquedaEstudiante" onkeyup="filtrarEstudiantes()" 
+           placeholder="Buscar por nombre, email o matrícula..." 
+           class="w-full bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-5 pl-12 rounded-2xl shadow-sm outline-none focus:ring-2 focus:ring-campus-blue dark:text-white transition-all">
+</div>
+
+<div id="listaEstudiantes" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {% for estudiante in estudiantes %}
+    <div class="estudiante-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:shadow-lg transition-all">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-campus-blue dark:text-blue-400 rounded-full flex items-center justify-center font-bold text-lg">
+                {{ estudiante.nombre|slice:":1" }}
+            </div>
+            <div>
+                <h3 class="estudiante-info font-bold text-slate-800 dark:text-white">{{ estudiante.nombre }}</h3>
+                <p class="text-xs text-slate-400">{{ estudiante.email }} • <span class="font-mono">{{ estudiante.matricula }}</span></p>
+            </div>
+        </div>
+        <a href="{% url 'eliminar_estudiante' estudiante.id %}" onclick="return confirm('¿Eliminar estudiante?')" class="opacity-0 group-hover:opacity-100 p-2 text-slate-300 hover:text-rose-500 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        </a>
+    </div>
+    {% empty %}
+    <div class="col-span-full p-20 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[3rem] text-center text-slate-400">
+        No hay estudiantes registrados.
+    </div>
+    {% endfor %}
+</div>
+
+<div id="modalEstudiante" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] w-full max-w-md p-10 shadow-2xl">
+        <h3 class="text-2xl font-bold dark:text-white mb-6">Nuevo Estudiante</h3>
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <input type="text" name="nombre" placeholder="Nombre completo" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-campus-blue dark:text-white">
+            <input type="email" name="email" placeholder="Correo electrónico" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-campus-blue dark:text-white">
+            <input type="text" name="matricula" placeholder="Matrícula" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-campus-blue dark:text-white">
+            <div class="flex gap-2 pt-4">
+                <button type="button" onclick="toggleModal()" class="flex-1 p-4 text-slate-400 font-bold">Cerrar</button>
+                <button type="submit" class="flex-1 bg-campus-blue text-white font-bold p-4 rounded-xl">Registrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleModal() { document.getElementById('modalEstudiante').classList.toggle('hidden'); }
+    function filtrarEstudiantes() {
+        const query = document.getElementById('busquedaEstudiante').value.toLowerCase();
+        const cards = document.getElementsByClassName('estudiante-card');
+        Array.from(cards).forEach(card => {
+            const text = card.querySelector('.estudiante-info').innerText.toLowerCase();
+            card.style.display = text.includes(query) ? "flex" : "none";
+        });
+    }
+</script>
+{% endblock %}

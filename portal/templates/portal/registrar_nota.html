@@ -1,0 +1,47 @@
+{% extends 'portal/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fas fa-edit"></i> Registrar Calificación</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="estudiante" class="form-label font-weight-bold">Seleccionar Estudiante</label>
+                    <select name="estudiante" id="estudiante" class="form-select" required>
+                        <option value="" selected disabled>Elija un estudiante...</option>
+                        {% for est in estudiantes %}
+                            <option value="{{ est.id }}">{{ est.nombre }} ({{ est.matricula }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="materia" class="form-label font-weight-bold">Materia</label>
+                    <select name="materia" id="materia" class="form-select" required>
+                        <option value="" selected disabled>Elija la materia...</option>
+                        {% for mat in materias %}
+                            <option value="{{ mat.id }}">{{ mat.nombre }} - {{ mat.codigo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="nota" class="form-label font-weight-bold">Nota / Calificación</label>
+                    <input type="text" name="nota" id="nota" class="form-control" placeholder="Ej: 18, A+, o 'Aprobado'" required>
+                    <small class="text-muted">Puedes ingresar números o letras según el sistema de la institución.</small>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary me-md-2">Cancelar</a>
+                    <button type="submit" class="btn btn-success">Guardar Calificación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
