@@ -1,7 +1,8 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext(null);
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+// Prueba de fuerza bruta: URL directa de Render
+const API_URL = "https://infocampus-backend.onrender.com/api";
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
