@@ -1,6 +1,7 @@
 """
-SCRIPT 2: LOGÍSTICA DE TIEMPOS Y SECCIONES
-Crea 4 períodos lectivos y secciones para todas las materias en el período 2026-1
+SCRIPT 2: LOGÍSTICA DE TIEMPOS Y SECCIONES (OPTIMIZADO)
+Crea 2 períodos lectivos y 1 sección por materia en el período 2026-1
+Optimizado para Render Free Tier
 """
 
 import os
@@ -17,22 +18,8 @@ django.setup()
 from portal.models import PeriodoLectivo, Materia, Seccion
 
 def crear_periodos():
-    """Crea 4 períodos lectivos: 3 pasados y 1 actual"""
+    """Crea 2 períodos lectivos: 1 pasado y 1 actual"""
     periodos_data = [
-        {
-            'codigo': '2024-2',
-            'nombre': 'Segundo Semestre 2024',
-            'fecha_inicio': date(2024, 8, 1),
-            'fecha_fin': date(2024, 12, 15),
-            'activo': False
-        },
-        {
-            'codigo': '2025-1',
-            'nombre': 'Primer Semestre 2025',
-            'fecha_inicio': date(2025, 1, 15),
-            'fecha_fin': date(2025, 6, 30),
-            'activo': False
-        },
         {
             'codigo': '2025-2',
             'nombre': 'Segundo Semestre 2025',
@@ -74,20 +61,17 @@ def crear_periodos():
 
 
 def crear_secciones(periodo_actual):
-    """Crea secciones para todas las materias en el período actual 2026-1"""
+    """Crea 1 sección por materia en el período actual 2026-1"""
     
     # Configuración de horarios realistas
     horarios_disponibles = [
-        {'hora_inicio': time(7, 0), 'hora_fin': time(9, 0)},
-        {'hora_inicio': time(9, 0), 'hora_fin': time(11, 0)},
-        {'hora_inicio': time(11, 0), 'hora_fin': time(13, 0)},
+        {'hora_inicio': time(8, 0), 'hora_fin': time(10, 0)},
+        {'hora_inicio': time(10, 0), 'hora_fin': time(12, 0)},
         {'hora_inicio': time(14, 0), 'hora_fin': time(16, 0)},
-        {'hora_inicio': time(16, 0), 'hora_fin': time(18, 0)},
-        {'hora_inicio': time(18, 0), 'hora_fin': time(20, 0)},
     ]
     
-    dias_semana = ['LU', 'MA', 'MI', 'JU', 'VI', 'SA']
-    aulas = ['A-101', 'A-102', 'A-201', 'A-202', 'B-101', 'B-102', 'B-201', 'C-101', 'C-102', 'LAB-1', 'LAB-2']
+    dias_semana = ['LU', 'MA', 'MI', 'JU', 'VI']
+    aulas = ['A-101', 'A-102', 'B-101', 'B-102']
     
     print("\n" + "="*60)
     print(f"CREANDO SECCIONES PARA PERÍODO {periodo_actual.codigo}")
@@ -101,47 +85,45 @@ def crear_secciones(periodo_actual):
         print(f"\n{materia.carrera.codigo} - {materia.nombre}:")
         print("-" * 50)
         
-        # Crear 2 secciones por materia para dar opciones a los estudiantes
-        for num_seccion in range(1, 3):
-            codigo_seccion = f"S{num_seccion}"
-            
-            # Seleccionar horario y día aleatorio
-            horario = random.choice(horarios_disponibles)
-            dia = random.choice(dias_semana)
-            aula = random.choice(aulas)
-            
-            seccion, created = Seccion.objects.get_or_create(
-                materia=materia,
-                periodo=periodo_actual,
-                codigo_seccion=codigo_seccion,
-                defaults={
-                    'dia': dia,
-                    'hora_inicio': horario['hora_inicio'],
-                    'hora_fin': horario['hora_fin'],
-                    'aula': aula,
-                    'cupo_maximo': 30,
-                    'profesor': None  # Se asignará en el script 3
-                }
-            )
-            
-            if created:
-                total_creadas += 1
-                print(f"  ✓ Sección {codigo_seccion}: {dia} {horario['hora_inicio'].strftime('%H:%M')}-{horario['hora_fin'].strftime('%H:%M')} - Aula {aula}")
-            else:
-                total_existentes += 1
-                print(f"  ○ Sección {codigo_seccion}: Ya existía")
+        # Crear 1 sección por materia
+        codigo_seccion = "S1"
+        
+        # Seleccionar horario y día aleatorio
+        horario = random.choice(horarios_disponibles)
+        dia = random.choice(dias_semana)
+        aula = random.choice(aulas)
+        
+        seccion, created = Seccion.objects.get_or_create(
+            materia=materia,
+            periodo=periodo_actual,
+            codigo_seccion=codigo_seccion,
+            defaults={
+                'dia': dia,
+                'hora_inicio': horario['hora_inicio'],
+                'hora_fin': horario['hora_fin'],
+                'aula': aula,
+                'cupo_maximo': 30,
+                'profesor': None  # Se asignará en el script 3
+            }
+        )
+        
+        if created:
+            total_creadas += 1
+            print(f"  ✓ Sección {codigo_seccion}: {dia} {horario['hora_inicio'].strftime('%H:%M')}-{horario['hora_fin'].strftime('%H:%M')} - Aula {aula}")
+        else:
+            total_existentes += 1
+            print(f"  ○ Sección {codigo_seccion}: Ya existía")
     
     print("\n" + "="*60)
     print(f"RESUMEN: {total_creadas} secciones creadas, {total_existentes} ya existían")
     print(f"Total de materias: {materias.count()}")
-    print(f"Total esperado de secciones: {materias.count() * 2}")
     print("="*60)
 
 
 def main():
     """Función principal"""
     print("\n" + "█"*60)
-    print("SCRIPT 2: CREACIÓN DE PERÍODOS Y SECCIONES")
+    print("SCRIPT 2: CREACIÓN DE PERÍODOS Y SECCIONES (OPTIMIZADO)")
     print("█"*60)
     
     # Paso 1: Crear períodos lectivos

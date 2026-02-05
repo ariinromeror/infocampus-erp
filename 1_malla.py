@@ -1,6 +1,7 @@
 """
-SCRIPT 1: ESTRUCTURA ACADÉMICA (MALLA CURRICULAR)
-Crea 5 carreras con 6 materias cada una distribuidas entre semestres 1-4
+SCRIPT 1: ESTRUCTURA ACADÉMICA OPTIMIZADA (MALLA CURRICULAR)
+Crea 3 carreras con 2 materias cada una (6 materias totales)
+Optimizado para Render Free Tier
 """
 
 import os
@@ -16,7 +17,7 @@ django.setup()
 from portal.models import Carrera, Materia
 
 def crear_carreras():
-    """Crea 5 carreras universitarias con configuración realista"""
+    """Crea 3 carreras universitarias con configuración realista"""
     carreras_data = [
         {
             'nombre': 'Ingeniería en Sistemas Computacionales',
@@ -24,20 +25,6 @@ def crear_carreras():
             'precio_credito': Decimal('55.00'),
             'duracion_semestres': 8,
             'dias_gracia_pago': 15
-        },
-        {
-            'nombre': 'Licenciatura en Derecho',
-            'codigo': 'DER',
-            'precio_credito': Decimal('50.00'),
-            'duracion_semestres': 10,
-            'dias_gracia_pago': 20
-        },
-        {
-            'nombre': 'Medicina General',
-            'codigo': 'MED',
-            'precio_credito': Decimal('80.00'),
-            'duracion_semestres': 12,
-            'dias_gracia_pago': 10
         },
         {
             'nombre': 'Administración de Empresas',
@@ -73,66 +60,28 @@ def crear_carreras():
 
 
 def crear_materias_sistemas(carrera):
-    """Crea 6 materias para Ingeniería en Sistemas"""
+    """Crea 2 materias para Ingeniería en Sistemas"""
     materias = [
         {'nombre': 'Programación I', 'codigo': 'ISC101', 'semestre': 1, 'creditos': 4},
-        {'nombre': 'Matemáticas Discretas', 'codigo': 'ISC102', 'semestre': 1, 'creditos': 3},
-        {'nombre': 'Programación II', 'codigo': 'ISC201', 'semestre': 2, 'creditos': 4},
         {'nombre': 'Estructura de Datos', 'codigo': 'ISC202', 'semestre': 2, 'creditos': 4},
-        {'nombre': 'Bases de Datos I', 'codigo': 'ISC301', 'semestre': 3, 'creditos': 4},
-        {'nombre': 'Ingeniería de Software', 'codigo': 'ISC401', 'semestre': 4, 'creditos': 5},
-    ]
-    return materias
-
-
-def crear_materias_derecho(carrera):
-    """Crea 6 materias para Licenciatura en Derecho"""
-    materias = [
-        {'nombre': 'Introducción al Derecho', 'codigo': 'DER101', 'semestre': 1, 'creditos': 3},
-        {'nombre': 'Derecho Romano', 'codigo': 'DER102', 'semestre': 1, 'creditos': 3},
-        {'nombre': 'Derecho Civil I', 'codigo': 'DER201', 'semestre': 2, 'creditos': 4},
-        {'nombre': 'Derecho Constitucional', 'codigo': 'DER202', 'semestre': 2, 'creditos': 4},
-        {'nombre': 'Derecho Penal I', 'codigo': 'DER301', 'semestre': 3, 'creditos': 4},
-        {'nombre': 'Derecho Procesal Civil', 'codigo': 'DER401', 'semestre': 4, 'creditos': 5},
-    ]
-    return materias
-
-
-def crear_materias_medicina(carrera):
-    """Crea 6 materias para Medicina General"""
-    materias = [
-        {'nombre': 'Anatomía Humana I', 'codigo': 'MED101', 'semestre': 1, 'creditos': 5},
-        {'nombre': 'Bioquímica Médica', 'codigo': 'MED102', 'semestre': 1, 'creditos': 4},
-        {'nombre': 'Fisiología Humana I', 'codigo': 'MED201', 'semestre': 2, 'creditos': 5},
-        {'nombre': 'Histología', 'codigo': 'MED202', 'semestre': 2, 'creditos': 4},
-        {'nombre': 'Microbiología Médica', 'codigo': 'MED301', 'semestre': 3, 'creditos': 4},
-        {'nombre': 'Farmacología General', 'codigo': 'MED401', 'semestre': 4, 'creditos': 5},
     ]
     return materias
 
 
 def crear_materias_administracion(carrera):
-    """Crea 6 materias para Administración de Empresas"""
+    """Crea 2 materias para Administración de Empresas"""
     materias = [
         {'nombre': 'Fundamentos de Administración', 'codigo': 'ADM101', 'semestre': 1, 'creditos': 3},
-        {'nombre': 'Contabilidad General', 'codigo': 'ADM102', 'semestre': 1, 'creditos': 4},
-        {'nombre': 'Microeconomía', 'codigo': 'ADM201', 'semestre': 2, 'creditos': 3},
-        {'nombre': 'Matemáticas Financieras', 'codigo': 'ADM202', 'semestre': 2, 'creditos': 4},
         {'nombre': 'Marketing Estratégico', 'codigo': 'ADM301', 'semestre': 3, 'creditos': 4},
-        {'nombre': 'Gestión de Recursos Humanos', 'codigo': 'ADM401', 'semestre': 4, 'creditos': 4},
     ]
     return materias
 
 
 def crear_materias_psicologia(carrera):
-    """Crea 6 materias para Psicología Clínica"""
+    """Crea 2 materias para Psicología Clínica"""
     materias = [
         {'nombre': 'Introducción a la Psicología', 'codigo': 'PSI101', 'semestre': 1, 'creditos': 3},
-        {'nombre': 'Neuropsicología Básica', 'codigo': 'PSI102', 'semestre': 1, 'creditos': 3},
-        {'nombre': 'Psicología del Desarrollo', 'codigo': 'PSI201', 'semestre': 2, 'creditos': 4},
-        {'nombre': 'Teorías de la Personalidad', 'codigo': 'PSI202', 'semestre': 2, 'creditos': 3},
         {'nombre': 'Psicopatología General', 'codigo': 'PSI301', 'semestre': 3, 'creditos': 4},
-        {'nombre': 'Evaluación Psicológica', 'codigo': 'PSI401', 'semestre': 4, 'creditos': 4},
     ]
     return materias
 
@@ -141,14 +90,12 @@ def poblar_materias(carreras):
     """Crea todas las materias para cada carrera"""
     funciones_materias = {
         'ISC': crear_materias_sistemas,
-        'DER': crear_materias_derecho,
-        'MED': crear_materias_medicina,
         'ADM': crear_materias_administracion,
         'PSI': crear_materias_psicologia,
     }
     
     print("\n" + "="*60)
-    print("CREANDO MATERIAS (6 por carrera)")
+    print("CREANDO MATERIAS (2 por carrera = 6 totales)")
     print("="*60)
     
     total_creadas = 0
@@ -187,7 +134,7 @@ def poblar_materias(carreras):
 def main():
     """Función principal"""
     print("\n" + "█"*60)
-    print("SCRIPT 1: CREACIÓN DE ESTRUCTURA ACADÉMICA")
+    print("SCRIPT 1: CREACIÓN DE ESTRUCTURA ACADÉMICA (OPTIMIZADO)")
     print("█"*60)
     
     # Paso 1: Crear carreras

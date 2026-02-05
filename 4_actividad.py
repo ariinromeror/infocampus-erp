@@ -1,8 +1,9 @@
 """
-SCRIPT 4: SIMULACIÓN DE ACTIVIDAD ACADÉMICA Y FINANCIERA
-- Inscribe estudiantes en materias del período 2026-1
-- Genera notas históricas (20% reprobadas) para períodos 2025-1 y 2025-2
-- Crea registros de pago (80% pagados, 20% morosos)
+SCRIPT 4: SIMULACIÓN DE ACTIVIDAD ACADÉMICA Y FINANCIERA (OPTIMIZADO)
+- Inscribe los 3 estudiantes en 2-3 materias del período 2026-1
+- Genera notas históricas mínimas para período 2025-2
+- Crea registros de pago (2 pagados, 1 moroso)
+Optimizado para Render Free Tier
 """
 
 import os
@@ -22,16 +23,15 @@ from portal.models import Usuario, Materia, Seccion, PeriodoLectivo, Inscripcion
 
 
 def inscribir_estudiantes_periodo_actual():
-    """Inscribe a los 150 estudiantes en al menos 5 materias del período 2026-1"""
+    """Inscribe a los 3 estudiantes en 2-3 materias del período 2026-1"""
     print("\n" + "="*60)
     print("INSCRIBIENDO ESTUDIANTES EN PERÍODO 2026-1")
     print("="*60)
     
     periodo_actual = PeriodoLectivo.objects.get(codigo='2026-1')
-    estudiantes = Usuario.objects.filter(rol='estudiante')
+    estudiantes = Usuario.objects.filter(rol='estudiante').order_by('username')
     
     total_inscripciones = 0
-    total_existentes = 0
     
     for estudiante in estudiantes:
         if not estudiante.carrera:
@@ -40,9 +40,11 @@ def inscribir_estudiantes_periodo_actual():
         # Obtener materias de la carrera del estudiante
         materias_carrera = Materia.objects.filter(carrera=estudiante.carrera)
         
-        # Seleccionar entre 5 y 6 materias aleatorias
-        num_materias = random.randint(5, 6)
-        materias_seleccionadas = random.sample(list(materias_carrera), min(num_materias, len(materias_carrera)))
+        # Inscribir en todas las materias de su carrera (2 materias)
+        num_materias = min(2, len(materias_carrera))
+        materias_seleccionadas = list(materias_carrera)[:num_materias]
+        
+        print(f"\n{estudiante.username} ({estudiante.carrera.codigo}):")
         
         for materia in materias_seleccionadas:
             # Obtener una sección disponible de esa materia
@@ -60,122 +62,108 @@ def inscribir_estudiantes_periodo_actual():
                 seccion=seccion,
                 defaults={
                     'estado': 'inscrito',
-                    'fecha_inscripcion': timezone.now() - timedelta(days=random.randint(1, 20))
+                    'fecha_inscripcion': timezone.now() - timedelta(days=random.randint(1, 10))
                 }
             )
             
             if created:
                 total_inscripciones += 1
-            else:
-                total_existentes += 1
-        
-        if total_inscripciones % 100 == 0 and total_inscripciones > 0:
-            print(f"  ✓ {total_inscripciones} inscripciones procesadas...")
+                print(f"  ✓ {materia.codigo} - {materia.nombre}")
     
-    print(f"\n✓ Total: {total_inscripciones} inscripciones creadas, {total_existentes} ya existían")
+    print(f"\n✓ Total: {total_inscripciones} inscripciones creadas")
     return total_inscripciones
 
 
 def generar_notas_historicas():
-    """Genera notas históricas para períodos 2025-1 y 2025-2 con 20% de reprobaciones"""
+    """Genera algunas notas históricas para período 2025-2"""
     print("\n" + "="*60)
-    print("GENERANDO NOTAS HISTÓRICAS (PERÍODOS 2025-1 Y 2025-2)")
+    print("GENERANDO NOTAS HISTÓRICAS (PERÍODO 2025-2)")
     print("="*60)
     
-    periodos_historicos = PeriodoLectivo.objects.filter(codigo__in=['2025-1', '2025-2'])
+    try:
+        periodo_historico = PeriodoLectivo.objects.get(codigo='2025-2')
+    except PeriodoLectivo.DoesNotExist:
+        print("  ! Período 2025-2 no encontrado, saltando...")
+        return 0
+    
     estudiantes = Usuario.objects.filter(rol='estudiante')
+    profesor = Usuario.objects.filter(rol='profesor').first()
     
     total_inscripciones_historicas = 0
     total_aprobadas = 0
     total_reprobadas = 0
     
-    for periodo in periodos_historicos:
-        print(f"\nProcesando período {periodo.codigo}...")
-        print("-" * 50)
-        
-        inscripciones_periodo = 0
-        
-        for estudiante in estudiantes:
-            if not estudiante.carrera:
-                continue
-            
-            # Inscribir en 4-5 materias por período histórico
-            materias_carrera = Materia.objects.filter(carrera=estudiante.carrera)
-            num_materias = random.randint(4, 5)
-            materias_seleccionadas = random.sample(list(materias_carrera), min(num_materias, len(materias_carrera)))
-            
-            for materia in materias_seleccionadas:
-                # Obtener o crear sección para este período histórico
-                seccion, _ = Seccion.objects.get_or_create(
-                    materia=materia,
-                    periodo=periodo,
-                    codigo_seccion='S1',
-                    defaults={
-                        'dia': random.choice(['LU', 'MA', 'MI', 'JU', 'VI']),
-                        'hora_inicio': '08:00',
-                        'hora_fin': '10:00',
-                        'aula': 'A-101',
-                        'cupo_maximo': 30
-                    }
-                )
-                
-                # Asignar profesor aleatorio si no tiene
-                if not seccion.profesor:
-                    profesor = Usuario.objects.filter(rol='profesor').order_by('?').first()
-                    if profesor:
-                        seccion.profesor = profesor
-                        seccion.save()
-                
-                # Crear inscripción histórica
-                inscripcion, created = Inscripcion.objects.get_or_create(
-                    estudiante=estudiante,
-                    seccion=seccion,
-                    defaults={
-                        'fecha_inscripcion': timezone.make_aware(
-                            datetime.combine(periodo.fecha_inicio, datetime.min.time())
-                        ) + timedelta(days=random.randint(1, 10))
-                    }
-                )
-                
-                if not created:
-                    continue
-                
-                # Generar nota (20% de probabilidad de reprobar)
-                es_reprobado = random.random() < 0.20
-                
-                if es_reprobado:
-                    # Nota reprobada (entre 0 y 6.9)
-                    nota = Decimal(str(round(random.uniform(2.0, 6.9), 2)))
-                    estado = 'reprobado'
-                    total_reprobadas += 1
-                else:
-                    # Nota aprobada (entre 7.0 y 10.0)
-                    nota = Decimal(str(round(random.uniform(7.0, 10.0), 2)))
-                    estado = 'aprobado'
-                    total_aprobadas += 1
-                
-                inscripcion.nota_final = nota
-                inscripcion.estado = estado
-                inscripcion.nota_puesta_por = seccion.profesor
-                inscripcion.fecha_nota_puesta = timezone.now() - timedelta(days=random.randint(30, 180))
-                inscripcion.save()
-                
-                inscripciones_periodo += 1
-        
-        print(f"  ✓ {inscripciones_periodo} inscripciones con notas generadas")
-        total_inscripciones_historicas += inscripciones_periodo
+    print(f"\nProcesando período {periodo_historico.codigo}...")
+    print("-" * 50)
     
-    porcentaje_reprobadas = (total_reprobadas / (total_aprobadas + total_reprobadas) * 100) if total_aprobadas + total_reprobadas > 0 else 0
+    for estudiante in estudiantes:
+        if not estudiante.carrera:
+            continue
+        
+        # Inscribir en 1 materia por período histórico
+        materias_carrera = Materia.objects.filter(carrera=estudiante.carrera)
+        if not materias_carrera.exists():
+            continue
+            
+        materia = materias_carrera.first()
+        
+        # Obtener o crear sección para este período histórico
+        seccion, _ = Seccion.objects.get_or_create(
+            materia=materia,
+            periodo=periodo_historico,
+            codigo_seccion='S1',
+            defaults={
+                'dia': 'LU',
+                'hora_inicio': '08:00',
+                'hora_fin': '10:00',
+                'aula': 'A-101',
+                'cupo_maximo': 30,
+                'profesor': profesor
+            }
+        )
+        
+        # Crear inscripción histórica
+        inscripcion, created = Inscripcion.objects.get_or_create(
+            estudiante=estudiante,
+            seccion=seccion,
+            defaults={
+                'fecha_inscripcion': timezone.make_aware(
+                    datetime.combine(periodo_historico.fecha_inicio, datetime.min.time())
+                ) + timedelta(days=5)
+            }
+        )
+        
+        if not created:
+            continue
+        
+        # Generar nota (solo el estudiante003 reprueba)
+        if estudiante.username == 'estudiante003':
+            nota = Decimal('5.5')
+            estado = 'reprobado'
+            total_reprobadas += 1
+        else:
+            nota = Decimal(str(round(random.uniform(7.5, 9.5), 2)))
+            estado = 'aprobado'
+            total_aprobadas += 1
+        
+        inscripcion.nota_final = nota
+        inscripcion.estado = estado
+        inscripcion.nota_puesta_por = profesor
+        inscripcion.fecha_nota_puesta = timezone.now() - timedelta(days=60)
+        inscripcion.save()
+        
+        total_inscripciones_historicas += 1
+        print(f"  ✓ {estudiante.username}: {materia.codigo} - Nota: {nota} ({estado})")
     
     print(f"\n✓ Total inscripciones históricas: {total_inscripciones_historicas}")
     print(f"  - Aprobadas: {total_aprobadas}")
-    print(f"  - Reprobadas: {total_reprobadas} ({porcentaje_reprobadas:.1f}%)")
+    print(f"  - Reprobadas: {total_reprobadas}")
     
     return total_inscripciones_historicas
 
 
 def generar_pagos():
-    """Genera registros de pago: 80% pagados, 20% pendientes (morosos)"""
+    """Genera registros de pago: 2 pagados, 1 pendiente (moroso)"""
     print("\n" + "="*60)
     print("GENERANDO REGISTROS DE PAGO")
     print("="*60)
@@ -184,27 +172,19 @@ def generar_pagos():
     periodo_actual = PeriodoLectivo.objects.get(codigo='2026-1')
     inscripciones = Inscripcion.objects.filter(seccion__periodo=periodo_actual)
     
-    tesoreros = list(Usuario.objects.filter(rol='tesorero'))
-    if not tesoreros:
-        # Si no hay tesoreros, crear uno temporal
-        tesorero = Usuario.objects.filter(rol='tesorero').first()
-        if not tesorero:
-            print("  ! No hay tesoreros disponibles. Los pagos se registrarán sin procesador.")
-            tesorero = None
-    else:
-        tesorero = None
+    tesorero = Usuario.objects.filter(rol='tesorero').first()
+    metodos_pago = ['efectivo', 'transferencia', 'tarjeta']
     
     total_pagados = 0
     total_pendientes = 0
-    metodos_pago = ['efectivo', 'transferencia', 'tarjeta', 'cheque']
     
     for inscripcion in inscripciones:
         # Verificar si ya tiene pago
         if hasattr(inscripcion, 'pago'):
             continue
         
-        # 80% de probabilidad de estar pagado
-        esta_pagado = random.random() < 0.80
+        # El estudiante003 queda en mora (sin pago)
+        esta_pagado = inscripcion.estudiante.username != 'estudiante003'
         
         if esta_pagado:
             # Calcular monto del pago
@@ -220,29 +200,27 @@ def generar_pagos():
                 monto_final = monto_base
             
             # Crear el pago
-            procesador = random.choice(tesoreros) if tesoreros else tesorero
-            
             Pago.objects.create(
                 inscripcion=inscripcion,
                 monto=monto_final,
                 metodo_pago=random.choice(metodos_pago),
                 comprobante=f"COMP-{random.randint(10000, 99999)}",
-                procesado_por=procesador,
-                fecha_pago=timezone.now() - timedelta(days=random.randint(1, 15))
+                procesado_por=tesorero,
+                fecha_pago=timezone.now() - timedelta(days=random.randint(1, 10))
             )
             total_pagados += 1
+            print(f"  ✓ PAGADO: {inscripcion.estudiante.username} - {inscripcion.seccion.materia.codigo} (${monto_final})")
         else:
             # Dejar sin pago (pendiente/moroso)
             total_pendientes += 1
+            print(f"  ⚠️  MORA: {inscripcion.estudiante.username} - {inscripcion.seccion.materia.codigo}")
     
     total = total_pagados + total_pendientes
-    porcentaje_pagados = (total_pagados / total * 100) if total > 0 else 0
-    porcentaje_pendientes = (total_pendientes / total * 100) if total > 0 else 0
     
     print(f"\n✓ Pagos procesados:")
-    print(f"  - Pagados: {total_pagados} ({porcentaje_pagados:.1f}%)")
-    print(f"  - Pendientes: {total_pendientes} ({porcentaje_pendientes:.1f}%)")
-    print(f"  - Total: {total}")
+    print(f"  - Pagados: {total_pagados}")
+    print(f"  - Pendientes: {total_pendientes}")
+    print(f"  - Total inscripciones: {total}")
     
     return total_pagados, total_pendientes
 
@@ -260,22 +238,19 @@ def verificar_estudiantes_en_mora():
     for estudiante in estudiantes:
         if estudiante.en_mora:
             estudiantes_morosos.append(estudiante)
+            print(f"  ⚠️  MOROSO: {estudiante.username} - Deuda: ${estudiante.deuda_total}")
         else:
             estudiantes_al_dia.append(estudiante)
+            print(f"  ✓ AL DÍA: {estudiante.username}")
     
     print(f"\n✓ Estudiantes al día: {len(estudiantes_al_dia)}")
-    print(f"✓ Estudiantes en mora: {len(estudiantes_morosos)}")
-    
-    if estudiantes_morosos:
-        print(f"\nEjemplos de estudiantes morosos (primeros 5):")
-        for est in estudiantes_morosos[:5]:
-            print(f"  - {est.username}: Deuda ${est.deuda_total}")
+    print(f"⚠️  Estudiantes en mora: {len(estudiantes_morosos)}")
 
 
 def main():
     """Función principal"""
     print("\n" + "█"*60)
-    print("SCRIPT 4: SIMULACIÓN DE ACTIVIDAD ACADÉMICA Y FINANCIERA")
+    print("SCRIPT 4: SIMULACIÓN DE ACTIVIDAD (OPTIMIZADO)")
     print("█"*60)
     
     # Paso 1: Inscribir estudiantes en período actual
