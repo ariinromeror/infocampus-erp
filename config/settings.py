@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url  # <-- AGREGADO PARA NEON
 
 # 1. CARGA DE BÓVEDA
 load_dotenv()
@@ -21,7 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Librerías externas
     'rest_framework',
-    'rest_framework.authtoken',  # OBLIGATORIO: Para generar las llaves de acceso
+    'rest_framework.authtoken',
     'corsheaders', 
     # Tu aplicación
     'portal',
@@ -60,11 +61,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # 5. BASE DE DATOS
+# Modificado para que use DATABASE_URL en Render o sqlite localmente
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / os.getenv('DB_NAME', 'db.sqlite3'),
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600
+    )
 }
 
 # 6. MODELO DE USUARIO PERSONALIZADO
@@ -85,6 +87,8 @@ USE_TZ = True
 
 # 8. ARCHIVOS ESTÁTICOS Y MEDIA
 STATIC_URL = 'static/'
+# Agregado para que Render pueda servir archivos estáticos correctamente
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -93,6 +97,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # 9. CONFIGURACIÓN DE CORS
 CORS_ALLOW_ALL_ORIGINS = True 
 CORS_ALLOW_CREDENTIALS = True
+# Agregado para permitir peticiones desde tu dominio de Vercel
+CSRF_TRUSTED_ORIGINS = [
+    "https://ariinromeror-infocampus-erp.vercel.app",
+]
 
 # 10. DJANGO REST FRAMEWORK (Configuración para Token)
 REST_FRAMEWORK = {
