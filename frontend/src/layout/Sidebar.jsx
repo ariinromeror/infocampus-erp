@@ -3,12 +3,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
     LogOut, BookOpen, LayoutDashboard, 
     GraduationCap, ClipboardList, Wallet, 
-    ChevronRight, Users, Landmark, BarChart3
+    ChevronRight, Users, Landmark, BarChart3, X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
@@ -43,19 +43,38 @@ const Sidebar = () => {
 
     const menuItems = menuConfig[user?.rol] || [];
 
-    return (
-        <aside className="hidden lg:flex flex-col w-72 bg-slate-900 border-r border-slate-800 shadow-2xl z-50">
-            <div className="p-8 mb-4">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 rotate-3 group-hover:rotate-0 transition-transform">
-                        <GraduationCap className="text-white" size={24} />
+    const handleNavigation = (path) => {
+        navigate(path);
+        if (onClose) onClose();
+    };
+
+    const handleLogout = () => {
+        logout();
+        if (onClose) onClose();
+    };
+
+    const SidebarContent = () => (
+        <>
+            <div className="p-6 sm:p-8 mb-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 rotate-3 group-hover:rotate-0 transition-transform">
+                            <GraduationCap className="text-white" size={24} />
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-black text-white uppercase tracking-tighter italic leading-none">
+                                Campus<span className="text-indigo-500">Elite</span>
+                            </h1>
+                            <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-1">Management System</p>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-xl font-black text-white uppercase tracking-tighter italic leading-none">
-                            Campus<span className="text-indigo-500">Elite</span>
-                        </h1>
-                        <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-1">Management System</p>
-                    </div>
+                    {/* Botón cerrar solo en móvil */}
+                    <button 
+                        onClick={onClose} 
+                        className="lg:hidden p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
+                    >
+                        <X size={24} />
+                    </button>
                 </div>
             </div>
 
@@ -69,7 +88,7 @@ const Sidebar = () => {
                     return (
                         <button
                             key={item.name}
-                            onClick={() => navigate(item.path)}
+                            onClick={() => handleNavigation(item.path)}
                             className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group ${
                                 isActive 
                                 ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/20 translate-x-1' 
@@ -107,14 +126,51 @@ const Sidebar = () => {
                 </div>
 
                 <button 
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="w-full flex items-center justify-center gap-2 py-4 rounded-xl border border-slate-800 text-slate-500 font-black text-[10px] uppercase hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all duration-300 group"
                 >
                     <LogOut size={16} className="group-hover:-translate-x-1 transition-transform" />
                     Cerrar Sesión
                 </button>
             </div>
-        </aside>
+        </>
+    );
+
+    return (
+        <>
+            {/* DESKTOP SIDEBAR - siempre visible en pantallas grandes */}
+            <aside className="hidden lg:flex flex-col w-72 bg-slate-900 border-r border-slate-800 shadow-2xl z-50">
+                <SidebarContent />
+            </aside>
+
+            {/* MOBILE SIDEBAR - se muestra/oculta según isOpen */}
+            <AnimatePresence>
+                {isOpen && (
+                    <>
+                        {/* Overlay oscuro */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                            onClick={onClose}
+                        />
+                        
+                        {/* Menú deslizante */}
+                        <motion.aside
+                            initial={{ x: '-100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '-100%' }}
+                            transition={{ type: 'tween', duration: 0.3 }}
+                            className="fixed inset-y-0 left-0 w-72 bg-slate-900 border-r border-slate-800 shadow-2xl z-50 lg:hidden flex flex-col"
+                        >
+                            <SidebarContent />
+                        </motion.aside>
+                    </>
+                )}
+            </AnimatePresence>
+        </>
     );
 };
 

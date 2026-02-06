@@ -28,7 +28,7 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex font-sans bg-slate-50">
+        <div className="min-h-screen flex flex-col lg:flex-row font-sans bg-slate-50">
              
             {/* MITAD IZQUIERDA - DECORACIÓN CON BIBLIOTECA DIFUMINADA */}
             <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
@@ -77,29 +77,44 @@ const Login = () => {
                 </div>
             </div>
 
+            {/* HEADER MÓVIL - Solo visible en móvil */}
+            <div className="lg:hidden bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 text-center">
+                <div className="flex items-center justify-center gap-3 mb-3">
+                    <div className="p-2 bg-indigo-500/20 backdrop-blur-md rounded-xl border border-white/10">
+                        <BookOpen className="h-6 w-6 text-indigo-300" />
+                    </div>
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-black italic tracking-tighter">
+                    INFO <span className="text-indigo-400">CAMPUS</span>
+                </h1>
+                <p className="text-sm text-slate-300 mt-2 font-light">
+                    Sistema de Gestión Académica
+                </p>
+            </div>
+
             {/* MITAD DERECHA - FORMULARIO */}
-            <div className="flex-1 flex items-center justify-center p-8 bg-white lg:bg-transparent">
-                <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-3xl shadow-2xl border border-slate-100">
+            <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-white lg:bg-transparent">
+                <div className="max-w-md w-full space-y-6 sm:space-y-8 bg-white p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-100">
                     
-                    <div className="text-center lg:text-left mb-8">
-                        <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">
+                    <div className="text-center lg:text-left mb-6 sm:mb-8">
+                        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter uppercase italic">
                             Acceso Institucional
                         </h2>
-                        <p className="mt-2 text-sm text-slate-500 font-medium">
+                        <p className="mt-2 text-xs sm:text-sm text-slate-500 font-medium">
                              Ingresa tus credenciales para continuar
                         </p>
                     </div>
 
-                    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                        <div className="space-y-5">
+                    <form className="mt-6 sm:mt-8 space-y-5 sm:space-y-6" onSubmit={handleSubmit}>
+                        <div className="space-y-4 sm:space-y-5">
                             <div>
-                                <label className="text-slate-700 text-[11px] font-black uppercase tracking-widest mb-2 block">Usuario</label>
+                                <label className="text-slate-700 text-[10px] sm:text-[11px] font-black uppercase tracking-widest mb-2 block">Usuario</label>
                                 <div className="relative flex items-center">
-                                    <User className="w-5 h-5 absolute left-4 text-slate-400" />
+                                    <User className="w-4 h-4 sm:w-5 sm:h-5 absolute left-3 sm:left-4 text-slate-400" />
                                     <input
                                         type="text"
                                         required
-                                        className="w-full text-sm border border-slate-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-xl pl-12 pr-4 py-4 outline-none transition-all bg-slate-50/50"
+                                        className="w-full text-sm border border-slate-200 focus:border-indigo-600 focus:ring-2 sm:focus:ring-4 focus:ring-indigo-50 rounded-xl pl-10 sm:pl-12 pr-4 py-3 sm:py-4 outline-none transition-all bg-slate-50/50"
                                         placeholder="usuario.alumno"
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
@@ -108,13 +123,13 @@ const Login = () => {
                             </div>
 
                             <div>
-                                <label className="text-slate-700 text-[11px] font-black uppercase tracking-widest mb-2 block">Contraseña</label>
+                                <label className="text-slate-700 text-[10px] sm:text-[11px] font-black uppercase tracking-widest mb-2 block">Contraseña</label>
                                 <div className="relative flex items-center">
-                                    <Lock className="w-5 h-5 absolute left-4 text-slate-400" />
+                                    <Lock className="w-4 h-4 sm:w-5 sm:h-5 absolute left-3 sm:left-4 text-slate-400" />
                                     <input
                                         type="password"
                                         required
-                                        className="w-full text-sm border border-slate-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 rounded-xl pl-12 pr-4 py-4 outline-none transition-all bg-slate-50/50"
+                                        className="w-full text-sm border border-slate-200 focus:border-indigo-600 focus:ring-2 sm:focus:ring-4 focus:ring-indigo-50 rounded-xl pl-10 sm:pl-12 pr-4 py-3 sm:py-4 outline-none transition-all bg-slate-50/50"
                                         placeholder="••••••••"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
@@ -124,7 +139,7 @@ const Login = () => {
                         </div>
 
                         {localError && (
-                            <div className="flex items-center gap-3 bg-red-50 border border-red-100 text-red-700 text-xs p-4 rounded-xl shadow-sm">
+                            <div className="flex items-center gap-2 sm:gap-3 bg-red-50 border border-red-100 text-red-700 text-xs p-3 sm:p-4 rounded-xl shadow-sm">
                                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
                                 <span className="font-bold">{localError}</span>
                             </div>
@@ -134,7 +149,7 @@ const Login = () => {
                             type="submit"
                             disabled={loading}
                             className={`
-                                w-full flex justify-center items-center py-5 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-200 text-xs font-black text-white bg-slate-900 hover:bg-indigo-950 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 transition-all active:scale-[0.98]
+                                w-full flex justify-center items-center py-4 sm:py-5 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-200 text-xs font-black text-white bg-slate-900 hover:bg-indigo-950 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 transition-all active:scale-[0.98]
                                 ${loading ? 'opacity-80 cursor-not-allowed' : ''}
                             `}
                         >
@@ -149,8 +164,8 @@ const Login = () => {
                         </button>
                     </form>
                     
-                    <div className="pt-6 text-center">
-                        <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">
+                    <div className="pt-4 sm:pt-6 text-center">
+                        <p className="text-[10px] sm:text-[11px] text-slate-400 font-bold uppercase tracking-widest">
                             © 2026 Sistema de Gestión Académica
                         </p>
                     </div>

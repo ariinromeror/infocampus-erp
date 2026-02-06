@@ -9,7 +9,6 @@ const Horarios = () => {
     useEffect(() => {
         const cargarHorario = async () => {
             try {
-                
                 const response = await academicoService.getMisInscripciones();
                 setClases(response.data);
             } catch (err) {
@@ -28,31 +27,31 @@ const Horarios = () => {
     );
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="bg-slate-900 p-4 rounded-2xl text-white">
-                        <Calendar size={32} />
+        <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-500 p-4 sm:p-0">
+            <div className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-100">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+                    <div className="bg-slate-900 p-3 sm:p-4 rounded-xl sm:rounded-2xl text-white">
+                        <Calendar size={24} className="sm:w-8 sm:h-8" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tighter italic">Mi Horario Actual</h1>
+                        <h1 className="text-xl sm:text-2xl font-black text-slate-800 uppercase tracking-tighter italic">Mi Horario Actual</h1>
                         <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Sincronizado con Registro Académico</p>
                     </div>
                 </div>
 
-                <div className="grid gap-4">
+                <div className="grid gap-3 sm:gap-4">
                     {clases.length > 0 ? clases.map((item) => (
-                        <div key={item.id} className="group bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center justify-between hover:border-indigo-200 transition-all">
-                            <div className="flex items-center gap-5">
-                                <div className="w-14 h-14 bg-white rounded-xl border border-slate-200 flex flex-col items-center justify-center shadow-sm">
+                        <div key={item.id} className="group bg-slate-50 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 hover:border-indigo-200 transition-all">
+                            <div className="flex items-center gap-3 sm:gap-5 w-full sm:w-auto">
+                                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl border border-slate-200 flex flex-col items-center justify-center shadow-sm flex-shrink-0">
                                     <span className="text-[10px] font-black text-slate-400 uppercase">Secc</span>
                                     <span className="text-sm font-black text-slate-900">{item.seccion_detalle?.codigo_seccion}</span>
                                 </div>
-                                <div>
-                                    <h3 className="font-black text-slate-800 text-sm uppercase tracking-tight">
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-black text-slate-800 text-sm uppercase tracking-tight line-clamp-2">
                                         {item.seccion_detalle?.materia_detalle?.nombre}
                                     </h3>
-                                    <div className="flex items-center gap-3 mt-1 text-[10px] font-bold text-slate-400 uppercase">
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mt-1 text-[10px] font-bold text-slate-400 uppercase">
                                         <div className="flex items-center gap-1"><Clock size={12}/> Lunes a Viernes</div>
                                         <div className="flex items-center gap-1 text-red-500"><MapPin size={12}/> Aula: {item.seccion_detalle?.aula}</div>
                                     </div>

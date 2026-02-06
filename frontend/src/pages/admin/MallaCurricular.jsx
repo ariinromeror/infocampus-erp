@@ -1,22 +1,3 @@
-/**
- * MallaCurricular.jsx
- * 
- * UBICACIÓN en tu proyecto:
- *   src/pages/admin/MallaCurricular.jsx
- * 
- * ¿Cómo crear la carpeta?
- *   1. Ve a src/pages/
- *   2. Crea una carpeta que se llame "admin"
- *   3. Dentro de esa carpeta, pega este archivo
- * 
- * Esta página se abre cuando el Director hace click
- * en el botón "Malla y Usuarios" del dashboard.
- * 
- * Muestra todas las materias organizadas por semestre.
- * Trae los datos usando academicoService.getMaterias()
- * que ya existe y ya habla con GET /api/materias/
- */
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -30,18 +11,13 @@ const MallaCurricular = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [materias, setMaterias] = useState([]);
-  const [selectedSemestre, setSelectedSemestre] = useState(null); // null = todos
+  const [selectedSemestre, setSelectedSemestre] = useState(null);
   const [busqueda, setBusqueda] = useState('');
 
-  // Cuando se carga la página, trae las materias del backend
   useEffect(() => {
     fetchMaterias();
   }, []);
 
-  // =====================================================
-  // Habla con el backend para traer las materias
-  // Usa el endpoint GET /api/materias/ que ya existe
-  // =====================================================
   const fetchMaterias = async () => {
     setLoading(true);
     try {
@@ -54,10 +30,6 @@ const MallaCurricular = () => {
     }
   };
 
-  // =====================================================
-  // Filtrar materias según el semestre seleccionado
-  // y según lo que el usuario escribió en el buscador
-  // =====================================================
   const materiasFiltradas = materias.filter(m => {
     const coincideSemestre = selectedSemestre === null || m.semestre === selectedSemestre;
     const coincideBusqueda =
@@ -66,12 +38,8 @@ const MallaCurricular = () => {
     return coincideSemestre && coincideBusqueda;
   });
 
-  // Obtener los semestres únicos que existen en los datos
   const semestresDisponibles = [...new Set(materias.map(m => m.semestre))].sort((a, b) => a - b);
 
-  // =====================================================
-  // PANTALLA DE CARGA
-  // =====================================================
   if (loading) return (
     <div className="flex h-[70vh] items-center justify-center">
       <div className="flex flex-col items-center gap-4">
@@ -81,59 +49,55 @@ const MallaCurricular = () => {
     </div>
   );
 
-  // =====================================================
-  // RENDER PRINCIPAL
-  // =====================================================
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-6xl mx-auto space-y-8 pb-20"
+      className="max-w-6xl mx-auto space-y-6 sm:space-y-8 pb-10 sm:pb-20 p-4 sm:p-0"
     >
-      {/* HEADER: Botón volver + Título */}
-      <div className="flex items-center gap-4">
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <button
           onClick={() => navigate(-1)}
-          className="p-3 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 hover:border-indigo-400 transition-all"
+          className="p-2 sm:p-3 bg-white border border-slate-200 rounded-xl sm:rounded-2xl hover:bg-slate-50 hover:border-indigo-400 transition-all"
         >
-          <ArrowLeft size={24} className="text-slate-600" />
+          <ArrowLeft size={20} className="sm:w-6 sm:h-6 text-slate-600" />
         </button>
         <div className="flex-1">
-          <h1 className="text-5xl font-black text-slate-900 uppercase italic tracking-tighter">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 uppercase italic tracking-tighter">
             Malla Curricular
           </h1>
-          <p className="text-slate-400 font-bold text-lg italic">
+          <p className="text-slate-400 font-bold text-sm sm:text-base lg:text-lg italic">
             Todas las materias de la institución
           </p>
         </div>
         {/* Contador total */}
-        <div className="bg-white border border-slate-200 px-6 py-3 rounded-[25px] flex items-center gap-3">
-          <BookOpen className="text-indigo-600" size={20} />
+        <div className="bg-white border border-slate-200 px-4 sm:px-6 py-2 sm:py-3 rounded-2xl sm:rounded-[25px] flex items-center gap-2 sm:gap-3">
+          <BookOpen className="text-indigo-600" size={18} />
           <span className="font-black text-slate-900">{materias.length}</span>
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Materias Total</span>
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest hidden sm:inline">Materias Total</span>
         </div>
       </div>
 
       {/* BARRA DE BÚSQUEDA */}
-      <div className="bg-white rounded-[30px] border border-slate-100 shadow-sm p-4 flex items-center gap-4">
-        <div className="flex-1 flex items-center gap-3 px-4">
-          <Search className="text-slate-400" size={20} />
+      <div className="bg-white rounded-2xl sm:rounded-[30px] border border-slate-100 shadow-sm p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+        <div className="flex-1 flex items-center gap-2 sm:gap-3 px-2 sm:px-4">
+          <Search className="text-slate-400 flex-shrink-0" size={18} />
           <input
             type="text"
-            placeholder="Buscar por nombre o código de materia..."
+            placeholder="Buscar materia..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="flex-1 py-3 text-slate-900 font-bold placeholder-slate-400 outline-none bg-transparent"
+            className="flex-1 py-2 sm:py-3 text-sm sm:text-base text-slate-900 font-bold placeholder-slate-400 outline-none bg-transparent"
           />
         </div>
       </div>
 
       {/* FILTROS DE SEMESTRE */}
-      <div className="flex gap-3 flex-wrap">
-        {/* Botón "Todos" */}
+      <div className="flex gap-2 sm:gap-3 flex-wrap">
         <button
           onClick={() => setSelectedSemestre(null)}
-          className={`px-6 py-3 rounded-[20px] font-black transition-all text-sm ${
+          className={`px-4 sm:px-6 py-2 sm:py-3 rounded-2xl sm:rounded-[20px] font-black transition-all text-xs sm:text-sm ${
             selectedSemestre === null
               ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
               : 'bg-white text-slate-600 border border-slate-200 hover:border-indigo-300'
@@ -142,25 +106,24 @@ const MallaCurricular = () => {
           Todos
         </button>
 
-        {/* Un botón por cada semestre que existe en los datos */}
         {semestresDisponibles.map(sem => (
           <button
             key={sem}
             onClick={() => setSelectedSemestre(sem)}
-            className={`px-6 py-3 rounded-[20px] font-black transition-all text-sm ${
+            className={`px-4 sm:px-6 py-2 sm:py-3 rounded-2xl sm:rounded-[20px] font-black transition-all text-xs sm:text-sm ${
               selectedSemestre === sem
                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
                 : 'bg-white text-slate-600 border border-slate-200 hover:border-indigo-300'
             }`}
           >
-            Semestre {sem}
+            Sem {sem}
           </button>
         ))}
       </div>
 
       {/* CONTADOR DE RESULTADOS */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-bold text-slate-500">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <p className="text-xs sm:text-sm font-bold text-slate-500">
           Mostrando <span className="text-indigo-600 font-black">{materiasFiltradas.length}</span> materia{materiasFiltradas.length !== 1 ? 's' : ''}
           {selectedSemestre !== null && ` del semestre ${selectedSemestre}`}
           {busqueda && ` · Búsqueda: "${busqueda}"`}
@@ -176,38 +139,34 @@ const MallaCurricular = () => {
       </div>
 
       {/* GRID DE MATERIAS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {materiasFiltradas.map((materia) => (
           <motion.div
             key={materia.id}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white p-6 rounded-[35px] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all relative overflow-hidden group"
+            className="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-[35px] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all relative overflow-hidden group"
           >
-            {/* Número decorativo de fondo (como en el dashboard) */}
-            <Hash className="absolute -right-3 -bottom-3 text-slate-50 opacity-50 group-hover:rotate-12 transition-transform" size={80} />
+            <Hash className="absolute -right-3 -bottom-3 text-slate-50 opacity-50 group-hover:rotate-12 transition-transform" size={60} />
 
-            {/* Código de la materia */}
-            <div className="flex items-start justify-between mb-4">
-              <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest">
+            <div className="flex items-start justify-between mb-3 sm:mb-4">
+              <span className="px-2 sm:px-3 py-1 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest">
                 {materia.codigo}
               </span>
-              <span className="px-3 py-1 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase">
+              <span className="px-2 sm:px-3 py-1 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase">
                 Sem {materia.semestre}
               </span>
             </div>
 
-            {/* Nombre de la materia */}
-            <h3 className="text-lg font-black text-slate-900 uppercase italic leading-tight mb-3">
+            <h3 className="text-base sm:text-lg font-black text-slate-900 uppercase italic leading-tight mb-3">
               {materia.nombre}
             </h3>
 
-            {/* Info inferior: créditos y carrera */}
-            <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-100">
-              <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase">
+            <div className="flex items-center gap-2 sm:gap-3 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-100 flex-wrap">
+              <span className="px-2 sm:px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase">
                 {materia.creditos} créditos
               </span>
-              <span className="text-[10px] text-slate-400 font-bold truncate">
+              <span className="text-[10px] text-slate-400 font-bold truncate flex-1">
                 {materia.carrera_nombre}
               </span>
             </div>
@@ -217,11 +176,11 @@ const MallaCurricular = () => {
 
       {/* MENSAJE SI NO HAY RESULTADOS */}
       {materiasFiltradas.length === 0 && (
-        <div className="bg-white rounded-[40px] border border-slate-100 p-16 text-center">
+        <div className="bg-white rounded-2xl sm:rounded-[40px] border border-slate-100 p-10 sm:p-16 text-center">
           <div className="opacity-30">
-            <BookOpen className="mx-auto mb-4" size={64} />
-            <p className="text-xl font-black text-slate-600 uppercase italic">No se encontraron materias</p>
-            <p className="text-sm text-slate-400 mt-2">
+            <BookOpen className="mx-auto mb-4" size={48} />
+            <p className="text-lg sm:text-xl font-black text-slate-600 uppercase italic">No se encontraron materias</p>
+            <p className="text-xs sm:text-sm text-slate-400 mt-2">
               Intente cambiar los filtros o la búsqueda
             </p>
           </div>

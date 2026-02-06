@@ -14,11 +14,9 @@ const GestionNotas = () => {
     useEffect(() => {
         const cargarDatos = async () => {
             try {
-                // Aquí usamos el endpoint que creamos en Django
                 const res = await academicoService.getDetalleSeccionNotas(seccionId);
                 setData(res.data);
                 
-                // Inicializamos el estado local con las notas que ya existen
                 const inicial = {};
                 res.data.alumnos.forEach(al => {
                     inicial[al.inscripcion_id] = al.nota_actual;
@@ -34,7 +32,6 @@ const GestionNotas = () => {
     }, [seccionId]);
 
     const handleNotaChange = (id, valor) => {
-        // Validamos que no exceda 10 en el cliente para feedback rápido
         if (valor > 10) return;
         setNotasTemporales({ ...notasTemporales, [id]: valor });
     };
@@ -60,31 +57,33 @@ const GestionNotas = () => {
     if (loading) return <div className="flex h-96 items-center justify-center"><Loader2 className="animate-spin text-indigo-600" size={48} /></div>;
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in duration-500">
+        <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6 animate-in fade-in duration-500 p-4 sm:p-0">
             {/* Botón Volver */}
             <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-500 font-black text-[10px] uppercase hover:text-indigo-600 transition-colors">
                 <ArrowLeft size={14} /> Volver a Secciones
             </button>
 
-            <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl sm:rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
                 {/* Header de la Planilla */}
-                <div className="bg-slate-900 p-10 text-white flex justify-between items-center">
+                <div className="bg-slate-900 p-6 sm:p-10 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h2 className="text-3xl font-black uppercase italic tracking-tighter">{data?.materia}</h2>
+                        <h2 className="text-2xl sm:text-3xl font-black uppercase italic tracking-tighter">{data?.materia}</h2>
                         <p className="text-indigo-400 font-bold text-xs uppercase tracking-widest mt-1">Sección: {data?.codigo}</p>
                     </div>
                     <button 
                         onClick={guardarNotas}
                         disabled={guardando}
-                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest flex items-center gap-3 transition-all disabled:opacity-50"
+                        className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-3 transition-all disabled:opacity-50"
                     >
                         {guardando ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
                         Guardar Cambios
                     </button>
                 </div>
 
-                {/* Tabla de Estudiantes */}
-                <div className="p-6">
+                {/* Tabla/Cards de Estudiantes */}
+                
+                {/* DESKTOP - Tabla */}
+                <div className="hidden md:block p-6">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-50">
@@ -116,7 +115,7 @@ const GestionNotas = () => {
                                                 max="10"
                                                 value={notasTemporales[alumno.inscripcion_id] || ''}
                                                 onChange={(e) => handleNotaChange(alumno.inscripcion_id, e.target.value)}
-                                                disabled={alumno.nota_actual > 0} // BLOQUEO: Si ya tiene nota, el profesor no toca
+                                                disabled={alumno.nota_actual > 0}
                                                 className={`w-20 text-center p-3 rounded-xl font-black text-lg border-2 transition-all 
                                                     ${alumno.nota_actual > 0 
                                                         ? 'bg-slate-100 border-transparent text-slate-400 cursor-not-allowed' 
@@ -129,6 +128,45 @@ const GestionNotas = () => {
                             ))}
                         </tbody>
                     </table>
+                </div>
+
+                {/* MOBILE - Cards */}
+                <div className="md:hidden p-4 space-y-3">
+                    {data?.alumnos.map((alumno) => (
+                        <div key={alumno.inscripcion_id} className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                            <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                                        {alumno.alumno_nombre.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-slate-700 text-sm">{alumno.alumno_nombre}</p>
+                                        <p className="text-xs font-bold text-slate-400">{alumno.alumno_carnet}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="mt-3 pt-3 border-t border-slate-200">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">
+                                    Calificación (0-10)
+                                </label>
+                                <input 
+                                    type="number"
+                                    step="0.1"
+                                    min="0"
+                                    max="10"
+                                    value={notasTemporales[alumno.inscripcion_id] || ''}
+                                    onChange={(e) => handleNotaChange(alumno.inscripcion_id, e.target.value)}
+                                    disabled={alumno.nota_actual > 0}
+                                    className={`w-full text-center p-3 rounded-xl font-black text-lg border-2 transition-all 
+                                        ${alumno.nota_actual > 0 
+                                            ? 'bg-slate-100 border-transparent text-slate-400 cursor-not-allowed' 
+                                            : 'bg-white border-slate-100 text-indigo-600 focus:border-indigo-500 outline-none shadow-sm'
+                                        }`}
+                                />
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

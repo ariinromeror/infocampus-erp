@@ -16,7 +16,7 @@ const PageContainer = ({ children }) => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
-    className="space-y-10 pb-16"
+    className="space-y-6 sm:space-y-10 pb-8 sm:pb-16"
   >
     {children}
   </motion.div>
@@ -78,20 +78,25 @@ const EstudianteDashboard = () => {
 
   return (
     <PageContainer>
-      {/* HEADER PRINCIPAL */}
-      <section className="relative overflow-hidden rounded-[40px] bg-slate-900 p-10 text-white shadow-2xl shadow-indigo-900/30">
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="space-y-4">
-            <h1 className="text-5xl font-black italic tracking-tighter leading-none">
-              HOLA, <span className="text-indigo-400 uppercase">{user?.username}</span>
+      {/* HEADER PRINCIPAL - Responsivo */}
+      <section className="relative overflow-hidden rounded-3xl sm:rounded-[40px] bg-slate-900 p-6 sm:p-10 text-white shadow-2xl shadow-indigo-900/30">
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 sm:gap-8">
+          <div className="space-y-3 sm:space-y-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black italic tracking-tighter leading-none">
+              HOLA, <span className="text-indigo-400 uppercase block sm:inline">{user?.username}</span>
             </h1>
-            <p className="text-slate-400 font-medium text-sm max-w-md">
+            <p className="text-slate-400 font-medium text-xs sm:text-sm max-w-md">
               {stats.promedio >= 8.5 ? "Mantienes un desempeño sobresaliente este ciclo." : "Revisa tu avance académico y próximos compromisos."}
             </p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 w-full md:w-auto">
             {!user?.en_mora && (
-              <motion.button whileHover={{ scale: 1.05 }} onClick={handleDescargaPDF} className="bg-indigo-600 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-500/20">
+              <motion.button 
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }}
+                onClick={handleDescargaPDF} 
+                className="bg-indigo-600 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-500/20 w-full md:w-auto text-center"
+              >
                 Descargar Reporte
               </motion.button>
             )}
@@ -99,66 +104,70 @@ const EstudianteDashboard = () => {
         </div>
       </section>
 
-      {/* MÉTRICAS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* MÉTRICAS - Grid responsivo */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
         <StatCard title="Promedio" value={stats.promedio} icon={TrendingUp} color="indigo" />
         <StatCard title="Estado Cuenta" value={user?.en_mora ? `$${user.deuda_total}` : 'AL DÍA'} icon={Wallet} color={user?.en_mora ? 'red' : 'emerald'} />
         <StatCard title="Materias" value={stats.materias} icon={BookOpen} color="blue" />
       </div>
 
-      {/* SECCIÓN REDISEÑADA: MI EXPEDIENTE (LIMPIEZA TOTAL) */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between px-2">
+      {/* SECCIÓN: MI EXPEDIENTE */}
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-2">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-8 bg-indigo-600 rounded-full"></div>
             <div>
-              <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter">Mi Expediente</h2>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 uppercase italic tracking-tighter">Mi Expediente</h2>
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Resumen de carga actual</p>
             </div>
           </div>
-          <button onClick={() => navigate('/notas')} className="text-indigo-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all">
+          <button 
+            onClick={() => navigate('/notas')} 
+            className="text-indigo-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all"
+          >
             Ver detalle <ArrowRight size={14} />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Grid de materias - responsivo */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {materias.map((m, idx) => (
             <motion.div 
               key={m.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
-              className="bg-white p-8 rounded-[35px] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 transition-all group relative overflow-hidden"
+              className="bg-white p-6 sm:p-8 rounded-3xl sm:rounded-[35px] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 transition-all group relative overflow-hidden"
             >
               {/* Decoración de fondo sutil */}
               <div className="absolute -right-4 -top-4 text-slate-50 opacity-10 group-hover:text-indigo-50 group-hover:opacity-100 transition-all">
-                <Hash size={120} strokeWidth={4} />
+                <Hash size={100} strokeWidth={4} className="sm:w-[120px] sm:h-[120px]" />
               </div>
 
               <div className="relative z-10 flex flex-col h-full justify-between">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-2 max-w-[70%]">
+                <div className="flex justify-between items-start gap-3">
+                  <div className="space-y-2 flex-1 min-w-0">
                     <span className="text-[10px] font-black text-indigo-500/60 uppercase tracking-[0.2em]">{m.codigo}</span>
-                    <h4 className="text-lg font-black text-slate-900 uppercase italic leading-tight group-hover:text-indigo-600 transition-colors">
+                    <h4 className="text-base sm:text-lg font-black text-slate-900 uppercase italic leading-tight group-hover:text-indigo-600 transition-colors break-words">
                       {m.nombre}
                     </h4>
                   </div>
                   
                   {/* Badge de Nota: El punto focal */}
-                  <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center border-2 ${
+                  <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center border-2 flex-shrink-0 ${
                     m.nota >= 7 ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-slate-50 border-slate-100 text-slate-400'
                   }`}>
-                    <span className="text-xl font-black leading-none">{m.nota > 0 ? m.nota.toFixed(1) : '--'}</span>
+                    <span className="text-lg sm:text-xl font-black leading-none">{m.nota > 0 ? m.nota.toFixed(1) : '--'}</span>
                     <span className="text-[7px] font-black uppercase tracking-tighter mt-1">Nota</span>
                   </div>
                 </div>
 
-                <div className="mt-8 flex items-center justify-between border-t border-slate-50 pt-5">
+                <div className="mt-6 sm:mt-8 flex items-center justify-between border-t border-slate-50 pt-4 sm:pt-5">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-slate-200"></div>
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{m.creditos} Créditos</span>
                   </div>
-                  <span className={`text-[10px] font-black uppercase italic px-3 py-1 rounded-full ${
+                  <span className={`text-[9px] sm:text-[10px] font-black uppercase italic px-2 sm:px-3 py-1 rounded-full ${
                     m.estado === 'finalizada' ? 'bg-indigo-50 text-indigo-600' : 'bg-amber-50 text-amber-600'
                   }`}>
                     {m.estado}
