@@ -1,14 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext(null);
-// Prueba de fuerza bruta: URL directa de Render
 const API_URL = "https://infocampus-backend.onrender.com/api";
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // 1. Persistencia: Al cargar la app, recuperamos al usuario
     useEffect(() => {
         const storedUser = localStorage.getItem('campus_user');
         if (storedUser) {
@@ -19,49 +17,30 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            // PASO A: Obtener el Token
             const authResponse = await fetch(`${API_URL}/login/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
             });
 
-            const tokens = await authResponse.json();
+            const loginData = await authResponse.json();
 
             if (!authResponse.ok) {
                 return { 
                     success: false, 
-                    message: tokens.detail || tokens.error || "Error de credenciales" 
+                    message: loginData.detail || loginData.error || "Error de credenciales" 
                 };
             }
 
-            // ✅ CORRECCIÓN CRÍTICA: Usar 'Token' en lugar de 'Bearer'
-            const profileResponse = await fetch(`${API_URL}/user/me/`, {
-                headers: {
-                    'Authorization': `Token ${tokens.access}`,  // ✅ CAMBIO AQUÍ
-                    'Content-Type': 'application/json'
-                },
-            });
-
-            const userData = await profileResponse.json();
-
-            if (profileResponse.ok) {
-                // Unificamos todo en un solo objeto de sesión
-                const sessionData = {
-                    ...userData,
-                    access: tokens.access,
-                    refresh: tokens.refresh
-                };
-
-                setUser(sessionData);
-                localStorage.setItem('campus_user', JSON.stringify(sessionData));
-                return { success: true };
-            }
-
-            return { 
-                success: false, 
-                message: "Error al recuperar perfil del usuario" 
+            // ✅ El login ya retorna 'user' con todos los datos
+            const sessionData = {
+                ...loginData.user,
+                access: loginData.access
             };
+
+            setUser(sessionData);
+            localStorage.setItem('campus_user', JSON.stringify(sessionData));
+            return { success: true };
 
         } catch (err) {
             console.error("Error en login:", err);
@@ -78,7 +57,6 @@ export const AuthProvider = ({ children }) => {
         window.location.href = '/login';
     };
 
-    // Helpers de estado (Derivados del estado actual)
     const isAdmin = user?.rol === 'director' || user?.rol === 'coordinador';
     const isStudent = user?.rol === 'estudiante';
     const isBlocked = user?.en_mora === true;
