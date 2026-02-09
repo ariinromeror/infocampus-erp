@@ -4,6 +4,7 @@ import { useAuth } from "./context/AuthContext";
 import Login from "./pages/auth/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./layout/MainLayout";
+import ChatIA from "./components/ChatIA";  
 
 // Dashboards por rol
 import EstudianteDashboard from "./pages/dashboards/EstudianteDashboard";
@@ -20,7 +21,7 @@ import GestionNotas from "./pages/dashboards/GestionNotas";
 import ValidarPagos from "./pages/dashboards/ValidarPagos";
 import ListaMora from "./pages/dashboards/ListaMora";
 
-// Vistas específicas del estudiante (ahora desde pages/dashboards)
+// Vistas específicas del estudiante
 import MisNotas from "./pages/dashboards/MisNotas";
 import Horarios from "./pages/dashboards/Horarios";
 import EstadoCuenta from "./pages/dashboards/EstadoCuenta";
@@ -84,6 +85,9 @@ function App() {
 
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
+      
+      {/* ✅ CHATIA - BOTÓN FLOTANTE GLOBAL */}
+      <ChatIA />
     </Router>
   );
 }

@@ -1,10 +1,3 @@
-"""
-API FASTAPI - INFO CAMPUS ERP
-Reemplazo completo del backend Django con Supabase
-
-Instalar: pip install fastapi uvicorn supabase python-jose passlib python-multipart
-"""
-
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -15,18 +8,20 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from supabase import create_client, Client
 import os
-import os
 from dotenv import load_dotenv
 
-# =====================================================
-# CONFIGURACIÓN
-# =====================================================
+
+load_dotenv()
+
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-SECRET_KEY = os.getenv("SECRET_KEY_AUTH")
+SECRET_KEY = os.getenv("SECRET_KEY", "default-secret-key-change-in-production")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # 24 horas
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("❌ SUPABASE_URL y SUPABASE_KEY requeridas en variables de entorno")
 
 # Inicializar
 app = FastAPI(title="Info Campus API", version="2.0")
@@ -34,10 +29,10 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
-# CORS
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción: ["https://tu-frontend.vercel.app"]
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

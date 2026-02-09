@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
-// URL dinámica desde variables de entorno
+
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 export const AuthProvider = ({ children }) => {
@@ -17,41 +17,43 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    const login = async (username, password) => {
-        try {
-            const authResponse = await fetch(`${API_URL}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
-            });
 
-            const loginData = await authResponse.json();
 
-            if (!authResponse.ok) {
-                return { 
-                    success: false, 
-                    message: loginData.detail || loginData.error || "Error de credenciales" 
-                };
-            }
+const login = async (username, password) => {
+    try {
+        const authResponse = await fetch(`${API_URL}/login/`, {  
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+        });
 
-            // FastAPI retorna: { access_token, token_type, user }
-            const sessionData = {
-                ...loginData.user,
-                access: loginData.access_token  // ✅ Mapeo correcto
-            };
+        const loginData = await authResponse.json();
 
-            setUser(sessionData);
-            localStorage.setItem('campus_user', JSON.stringify(sessionData));
-            return { success: true };
-
-        } catch (err) {
-            console.error("Error en login:", err);
+        if (!authResponse.ok) {
             return { 
                 success: false, 
-                message: "Error de conexión con el servidor" 
+                message: loginData.detail || loginData.error || "Error de credenciales" 
             };
         }
-    };
+
+        
+        const sessionData = {
+            ...loginData.user,
+            access: loginData.access  
+        };
+
+        setUser(sessionData);
+        localStorage.setItem('campus_user', JSON.stringify(sessionData));
+        return { success: true };
+
+    } catch (err) {
+        console.error("Error en login:", err);
+        return { 
+            success: false, 
+            message: "Error de conexión con el servidor" 
+        };
+    }
+};
 
     const logout = () => {
         setUser(null);
