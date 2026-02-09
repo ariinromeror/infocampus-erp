@@ -2,41 +2,58 @@ from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from supabase import create_client, Client
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from contextlib import contextmanager
 import os
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-SECRET_KEY = os.getenv("SECRET_KEY", "default-secret-key-change-in-production")
+# =====================================================
+# CONFIGURACIÓN
+# =====================================================
+DATABASE_URL = os.getenv("DATABASE_URL")
+SECRET_KEY = os.getenv("SECRET_KEY_AUTH", "infocampusproject2026")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1440
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # 24 horas
 
-if not SUPABASE_URL or not SUPABASE_KEY:
-    raise ValueError("❌ SUPABASE_URL y SUPABASE_KEY requeridas en variables de entorno")
+if not DATABASE_URL:
+    raise ValueError("❌ DATABASE_URL requerida en variables de entorno")
 
 # Inicializar
-app = FastAPI(title="Info Campus API", version="2.0")
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+app = FastAPI(title="Info Campus API", version="2.0", docs_url="/docs", redoc_url="/redoc")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
-
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# =====================================================
+# DATABASE CONNECTION
+# =====================================================
+@contextmanager
+def get_db():
+    """Context manager para conexiones a DB"""
+    conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+    try:
+        yield conn
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
 
 # =====================================================
 # MODELOS PYDANTIC
@@ -58,11 +75,12 @@ def create_access_token(data: dict):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def verify_password(plain_password, hashed_password):
-    # Django usa pbkdf2, aquí simplificamos con "campus2026"
+def verify_password(plain_password: str, hashed_password: str):
+    """Valida password - usa contraseña universal para migración"""
     return plain_password == "campus2026"
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Obtiene usuario actual desde JWT"""
     token = credentials.credentials
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -70,27 +88,34 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         if user_id is None:
             raise HTTPException(status_code=401, detail="Token inválido")
     except JWTError:
-        raise HTTPException(status_code=401, detail="Token inválido")
+        raise HTTPException(status_code=401, detail="Token inválido o expirado")
     
-    # Obtener usuario de Supabase
-    result = supabase.table("usuarios").select("*").eq("id", user_id).execute()
-    if not result.data:
+    # Obtener usuario de DB
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM usuarios WHERE id = %s", (user_id,))
+        user = cur.fetchone()
+        cur.close()
+    
+    if not user:
         raise HTTPException(status_code=401, detail="Usuario no encontrado")
     
-    return result.data[0]
+    return dict(user)
 
 # =====================================================
 # ENDPOINTS - AUTENTICACIÓN
 # =====================================================
 @app.post("/api/login/", response_model=TokenResponse)
 async def login(request: LoginRequest):
-    # Buscar usuario
-    result = supabase.table("usuarios").select("*").eq("username", request.username).execute()
+    """Login de usuario con JWT"""
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM usuarios WHERE username = %s", (request.username,))
+        user = cur.fetchone()
+        cur.close()
     
-    if not result.data:
+    if not user:
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
-    
-    user = result.data[0]
     
     # Verificar contraseña
     if not verify_password(request.password, user["password"]):
@@ -110,19 +135,15 @@ async def login(request: LoginRequest):
         "carrera": user.get("carrera_id"),
         "es_becado": user.get("es_becado", False),
         "porcentaje_beca": user.get("porcentaje_beca", 0),
-        "en_mora": False  # Calcular después
+        "deuda_total": user.get("deuda_total", 0),
+        "en_mora": user.get("en_mora", False)
     }
     
     return {"access": token, "user": user_data}
 
 @app.get("/api/user/me/")
 async def get_profile(current_user: dict = Depends(get_current_user)):
-    # Calcular mora
-    if current_user["rol"] == "estudiante":
-        inscripciones = supabase.table("inscripciones").select("*, pagos(id)").eq("estudiante_id", current_user["id"]).execute()
-        en_mora = any(not i.get("pagos") for i in inscripciones.data)
-        current_user["en_mora"] = en_mora
-    
+    """Obtiene perfil del usuario actual"""
     return current_user
 
 # =====================================================
@@ -130,334 +151,472 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
 # =====================================================
 @app.get("/api/inscripciones/")
 async def get_inscripciones(current_user: dict = Depends(get_current_user)):
+    """Obtiene inscripciones del estudiante con detalles de sección y materia"""
     if current_user["rol"] != "estudiante":
         raise HTTPException(status_code=403, detail="No autorizado")
     
-    result = supabase.table("inscripciones").select("""
-        *,
-        seccion:secciones(
-            id, codigo_seccion, aula, dia, hora_inicio, hora_fin,
-            materia:materias(id, nombre, codigo, creditos),
-            periodo:periodos_lectivos(id, nombre, codigo)
-        ),
-        pago:pagos(id, monto, fecha_pago)
-    """).eq("estudiante_id", current_user["id"]).execute()
-    
-    # Formatear respuesta
-    inscripciones = []
-    for insc in result.data:
-        inscripciones.append({
-            "id": insc["id"],
-            "nota_final": insc.get("nota_final"),
-            "estado": insc["estado"],
-            "seccion_detalle": {
-                "codigo_seccion": insc["seccion"]["codigo_seccion"],
-                "aula": insc["seccion"]["aula"],
-                "materia_detalle": {
-                    "nombre": insc["seccion"]["materia"]["nombre"],
-                    "codigo": insc["seccion"]["materia"]["codigo"],
-                }
-            }
-        })
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT 
+                i.id,
+                i.nota_final,
+                i.estado,
+                s.codigo_seccion,
+                s.aula,
+                m.nombre as materia_nombre,
+                m.codigo as materia_codigo,
+                m.creditos,
+                p.nombre as periodo_nombre,
+                CASE WHEN pg.id IS NOT NULL THEN true ELSE false END as pagado
+            FROM inscripciones i
+            JOIN secciones s ON i.seccion_id = s.id
+            JOIN materias m ON s.materia_id = m.id
+            JOIN periodos_lectivos p ON s.periodo_id = p.id
+            LEFT JOIN pagos pg ON pg.inscripcion_id = i.id
+            WHERE i.estudiante_id = %s
+            ORDER BY p.codigo DESC
+        """, (current_user["id"],))
+        
+        inscripciones = []
+        for row in cur.fetchall():
+            inscripciones.append({
+                "id": row["id"],
+                "nota_final": row["nota_final"],
+                "estado": row["estado"],
+                "seccion_detalle": {
+                    "codigo_seccion": row["codigo_seccion"],
+                    "aula": row["aula"],
+                    "materia_detalle": {
+                        "nombre": row["materia_nombre"],
+                        "codigo": row["materia_codigo"],
+                        "creditos": row["creditos"]
+                    }
+                },
+                "pagado": row["pagado"]
+            })
+        
+        cur.close()
     
     return inscripciones
 
 @app.get("/api/inscripciones/mi_historial/")
 async def get_historial(current_user: dict = Depends(get_current_user)):
+    """Historial completo de inscripciones del estudiante"""
     if current_user["rol"] != "estudiante":
         raise HTTPException(status_code=403, detail="No autorizado")
     
-    result = supabase.table("inscripciones").select("""
-        *,
-        seccion:secciones(
-            materia:materias(nombre, codigo),
-            periodo:periodos_lectivos(nombre)
-        )
-    """).eq("estudiante_id", current_user["id"]).order("fecha_inscripcion", desc=True).execute()
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT 
+                i.*,
+                s.codigo_seccion,
+                m.nombre as materia_nombre,
+                m.codigo as materia_codigo,
+                p.nombre as periodo_nombre
+            FROM inscripciones i
+            JOIN secciones s ON i.seccion_id = s.id
+            JOIN materias m ON s.materia_id = m.id
+            JOIN periodos_lectivos p ON s.periodo_id = p.id
+            WHERE i.estudiante_id = %s
+            ORDER BY i.fecha_inscripcion DESC
+        """, (current_user["id"],))
+        
+        historial = cur.fetchall()
+        cur.close()
     
-    return result.data
+    return [dict(row) for row in historial]
 
 # =====================================================
 # ENDPOINTS - PROFESOR
 # =====================================================
 @app.get("/api/profesor/dashboard/")
 async def profesor_dashboard(current_user: dict = Depends(get_current_user)):
+    """Dashboard con métricas del profesor"""
     if current_user["rol"] != "profesor":
         raise HTTPException(status_code=403, detail="No autorizado")
     
-    # Secciones del profesor
-    result = supabase.table("secciones").select("""
-        *,
-        materia:materias(nombre, codigo),
-        periodo:periodos_lectivos(nombre, activo)
-    """).eq("profesor_id", current_user["id"]).execute()
-    
-    mis_clases = []
-    for sec in result.data:
-        mis_clases.append({
-            "id": sec["id"],
-            "codigo": sec["codigo_seccion"],
-            "materia": sec["materia"]["nombre"],
-            "aula": sec["aula"],
-            "horario": f"{sec['dia']} {sec['hora_inicio']}-{sec['hora_fin']}"
-        })
-    
-    return {"mis_clases": mis_clases}
-
-@app.get("/api/profesor/seccion/{seccion_id}/notas/")
-async def get_alumnos_seccion(seccion_id: int, current_user: dict = Depends(get_current_user)):
-    if current_user["rol"] != "profesor":
-        raise HTTPException(status_code=403, detail="No autorizado")
-    
-    # Verificar que sea el profesor de esta sección
-    seccion = supabase.table("secciones").select("*").eq("id", seccion_id).execute()
-    if not seccion.data or seccion.data[0]["profesor_id"] != current_user["id"]:
-        raise HTTPException(status_code=403, detail="No es su sección")
-    
-    # Obtener inscripciones
-    result = supabase.table("inscripciones").select("""
-        *,
-        estudiante:usuarios(id, username, first_name, last_name)
-    """).eq("seccion_id", seccion_id).execute()
-    
-    alumnos = []
-    for insc in result.data:
-        alumnos.append({
-            "inscripcion_id": insc["id"],
-            "alumno_nombre": f"{insc['estudiante']['first_name']} {insc['estudiante']['last_name']}",
-            "alumno_carnet": insc['estudiante']['username'],
-            "nota_actual": insc.get("nota_final")
-        })
-    
-    # Obtener info de sección
-    materia = supabase.table("materias").select("nombre").eq("id", seccion.data[0]["materia_id"]).execute()
+    with get_db() as conn:
+        cur = conn.cursor()
+        
+        # Mis secciones
+        cur.execute("""
+            SELECT 
+                s.id,
+                s.codigo_seccion,
+                s.aula,
+                m.nombre as materia_nombre,
+                m.codigo as materia_codigo,
+                p.nombre as periodo_nombre,
+                p.activo as periodo_activo,
+                COUNT(DISTINCT i.id) as num_estudiantes
+            FROM secciones s
+            JOIN materias m ON s.materia_id = m.id
+            JOIN periodos_lectivos p ON s.periodo_id = p.id
+            LEFT JOIN inscripciones i ON i.seccion_id = s.id
+            WHERE s.profesor_id = %s
+            GROUP BY s.id, m.id, p.id
+            ORDER BY p.activo DESC, s.codigo_seccion
+        """, (current_user["id"],))
+        
+        mis_clases = []
+        for row in cur.fetchall():
+            mis_clases.append({
+                "id": row["id"],
+                "codigo_seccion": row["codigo_seccion"],
+                "aula": row["aula"],
+                "materia_detalle": {
+                    "nombre": row["materia_nombre"],
+                    "codigo": row["materia_codigo"]
+                },
+                "periodo_detalle": {
+                    "nombre": row["periodo_nombre"],
+                    "activo": row["periodo_activo"]
+                },
+                "num_estudiantes": row["num_estudiantes"]
+            })
+        
+        # Estadísticas
+        cur.execute("""
+            SELECT 
+                COUNT(DISTINCT s.id) as total_secciones,
+                COUNT(DISTINCT i.estudiante_id) as total_estudiantes,
+                AVG(CAST(i.nota_final AS DECIMAL)) as promedio_general
+            FROM secciones s
+            LEFT JOIN inscripciones i ON i.seccion_id = s.id
+            WHERE s.profesor_id = %s AND i.nota_final IS NOT NULL
+        """, (current_user["id"],))
+        
+        stats = cur.fetchone()
+        cur.close()
     
     return {
-        "materia": materia.data[0]["nombre"],
-        "codigo": seccion.data[0]["codigo_seccion"],
-        "alumnos": alumnos
+        "total_secciones": stats["total_secciones"] or 0,
+        "total_estudiantes": stats["total_estudiantes"] or 0,
+        "promedio_general": float(stats["promedio_general"] or 0),
+        "mis_clases": mis_clases
     }
 
-@app.post("/api/profesor/seccion/{seccion_id}/notas/")
-async def guardar_notas(seccion_id: int, notas: dict, current_user: dict = Depends(get_current_user)):
+@app.get("/api/profesor/seccion/{seccion_id}/estudiantes/")
+async def get_estudiantes_seccion(seccion_id: int, current_user: dict = Depends(get_current_user)):
+    """Lista de estudiantes inscritos en una sección"""
     if current_user["rol"] != "profesor":
         raise HTTPException(status_code=403, detail="No autorizado")
     
-    # Guardar cada nota
-    for nota_data in notas.get("notas", []):
-        insc_id = nota_data["inscripcion_id"]
-        nota = nota_data["nota"]
+    with get_db() as conn:
+        cur = conn.cursor()
         
-        supabase.table("inscripciones").update({
-            "nota_final": nota,
-            "nota_puesta_por_id": current_user["id"],
-            "fecha_nota_puesta": datetime.utcnow().isoformat()
-        }).eq("id", insc_id).execute()
+        # Verificar que la sección pertenece al profesor
+        cur.execute("SELECT profesor_id FROM secciones WHERE id = %s", (seccion_id,))
+        seccion = cur.fetchone()
+        
+        if not seccion or seccion["profesor_id"] != current_user["id"]:
+            raise HTTPException(status_code=403, detail="No autorizado para esta sección")
+        
+        # Obtener estudiantes
+        cur.execute("""
+            SELECT 
+                u.id,
+                u.username,
+                u.first_name,
+                u.last_name,
+                u.email,
+                i.nota_final,
+                i.estado
+            FROM inscripciones i
+            JOIN usuarios u ON i.estudiante_id = u.id
+            WHERE i.seccion_id = %s
+            ORDER BY u.last_name, u.first_name
+        """, (seccion_id,))
+        
+        estudiantes = [dict(row) for row in cur.fetchall()]
+        cur.close()
     
-    return {"message": "Notas guardadas"}
+    return estudiantes
 
-# =====================================================
-# ENDPOINTS - FINANZAS
-# =====================================================
-@app.get("/api/finanzas/dashboard/")
-async def dashboard_finanzas(current_user: dict = Depends(get_current_user)):
-    if current_user["rol"] != "tesorero":
+@app.put("/api/profesor/actualizar-nota/{inscripcion_id}/")
+async def actualizar_nota(
+    inscripcion_id: int, 
+    nota: float, 
+    current_user: dict = Depends(get_current_user)
+):
+    """Actualiza la nota de un estudiante"""
+    if current_user["rol"] != "profesor":
         raise HTTPException(status_code=403, detail="No autorizado")
     
-    # Calcular métricas
-    pagos = supabase.table("pagos").select("monto").execute()
-    ingreso_real = sum(float(p["monto"]) for p in pagos.data)
+    if nota < 0 or nota > 10:
+        raise HTTPException(status_code=400, detail="Nota debe estar entre 0 y 10")
     
-    # Estudiantes con deuda
-    estudiantes = supabase.table("usuarios").select("*").eq("rol", "estudiante").limit(20).execute()
+    with get_db() as conn:
+        cur = conn.cursor()
+        
+        # Verificar que la inscripción pertenece a una sección del profesor
+        cur.execute("""
+            SELECT s.profesor_id 
+            FROM inscripciones i
+            JOIN secciones s ON i.seccion_id = s.id
+            WHERE i.id = %s
+        """, (inscripcion_id,))
+        
+        result = cur.fetchone()
+        if not result or result["profesor_id"] != current_user["id"]:
+            raise HTTPException(status_code=403, detail="No autorizado")
+        
+        # Actualizar nota
+        cur.execute(
+            "UPDATE inscripciones SET nota_final = %s WHERE id = %s",
+            (nota, inscripcion_id)
+        )
+        cur.close()
     
-    listado_cobranza = []
-    for est in estudiantes.data:
-        # Verificar si tiene inscripciones sin pago
-        inscripciones = supabase.table("inscripciones").select("id").eq("estudiante_id", est["id"]).execute()
-        pagos_est = supabase.table("pagos").select("inscripcion_id").in_("inscripcion_id", [i["id"] for i in inscripciones.data]).execute()
-        pagados_ids = {p["inscripcion_id"] for p in pagos_est.data}
+    return {"message": "Nota actualizada exitosamente"}
+
+# =====================================================
+# ENDPOINTS - TESORERO
+# =====================================================
+@app.get("/api/finanzas/dashboard/")
+async def finanzas_dashboard(current_user: dict = Depends(get_current_user)):
+    """Dashboard financiero con métricas de cobranza"""
+    if current_user["rol"] not in ["tesorero", "director"]:
+        raise HTTPException(status_code=403, detail="No autorizado")
+    
+    with get_db() as conn:
+        cur = conn.cursor()
         
-        deuda = len([i for i in inscripciones.data if i["id"] not in pagados_ids]) * 150  # Estimado
+        # Ingresos totales
+        cur.execute("SELECT COALESCE(SUM(monto), 0) as total FROM pagos")
+        ingreso_real = cur.fetchone()["total"]
         
-        listado_cobranza.append({
-            "id": est["id"],
-            "username": est["username"],
-            "nombre_completo": f"{est.get('first_name', '')} {est.get('last_name', '')}",
-            "en_mora": deuda > 0,
-            "deuda_total": deuda
-        })
+        # Total inscripciones (proyección)
+        cur.execute("SELECT COUNT(*) as total FROM inscripciones")
+        total_inscripciones = cur.fetchone()["total"]
+        ingreso_proyectado = total_inscripciones * 150  # Estimado
+        
+        # Tasa de cobranza
+        cur.execute("""
+            SELECT 
+                COUNT(DISTINCT i.id) as total_inscripciones,
+                COUNT(DISTINCT p.inscripcion_id) as inscripciones_pagadas
+            FROM inscripciones i
+            LEFT JOIN pagos p ON p.inscripcion_id = i.id
+        """)
+        cobranza = cur.fetchone()
+        tasa_cobranza = (cobranza["inscripciones_pagadas"] / cobranza["total_inscripciones"] * 100) if cobranza["total_inscripciones"] > 0 else 0
+        
+        # Estudiantes con deuda
+        cur.execute("""
+            SELECT 
+                u.id,
+                u.username,
+                CONCAT(u.first_name, ' ', u.last_name) as nombre_completo,
+                u.deuda_total,
+                u.en_mora
+            FROM usuarios u
+            WHERE u.rol = 'estudiante' AND u.en_mora = true
+            ORDER BY u.deuda_total DESC
+            LIMIT 50
+        """)
+        
+        listado_cobranza = [dict(row) for row in cur.fetchall()]
+        cur.close()
     
     return {
-        "ingreso_proyectado": ingreso_real * 1.3,  # Estimado
-        "ingreso_real": ingreso_real,
-        "tasa_cobranza": 75.0,
+        "ingreso_proyectado": float(ingreso_proyectado),
+        "ingreso_real": float(ingreso_real),
+        "tasa_cobranza": round(tasa_cobranza, 1),
         "listado_cobranza": listado_cobranza
     }
 
 @app.post("/api/finanzas/registrar-pago/{usuario_id}/")
 async def registrar_pago(usuario_id: int, current_user: dict = Depends(get_current_user)):
+    """Registra pago para un estudiante"""
     if current_user["rol"] not in ["tesorero", "director"]:
         raise HTTPException(status_code=403, detail="No autorizado")
     
-    # Obtener inscripciones sin pago
-    inscripciones = supabase.table("inscripciones").select("*").eq("estudiante_id", usuario_id).execute()
-    pagos_existentes = supabase.table("pagos").select("inscripcion_id").execute()
-    pagados_ids = {p["inscripcion_id"] for p in pagos_existentes.data}
+    with get_db() as conn:
+        cur = conn.cursor()
+        
+        # Obtener inscripciones sin pago
+        cur.execute("""
+            SELECT i.id
+            FROM inscripciones i
+            LEFT JOIN pagos p ON p.inscripcion_id = i.id
+            WHERE i.estudiante_id = %s AND p.id IS NULL
+        """, (usuario_id,))
+        
+        pendientes = cur.fetchall()
+        
+        if not pendientes:
+            return {"message": "No hay deudas pendientes"}
+        
+        # Registrar pagos
+        for insc in pendientes:
+            cur.execute("""
+                INSERT INTO pagos (inscripcion_id, monto, metodo_pago, procesado_por_id, comprobante, fecha_pago)
+                VALUES (%s, %s, %s, %s, %s, NOW())
+            """, (insc["id"], 150.00, "efectivo", current_user["id"], f"PAG-{datetime.now().timestamp()}"))
+        
+        cur.close()
     
-    pendientes = [i for i in inscripciones.data if i["id"] not in pagados_ids]
-    
-    if not pendientes:
-        return {"message": "No hay deudas pendientes"}
-    
-    # Registrar pagos
-    for insc in pendientes:
-        supabase.table("pagos").insert({
-            "inscripcion_id": insc["id"],
-            "monto": 150.00,  # Calcular real después
-            "metodo_pago": "efectivo",
-            "procesado_por_id": current_user["id"],
-            "comprobante": f"PAG-{datetime.now().timestamp()}"
-        }).execute()
-    
-    return {"message": f"{len(pendientes)} pagos registrados"}
+    return {"message": f"{len(pendientes)} pagos registrados exitosamente"}
 
 # =====================================================
 # ENDPOINTS - DIRECCIÓN
 # =====================================================
 @app.get("/api/institucional/dashboard/")
 async def dashboard_institucional(current_user: dict = Depends(get_current_user)):
+    """Dashboard institucional con métricas globales"""
     if current_user["rol"] not in ["director", "coordinador"]:
         raise HTTPException(status_code=403, detail="No autorizado")
     
-    # Métricas
-    estudiantes = supabase.table("usuarios").select("id, carrera_id").eq("rol", "estudiante").execute()
-    profesores = supabase.table("usuarios").select("id").eq("rol", "profesor").execute()
-    materias = supabase.table("materias").select("id").execute()
-    
-    # Estudiantes por carrera
-    carreras = supabase.table("carreras").select("id, nombre").execute()
-    estudiantes_por_carrera = []
-    for carrera in carreras.data:
-        count = len([e for e in estudiantes.data if e.get("carrera_id") == carrera["id"]])
-        estudiantes_por_carrera.append({
-            "nombre": carrera["nombre"],
-            "num_alumnos": count
-        })
-    
-    # Promedio institucional
-    notas = supabase.table("inscripciones").select("nota_final").not_.is_("nota_final", "null").execute()
-    promedio = sum(float(n["nota_final"]) for n in notas.data) / len(notas.data) if notas.data else 0
-    
-    # Alumnos en mora
-    alumnos_mora = []
-    for est in estudiantes.data[:20]:
-        inscripciones = supabase.table("inscripciones").select("id").eq("estudiante_id", est["id"]).execute()
-        pagos_est = supabase.table("pagos").select("inscripcion_id").in_("inscripcion_id", [i["id"] for i in inscripciones.data]).execute()
-        pagados_ids = {p["inscripcion_id"] for p in pagos_est.data}
+    with get_db() as conn:
+        cur = conn.cursor()
         
-        if any(i["id"] not in pagados_ids for i in inscripciones.data):
-            usuario = supabase.table("usuarios").select("*").eq("id", est["id"]).execute().data[0]
-            alumnos_mora.append({
-                "id": est["id"],
-                "username": usuario["username"],
-                "nombre_completo": f"{usuario.get('first_name', '')} {usuario.get('last_name', '')}",
-                "nombre": f"{usuario.get('first_name', '')} {usuario.get('last_name', '')}",
-                "deuda_total": "500.00",
-                "en_mora": True
-            })
+        # Conteos básicos
+        cur.execute("SELECT COUNT(*) as total FROM usuarios WHERE rol = 'estudiante'")
+        total_estudiantes = cur.fetchone()["total"]
+        
+        cur.execute("SELECT COUNT(*) as total FROM usuarios WHERE rol = 'profesor'")
+        total_profesores = cur.fetchone()["total"]
+        
+        cur.execute("SELECT COUNT(*) as total FROM materias")
+        materias_totales = cur.fetchone()["total"]
+        
+        # Estudiantes por carrera
+        cur.execute("""
+            SELECT 
+                c.nombre,
+                COUNT(u.id) as num_alumnos
+            FROM carreras c
+            LEFT JOIN usuarios u ON u.carrera_id = c.id AND u.rol = 'estudiante'
+            GROUP BY c.id, c.nombre
+            ORDER BY num_alumnos DESC
+        """)
+        estudiantes_por_carrera = [dict(row) for row in cur.fetchall()]
+        
+        # Promedio institucional
+        cur.execute("""
+            SELECT AVG(CAST(nota_final AS DECIMAL)) as promedio
+            FROM inscripciones
+            WHERE nota_final IS NOT NULL
+        """)
+        promedio = cur.fetchone()["promedio"] or 0
+        
+        # Ingresos totales
+        cur.execute("SELECT COALESCE(SUM(monto), 0) as total FROM pagos")
+        ingresos_totales = cur.fetchone()["total"]
+        
+        # Alumnos en mora
+        cur.execute("""
+            SELECT 
+                u.id,
+                u.username,
+                CONCAT(u.first_name, ' ', u.last_name) as nombre_completo,
+                u.deuda_total
+            FROM usuarios u
+            WHERE u.rol = 'estudiante' AND u.en_mora = true
+            ORDER BY u.deuda_total DESC
+            LIMIT 20
+        """)
+        alumnos_mora = [dict(row) for row in cur.fetchall()]
+        
+        cur.close()
     
     return {
-        "total_estudiantes": len(estudiantes.data),
-        "total_profesores": len(profesores.data),
+        "total_estudiantes": total_estudiantes,
+        "total_profesores": total_profesores,
+        "materias_totales": materias_totales,
         "estudiantes_por_carrera": estudiantes_por_carrera,
-        "materias_totales": len(materias.data),
-        "promedio_institucional": round(promedio, 2),
-        "ingresos_totales": 45000.00,  # Calcular real
+        "promedio_institucional": round(float(promedio), 2),
+        "ingresos_totales": float(ingresos_totales),
         "alumnos_mora": alumnos_mora
     }
 
 @app.get("/api/materias/")
 async def get_materias(current_user: dict = Depends(get_current_user)):
-    result = supabase.table("materias").select("""
-        *,
-        carrera:carreras(nombre)
-    """).execute()
-    
-    materias = []
-    for m in result.data:
-        materias.append({
-            "id": m["id"],
-            "nombre": m["nombre"],
-            "codigo": m["codigo"],
-            "semestre": m["semestre"],
-            "creditos": m["creditos"],
-            "carrera_nombre": m["carrera"]["nombre"]
-        })
+    """Lista todas las materias con su carrera"""
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT 
+                m.id,
+                m.nombre,
+                m.codigo,
+                m.semestre,
+                m.creditos,
+                c.nombre as carrera_nombre
+            FROM materias m
+            JOIN carreras c ON m.carrera_id = c.id
+            ORDER BY c.nombre, m.semestre, m.nombre
+        """)
+        
+        materias = [dict(row) for row in cur.fetchall()]
+        cur.close()
     
     return materias
 
 @app.get("/api/estudiante/{estudiante_id}/")
 async def detalle_estudiante(estudiante_id: int, current_user: dict = Depends(get_current_user)):
+    """Detalle completo de un estudiante"""
     if current_user["rol"] not in ["director", "coordinador", "tesorero"]:
         if current_user["id"] != estudiante_id:
             raise HTTPException(status_code=403, detail="No autorizado")
     
-    # Obtener estudiante
-    estudiante = supabase.table("usuarios").select("*").eq("id", estudiante_id).eq("rol", "estudiante").execute()
-    if not estudiante.data:
-        raise HTTPException(status_code=404, detail="Estudiante no encontrado")
-    
-    est = estudiante.data[0]
-    
-    # Obtener inscripciones
-    inscripciones = supabase.table("inscripciones").select("""
-        *,
-        seccion:secciones(
-            codigo_seccion,
-            materia:materias(nombre, codigo),
-            periodo:periodos_lectivos(nombre)
-        ),
-        pago:pagos(id)
-    """).eq("estudiante_id", estudiante_id).execute()
-    
-    lista_insc = []
-    for insc in inscripciones.data:
-        lista_insc.append({
-            "id": insc["id"],
-            "materia_nombre": insc["seccion"]["materia"]["nombre"],
-            "materia_codigo": insc["seccion"]["materia"]["codigo"],
-            "seccion": insc["seccion"]["codigo_seccion"],
-            "periodo": insc["seccion"]["periodo"]["nombre"],
-            "nota_final": insc.get("nota_final"),
-            "estado": insc["estado"],
-            "pagado": insc.get("pago") is not None
-        })
-    
-    # Carrera
-    carrera = None
-    if est.get("carrera_id"):
-        carrera_data = supabase.table("carreras").select("*").eq("id", est["carrera_id"]).execute()
-        if carrera_data.data:
-            carrera = {
-                "id": carrera_data.data[0]["id"],
-                "nombre": carrera_data.data[0]["nombre"],
-                "codigo": carrera_data.data[0]["codigo"]
-            }
+    with get_db() as conn:
+        cur = conn.cursor()
+        
+        # Datos del estudiante
+        cur.execute("SELECT * FROM usuarios WHERE id = %s AND rol = 'estudiante'", (estudiante_id,))
+        estudiante = cur.fetchone()
+        
+        if not estudiante:
+            raise HTTPException(status_code=404, detail="Estudiante no encontrado")
+        
+        # Carrera
+        carrera = None
+        if estudiante.get("carrera_id"):
+            cur.execute("SELECT id, nombre, codigo FROM carreras WHERE id = %s", (estudiante["carrera_id"],))
+            carrera_data = cur.fetchone()
+            if carrera_data:
+                carrera = dict(carrera_data)
+        
+        # Inscripciones
+        cur.execute("""
+            SELECT 
+                i.id,
+                m.nombre as materia_nombre,
+                m.codigo as materia_codigo,
+                s.codigo_seccion,
+                p.nombre as periodo,
+                i.nota_final,
+                i.estado,
+                CASE WHEN pg.id IS NOT NULL THEN true ELSE false END as pagado
+            FROM inscripciones i
+            JOIN secciones s ON i.seccion_id = s.id
+            JOIN materias m ON s.materia_id = m.id
+            JOIN periodos_lectivos p ON s.periodo_id = p.id
+            LEFT JOIN pagos pg ON pg.inscripcion_id = i.id
+            WHERE i.estudiante_id = %s
+            ORDER BY p.codigo DESC
+        """, (estudiante_id,))
+        
+        inscripciones = [dict(row) for row in cur.fetchall()]
+        cur.close()
     
     return {
-        "id": est["id"],
-        "username": est["username"],
-        "nombre_completo": f"{est.get('first_name', '')} {est.get('last_name', '')}",
-        "email": est.get("email", ""),
-        "dni": est.get("dni", ""),
-        "rol": est["rol"],
+        "id": estudiante["id"],
+        "username": estudiante["username"],
+        "nombre_completo": f"{estudiante.get('first_name', '')} {estudiante.get('last_name', '')}".strip(),
+        "email": estudiante.get("email", ""),
+        "dni": estudiante.get("dni", ""),
+        "rol": estudiante["rol"],
         "carrera_detalle": carrera,
-        "es_becado": est.get("es_becado", False),
-        "porcentaje_beca": est.get("porcentaje_beca", 0),
-        "en_mora": False,  # Calcular
-        "deuda_total": "0.00",  # Calcular
-        "inscripciones": lista_insc
+        "es_becado": estudiante.get("es_becado", False),
+        "porcentaje_beca": estudiante.get("porcentaje_beca", 0),
+        "en_mora": estudiante.get("en_mora", False),
+        "deuda_total": str(estudiante.get("deuda_total", 0)),
+        "inscripciones": inscripciones
     }
 
 # =====================================================
@@ -465,8 +624,21 @@ async def detalle_estudiante(estudiante_id: int, current_user: dict = Depends(ge
 # =====================================================
 @app.get("/")
 async def root():
-    return {"message": "Info Campus API v2.0 - Supabase Edition"}
+    return {
+        "message": "Info Campus API v2.0",
+        "status": "online",
+        "database": "PostgreSQL (Neon/Supabase)",
+        "docs": "/docs"
+    }
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "database": "supabase"}
+    """Health check endpoint"""
+    try:
+        with get_db() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT 1")
+            cur.close()
+        return {"status": "ok", "database": "connected"}
+    except Exception as e:
+        return {"status": "error", "database": "disconnected", "error": str(e)}
