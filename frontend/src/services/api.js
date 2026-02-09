@@ -1,36 +1,39 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api',
+    baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api',
     headers: { 'Content-Type': 'application/json' },
 });
 
-
+// Interceptor para añadir token a cada request
 api.interceptors.request.use(
     (config) => {
         const userData = localStorage.getItem('campus_user');
         if (userData) {
             const user = JSON.parse(userData);
-            if (user.access) config.headers.Authorization = `Token ${user.access}`;
+            // FastAPI usa Bearer token
+            if (user.access) {
+                config.headers.Authorization = `Bearer ${user.access}`;
+            }
         }
         return config;
     },
     (error) => Promise.reject(error)
 );
 
-
+// Interceptor para manejar respuestas y errores
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        
+        // Sesión expirada o no autorizado
         if (error.response?.status === 401) {
             localStorage.removeItem('campus_user');
             window.location.href = '/login';
         }
         
-        
+        // Acceso bloqueado por mora
         if (error.response?.status === 403) {
-            const serverMsg = error.response.data.error || "Acceso restringido por tesorería.";
+            const serverMsg = error.response.data.error || error.response.data.detail || "Acceso restringido por tesorería.";
             alert(`SISTEMA: ${serverMsg}`);
         }
         

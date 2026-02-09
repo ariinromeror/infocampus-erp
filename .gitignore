@@ -24,6 +24,11 @@ build/
 # Archivos de sistema
 .DS_Store
 Thumbs.db
+
 # Población de datos
 credenciales/
 scripts_logs.txt
+
+# Seguridad y Configuración
+.env
+.vscode/

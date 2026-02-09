@@ -1,7 +1,9 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext(null);
-const API_URL = "https://infocampus-backend.onrender.com/api";
+
+// URL dinámica desde variables de entorno
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -17,7 +19,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const authResponse = await fetch(`${API_URL}/login/`, {
+            const authResponse = await fetch(`${API_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
@@ -32,10 +34,10 @@ export const AuthProvider = ({ children }) => {
                 };
             }
 
-            // ✅ El login ya retorna 'user' con todos los datos
+            // FastAPI retorna: { access_token, token_type, user }
             const sessionData = {
                 ...loginData.user,
-                access: loginData.access
+                access: loginData.access_token  // ✅ Mapeo correcto
             };
 
             setUser(sessionData);
