@@ -1,0 +1,25 @@
+// supabase/functions/chat/deno.jsonc
+{
+  // Deno configuration for the chat function
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": [
+      "deno.window"
+    ],
+    "target": "ES2020",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  // Permissions required for this function
+  "permissions": {
+    "allow-net": true,
+    "allow-env": [
+      "SUPABASE_URL",
+      "SUPABASE_ANON_KEY",
+      "OPENAI_API_KEY"
+    ],
+    "allow-read": false,
+    "allow-write": false
+  }
+}

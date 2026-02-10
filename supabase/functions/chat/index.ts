@@ -2,160 +2,119 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+// 1. Configuración de CORS Robusta
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
+// Helper para respuestas consistentes
+const createResponse = (body: any, status = 200) => {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  })
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
+  // 2. Manejo de Preflight (OPTIONS) - Crucial para evitar "Status 0"
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { message, history } = await req.json()
-    
-    // Validar autorización
+    // 3. Obtener Auth Token y Body
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      })
+      throw new Error('Falta cabecera de autorización')
     }
 
-    // Crear cliente Supabase con auth del usuario
+    const { message, history } = await req.json()
+
+    // 4. Inicializar Cliente Supabase (Con contexto del usuario)
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       { global: { headers: { Authorization: authHeader } } }
     )
 
-    // Obtener usuario actual
+    // 5. Verificar Usuario
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
-    if (userError || !user) {
-      return new Response(JSON.stringify({ error: 'Usuario no autenticado' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      })
-    }
+    if (userError || !user) throw new Error('Usuario no autenticado')
 
-    // Obtener datos del usuario desde tabla usuarios
-    const { data: usuario, error: usuarioError } = await supabaseClient
+    // 6. Recopilar Datos Académicos (Contexto para la IA)
+    // Buscamos datos del usuario en public.usuarios
+    const { data: usuario, error: dbError } = await supabaseClient
       .from('usuarios')
       .select('*')
-      .eq('supabase_id', user.id)
+      .eq('supabase_id', user.id) // Asegúrate que este campo linkea con auth.users
       .single()
-
-    if (usuarioError) {
-      return new Response(JSON.stringify({ error: 'Error obteniendo datos de usuario' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      })
-    }
-
-    // Construir contexto académico
-    let contexto = `Información del usuario:\n`
-    contexto += `- Nombre: ${usuario.first_name} ${usuario.last_name}\n`
-    contexto += `- Rol: ${usuario.rol}\n`
-    contexto += `- Username: ${usuario.username}\n`
-
-    if (usuario.rol === 'estudiante') {
-      // Obtener inscripciones del estudiante
-      const { data: inscripciones } = await supabaseClient
-        .from('inscripciones')
-        .select(`
-          id,
-          nota_final,
-          estado,
-          secciones (
-            codigo_seccion,
-            materias (nombre, codigo, creditos)
-          )
-        `)
-        .eq('estudiante_id', usuario.id)
-
-      const notasValidas = inscripciones?.filter(i => i.nota_final && i.nota_final > 0) || []
-      const promedio = notasValidas.length > 0
-        ? (notasValidas.reduce((sum, i) => sum + parseFloat(i.nota_final), 0) / notasValidas.length).toFixed(2)
-        : '0.00'
-
-      contexto += `- Promedio académico: ${promedio}\n`
-      contexto += `- Materias cursadas: ${inscripciones?.length || 0}\n`
-      contexto += `- Materias aprobadas: ${notasValidas.filter(i => parseFloat(i.nota_final) >= 7).length}\n`
-      contexto += `- Deuda pendiente: $${usuario.deuda_total || '0.00'}\n`
-      contexto += `- En mora: ${usuario.en_mora ? 'Sí' : 'No'}\n`
-      contexto += `- Es becado: ${usuario.es_becado ? `Sí (${usuario.porcentaje_beca}%)` : 'No'}\n`
-
-      if (inscripciones && inscripciones.length > 0) {
-        contexto += `\nMaterias actuales:\n`
-        inscripciones.slice(0, 8).forEach(insc => {
-          const materia = insc.secciones?.materias
-          if (materia) {
-            contexto += `- ${materia.nombre} (${materia.codigo})`
-            contexto += insc.nota_final ? `: Nota ${insc.nota_final}` : ': En curso'
-            contexto += `\n`
-          }
-        })
-      }
-    }
-
-    // Llamar a Groq API (Llama 3.1)
-    const groqApiKey = Deno.env.get('GROQ_API_KEY')
-    if (!groqApiKey) {
-      throw new Error('GROQ_API_KEY no configurada')
-    }
     
-    const systemPrompt = `Eres un asistente académico de Campus Elite ERP.
-Ayudas a estudiantes con consultas sobre sus notas, pagos, horarios y estado académico.
-Sé conciso, amable y profesional. Si no tienes información específica, dilo claramente.
+    // Si no está en tabla usuarios, usamos datos básicos de auth
+    const userData = usuario || { first_name: 'Estudiante', rol: 'estudiante' }
 
-${contexto}
+    let contextoSistema = `Eres Esmeralda, asistente académica. 
+    Usuario: ${userData.first_name} ${userData.last_name || ''}
+    Rol: ${userData.rol}`
 
-Responde de manera conversacional y útil basándote en esta información.
-IMPORTANTE: Siempre responde en español.`
+    if (userData.rol === 'estudiante') {
+       // Buscar inscripciones/notas
+       const { data: inscripciones } = await supabaseClient
+        .from('inscripciones')
+        .select(`nota_final, estado, secciones(materias(nombre))`)
+        .eq('estudiante_id', userData.id) // Asumiendo que 'id' es la PK de usuarios
+       
+       // Buscar deudas
+       const { count: deudas } = await supabaseClient
+        .from('pagos')
+        .select('*', { count: 'exact', head: true })
+        .eq('estudiante_id', userData.id) // Ajustar según tu esquema de pagos
+        // Nota: Ajusta esta query según tu lógica exacta de "pagos pendientes"
+       
+       contextoSistema += `\nNotas: ${JSON.stringify(inscripciones || [])}`
+       contextoSistema += `\nDeudas pendientes: ${deudas ? 'Sí' : 'No'}`
+    }
 
-    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    // 7. Llamada a Groq AI
+    const groqApiKey = Deno.env.get('GROQ_API_KEY')
+    if (!groqApiKey) throw new Error('Configuración de IA no encontrada')
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${groqApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: 'llama-3.1-8b-instant', // Modelo rápido y eficiente
         messages: [
-          { role: 'system', content: systemPrompt },
-          ...(history || []).map(h => ({ role: h.role, content: h.content })),
+          { role: 'system', content: contextoSistema + "\nResponde breve, amable y en español." },
+          ...(history || []),
           { role: 'user', content: message }
         ],
-        temperature: 0.7,
-        max_tokens: 600,
-        top_p: 0.9
-      })
+        temperature: 0.6,
+        max_tokens: 500,
+      }),
     })
 
-    if (!groqResponse.ok) {
-      const errorData = await groqResponse.json()
-      throw new Error(`Groq API error: ${errorData.error?.message || 'Unknown error'}`)
+    if (!response.ok) {
+      const errData = await response.json()
+      throw new Error(`Error Groq: ${errData.error?.message}`)
     }
 
-    const groqData = await groqResponse.json()
-    const aiResponse = groqData.choices?.[0]?.message?.content || 'Lo siento, no pude generar una respuesta.'
+    const aiData = await response.json()
+    const aiMessage = aiData.choices?.[0]?.message?.content || 'No pude procesar tu solicitud.'
 
-    return new Response(
-      JSON.stringify({ response: aiResponse }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    // 8. Respuesta Exitosa
+    return createResponse({ response: aiMessage })
 
-  } catch (error) {
-    console.error('Error en chat function:', error)
-    return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Error interno del servidor',
-        details: error.toString()
-      }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+  } catch (error: any) {
+    console.error('Error en Edge Function:', error)
+    // Retornamos JSON incluso en error, con headers CORS
+    return createResponse({ 
+      error: error.message || 'Error interno del servidor',
+      suggestion: 'Intenta recargar la página.'
+    }, 500)
   }
 })
