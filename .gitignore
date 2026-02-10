@@ -1,7 +1,8 @@
-# Entornos virtuales
+# Entornos virtuales (Python)
 venv/
 env/
 .venv/
+.python-version
 
 # Python / Django
 *.pyc
@@ -11,24 +12,29 @@ db.sqlite3-journal
 staticfiles/
 media/
 
-# Node / React (ESTO ES LO QUE PONE LENTA TU PC)
+# Node / React
 node_modules/
 dist/
 build/
 .eslintcache
+npm-debug.log*
 
-# Seguridad y Configuración
+# Supabase & Deno (Edge Functions)
+.supabase/
+supabase/.temp/
+deno.lock
+
+# SEGURIDAD (Crítico)
 .env
+.env.local
+.env.*.local
+credenciales/
+*.txt             # Esto ignora 'nuevo_mapa.txt', 'usuarios_y_claves.txt', etc.
+!README.md        # Esto asegura que el README SÍ se suba aunque sea .md
+
+# Archivos de configuración personal (VS Code)
 .vscode/
 
 # Archivos de sistema
 .DS_Store
 Thumbs.db
-
-# Población de datos
-credenciales/
-scripts_logs.txt
-
-# Seguridad y Configuración
-.env
-.vscode/

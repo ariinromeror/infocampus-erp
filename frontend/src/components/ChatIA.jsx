@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, X, MessageCircle, Sparkles, User, Loader2, ChevronDown } from 'lucide-react';
-// 1. CAMBIO: Importamos supabase en lugar de api
 import { supabase } from '../supabase/client'; 
 
 const ChatIA = () => {
@@ -27,6 +26,9 @@ const ChatIA = () => {
         }
     }, [messages, isOpen]);
 
+    // ==========================================
+    // LÓGICA DE ENVÍO CONECTADA A SUPABASE
+    // ==========================================
     const sendMessage = async () => {
         if (!input.trim() || loading) return;
 
@@ -38,13 +40,13 @@ const ChatIA = () => {
         setLoading(true);
 
         try {
-            // 2. CAMBIO: Preparamos el historial para la Edge Function
+            
             const historyPayload = messages.slice(1).slice(-10).map(m => ({
                 role: m.role,
                 content: m.content
             }));
 
-            // 3. CAMBIO: Invocamos la función de Supabase directamente
+            
             const { data, error } = await supabase.functions.invoke('chat', {
                 body: { 
                     message: userText,
@@ -54,20 +56,20 @@ const ChatIA = () => {
 
             if (error) throw error;
 
+            
             const botResponse = { 
                 role: 'assistant', 
-                content: data.response 
+                content: data.response || data.reply || "He recibido tu mensaje, pero no tengo una respuesta clara."
             };
             
             setMessages(prev => [...prev, botResponse]);
 
         } catch (error) {
             console.error("Error en Esmeralda:", error);
-            let errorMsg = 'Lo siento, tuve un pequeño problema de conexión. 😅';
+            let errorMsg = 'Lo siento, tuve un problema de conexión. 😅';
             
-            // Si el error es de autenticación
             if (error.message?.includes('401')) {
-                errorMsg = 'Parece que tu sesión ha expirado. Por favor, inicia sesión nuevamente.';
+                errorMsg = 'Tu sesión ha expirado. Por favor, recarga la página.';
             }
 
             setMessages(prev => [...prev, { 
@@ -86,7 +88,9 @@ const ChatIA = () => {
         }
     };
 
-
+    // ==========================================
+    // TU DISEÑO ESTÉTICO (SIN CAMBIOS)
+    // ==========================================
     return (
         <div className="fixed bottom-6 right-6 z-[9999] font-sans">
             <div className={`transition-all duration-500 transform ${isOpen ? 'scale-0 opacity-0 translate-y-10' : 'scale-100 opacity-100 translate-y-0'}`}>
