@@ -121,7 +121,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 # =====================================================
 # ENDPOINTS - AUTENTICACIÓN
 # =====================================================
-@app.post("/api/login/", response_model=TokenResponse)
+@app.post("/api/login", response_model=TokenResponse)
 async def login(request: LoginRequest):
     """Login de usuario con JWT"""
     try:
@@ -180,7 +180,7 @@ async def login(request: LoginRequest):
         print(f"❌ Error inesperado en login: {e}")
         raise HTTPException(status_code=500, detail=f"Error interno del servidor: {str(e)}")
 
-@app.get("/api/user/me/")
+@app.get("/api/user/me")
 async def get_profile(current_user: dict = Depends(get_current_user)):
     """Obtiene perfil del usuario actual"""
     return {
@@ -199,7 +199,7 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
 # =====================================================
 # ENDPOINTS - ESTUDIANTE
 # =====================================================
-@app.get("/api/inscripciones/")
+@app.get("/api/inscripciones")
 async def get_inscripciones(current_user: dict = Depends(get_current_user)):
     """Obtiene inscripciones del estudiante con detalles de sección y materia"""
     if current_user["rol"] != "estudiante":
