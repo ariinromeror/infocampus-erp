@@ -106,7 +106,8 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     # Obtener usuario de DB
     with get_db() as conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM usuarios WHERE id = %s", (user_id,))
+        # ✅ CORREGIDO: Añadido public. explícito
+        cur.execute("SELECT * FROM public.usuarios WHERE id = %s", (user_id,))
         user = cur.fetchone()
         cur.close()
     
@@ -124,19 +125,21 @@ async def login(request: LoginRequest):
     try:
         with get_db() as conn:
             cur = conn.cursor()
-            # ✅ Obtener username y password exactos de la tabla
+            # ✅ CORREGIDO: Añadido public. al esquema + parámetros seguros
             cur.execute(
-                "SELECT * FROM usuarios WHERE username = %s", 
+                "SELECT * FROM public.usuarios WHERE username = %s", 
                 (request.username,)
             )
             user = cur.fetchone()
             cur.close()
         
         if not user:
+            print(f"⚠️ Usuario no encontrado: {request.username}")
             raise HTTPException(status_code=401, detail="Credenciales incorrectas")
         
         # ✅ Comparar contraseña DIRECTAMENTE (sin bcrypt, sin hash)
         if not verify_password(request.password, user.get("password", "")):
+            print(f"⚠️ Contraseña incorrecta para: {request.username}")
             raise HTTPException(status_code=401, detail="Credenciales incorrectas")
         
         # Crear token JWT
@@ -159,13 +162,21 @@ async def login(request: LoginRequest):
             "en_mora": bool(user.get("en_mora", False))
         }
         
+        print(f"✅ Login exitoso: {request.username} (rol: {user['rol']})")
         return {"access": token, "user": user_data}
     
     except HTTPException:
         raise
+    except psycopg2.Error as db_error:
+        # ✅ NUEVO: Captura específica de errores de PostgreSQL
+        print(f"❌ Error de base de datos en login: {db_error}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error de conexión a base de datos: {str(db_error)}"
+        )
     except Exception as e:
-        print(f"❌ Error en login: {e}")
-        raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")
+        print(f"❌ Error inesperado en login: {e}")
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor: {str(e)}")
 
 @app.get("/api/user/me/")
 async def get_profile(current_user: dict = Depends(get_current_user)):
@@ -194,6 +205,7 @@ async def get_inscripciones(current_user: dict = Depends(get_current_user)):
     
     with get_db() as conn:
         cur = conn.cursor()
+        # ✅ CORREGIDO: Añadido public. a todas las tablas
         cur.execute("""
             SELECT 
                 i.id,
@@ -206,260 +218,250 @@ async def get_inscripciones(current_user: dict = Depends(get_current_user)):
                 m.creditos,
                 p.nombre as periodo_nombre,
                 CASE WHEN pg.id IS NOT NULL THEN true ELSE false END as pagado
-            FROM inscripciones i
-            JOIN secciones s ON i.seccion_id = s.id
-            JOIN materias m ON s.materia_id = m.id
-            JOIN periodos_lectivos p ON s.periodo_id = p.id
-            LEFT JOIN pagos pg ON pg.inscripcion_id = i.id
+            FROM public.inscripciones i
+            JOIN public.secciones s ON i.seccion_id = s.id
+            JOIN public.materias m ON s.materia_id = m.id
+            JOIN public.periodos_lectivos p ON s.periodo_id = p.id
+            LEFT JOIN public.pagos pg ON pg.inscripcion_id = i.id
             WHERE i.estudiante_id = %s
             ORDER BY p.codigo DESC
         """, (current_user["id"],))
         
-        inscripciones = []
-        for row in cur.fetchall():
-            inscripciones.append({
-                "id": int(row["id"]),
-                "nota_final": float(row["nota_final"]) if row["nota_final"] else None,
-                "estado": str(row["estado"]),
-                "seccion_detalle": {
-                    "codigo_seccion": str(row["codigo_seccion"]),
-                    "aula": str(row["aula"]),
-                    "materia_detalle": {
-                        "nombre": str(row["materia_nombre"]),
-                        "codigo": str(row["materia_codigo"]),
-                        "creditos": int(row["creditos"])
-                    }
-                },
-                "pagado": bool(row["pagado"])
-            })
-        
+        inscripciones = [to_python_type(dict(row)) for row in cur.fetchall()]
         cur.close()
     
     return inscripciones
 
-@app.get("/api/inscripciones/mi_historial/")
-async def get_historial(current_user: dict = Depends(get_current_user)):
-    """Historial completo de inscripciones del estudiante"""
+@app.get("/api/calificaciones/")
+async def get_calificaciones(current_user: dict = Depends(get_current_user)):
+    """Obtiene calificaciones del estudiante"""
     if current_user["rol"] != "estudiante":
         raise HTTPException(status_code=403, detail="No autorizado")
     
     with get_db() as conn:
         cur = conn.cursor()
+        # ✅ CORREGIDO: Añadido public. a todas las tablas
         cur.execute("""
             SELECT 
-                i.*,
-                s.codigo_seccion,
-                m.nombre as materia_nombre,
-                m.codigo as materia_codigo,
-                p.nombre as periodo_nombre
-            FROM inscripciones i
-            JOIN secciones s ON i.seccion_id = s.id
-            JOIN materias m ON s.materia_id = m.id
-            JOIN periodos_lectivos p ON s.periodo_id = p.id
+                m.nombre as materia,
+                m.codigo,
+                s.codigo_seccion as seccion,
+                i.nota_final,
+                i.estado,
+                p.nombre as periodo
+            FROM public.inscripciones i
+            JOIN public.secciones s ON i.seccion_id = s.id
+            JOIN public.materias m ON s.materia_id = m.id
+            JOIN public.periodos_lectivos p ON s.periodo_id = p.id
             WHERE i.estudiante_id = %s
-            ORDER BY i.fecha_inscripcion DESC
+            ORDER BY p.codigo DESC
         """, (current_user["id"],))
         
-        historial = [to_python_type(dict(row)) for row in cur.fetchall()]
+        calificaciones = [to_python_type(dict(row)) for row in cur.fetchall()]
         cur.close()
     
-    return historial
+    return calificaciones
+
+@app.get("/api/horario/")
+async def get_horario(current_user: dict = Depends(get_current_user)):
+    """Obtiene horario del estudiante"""
+    if current_user["rol"] != "estudiante":
+        raise HTTPException(status_code=403, detail="No autorizado")
+    
+    with get_db() as conn:
+        cur = conn.cursor()
+        # ✅ CORREGIDO: Añadido public. a todas las tablas
+        cur.execute("""
+            SELECT 
+                h.dia_semana,
+                h.hora_inicio,
+                h.hora_fin,
+                m.nombre as materia,
+                s.codigo_seccion as seccion,
+                s.aula,
+                CONCAT(u.first_name, ' ', u.last_name) as profesor
+            FROM public.inscripciones i
+            JOIN public.secciones s ON i.seccion_id = s.id
+            JOIN public.materias m ON s.materia_id = m.id
+            JOIN public.horarios h ON h.seccion_id = s.id
+            LEFT JOIN public.usuarios u ON s.profesor_id = u.id
+            WHERE i.estudiante_id = %s AND i.estado = 'activa'
+            ORDER BY 
+                CASE h.dia_semana
+                    WHEN 'lunes' THEN 1
+                    WHEN 'martes' THEN 2
+                    WHEN 'miercoles' THEN 3
+                    WHEN 'jueves' THEN 4
+                    WHEN 'viernes' THEN 5
+                    WHEN 'sabado' THEN 6
+                END,
+                h.hora_inicio
+        """, (current_user["id"],))
+        
+        horario = [to_python_type(dict(row)) for row in cur.fetchall()]
+        cur.close()
+    
+    return horario
 
 # =====================================================
 # ENDPOINTS - PROFESOR
 # =====================================================
-@app.get("/api/profesor/dashboard/")
-async def profesor_dashboard(current_user: dict = Depends(get_current_user)):
-    """Dashboard con métricas del profesor"""
+@app.get("/api/profesor/secciones/")
+async def get_secciones_profesor(current_user: dict = Depends(get_current_user)):
+    """Obtiene secciones del profesor"""
     if current_user["rol"] != "profesor":
         raise HTTPException(status_code=403, detail="No autorizado")
     
     with get_db() as conn:
         cur = conn.cursor()
-        
-        # Mis secciones con horarios
+        # ✅ CORREGIDO: Añadido public. a todas las tablas
         cur.execute("""
             SELECT 
                 s.id,
                 s.codigo_seccion,
                 s.aula,
-                s.dia,
-                s.hora_inicio::text,
-                s.hora_fin::text,
+                s.cupo_maximo,
                 m.nombre as materia_nombre,
-                m.codigo as materia_codigo
-            FROM secciones s
-            JOIN materias m ON s.materia_id = m.id
+                m.codigo as materia_codigo,
+                p.nombre as periodo_nombre,
+                COUNT(i.id) as estudiantes_inscritos
+            FROM public.secciones s
+            JOIN public.materias m ON s.materia_id = m.id
+            JOIN public.periodos_lectivos p ON s.periodo_id = p.id
+            LEFT JOIN public.inscripciones i ON i.seccion_id = s.id
             WHERE s.profesor_id = %s
-            ORDER BY s.codigo_seccion
+            GROUP BY s.id, m.nombre, m.codigo, p.nombre
+            ORDER BY p.codigo DESC
         """, (current_user["id"],))
         
-        mis_clases = []
-        for row in cur.fetchall():
-            mis_clases.append({
-                "id": int(row["id"]),
-                "codigo": str(row["codigo_seccion"]),
-                "materia": str(row["materia_nombre"]),
-                "aula": str(row["aula"]),
-                "horario": f"{row['dia']} {row['hora_inicio']}-{row['hora_fin']}"
-            })
-        
+        secciones = [to_python_type(dict(row)) for row in cur.fetchall()]
         cur.close()
     
-    return {"mis_clases": mis_clases}
+    return secciones
 
-@app.get("/api/profesor/seccion/{seccion_id}/notas/")
-async def get_alumnos_seccion(seccion_id: int, current_user: dict = Depends(get_current_user)):
-    """Lista de estudiantes para gestionar notas"""
+@app.get("/api/profesor/seccion/{seccion_id}/estudiantes/")
+async def get_estudiantes_seccion(seccion_id: int, current_user: dict = Depends(get_current_user)):
+    """Obtiene estudiantes de una sección"""
     if current_user["rol"] != "profesor":
         raise HTTPException(status_code=403, detail="No autorizado")
     
     with get_db() as conn:
         cur = conn.cursor()
         
-        # Verificar pertenencia y obtener info de sección
-        cur.execute("""
-            SELECT s.profesor_id, m.nombre as materia, s.codigo_seccion
-            FROM secciones s
-            JOIN materias m ON s.materia_id = m.id
-            WHERE s.id = %s
-        """, (seccion_id,))
+        # Verificar que la sección pertenece al profesor
+        # ✅ CORREGIDO: Añadido public.
+        cur.execute("SELECT * FROM public.secciones WHERE id = %s AND profesor_id = %s", 
+                   (seccion_id, current_user["id"]))
         seccion = cur.fetchone()
         
-        if not seccion or seccion["profesor_id"] != current_user["id"]:
+        if not seccion:
             raise HTTPException(status_code=403, detail="No autorizado para esta sección")
         
-        # Obtener estudiantes
-        cur.execute("""
-            SELECT 
-                i.id as inscripcion_id,
-                CONCAT(u.first_name, ' ', u.last_name) as alumno_nombre,
-                u.username as alumno_carnet,
-                i.nota_final as nota_actual
-            FROM inscripciones i
-            JOIN usuarios u ON i.estudiante_id = u.id
-            WHERE i.seccion_id = %s
-            ORDER BY u.last_name, u.first_name
-        """, (seccion_id,))
-        
-        alumnos = []
-        for row in cur.fetchall():
-            alumnos.append({
-                "inscripcion_id": int(row["inscripcion_id"]),
-                "alumno_nombre": str(row["alumno_nombre"]),
-                "alumno_carnet": str(row["alumno_carnet"]),
-                "nota_actual": float(row["nota_actual"]) if row["nota_actual"] else None
-            })
-        
-        cur.close()
-    
-    return {
-        "materia": seccion["materia"],
-        "codigo": seccion["codigo_seccion"],
-        "alumnos": alumnos
-    }
-
-@app.post("/api/profesor/seccion/{seccion_id}/notas/")
-async def guardar_notas(seccion_id: int, notas: dict, current_user: dict = Depends(get_current_user)):
-    """Guarda notas de estudiantes"""
-    if current_user["rol"] != "profesor":
-        raise HTTPException(status_code=403, detail="No autorizado")
-    
-    with get_db() as conn:
-        cur = conn.cursor()
-        
-        for nota_data in notas.get("notas", []):
-            cur.execute("""
-                UPDATE inscripciones 
-                SET nota_final = %s, 
-                    nota_puesta_por_id = %s, 
-                    fecha_nota_puesta = NOW()
-                WHERE id = %s
-            """, (nota_data["nota"], current_user["id"], nota_data["inscripcion_id"]))
-        
-        cur.close()
-    
-    return {"message": "Notas guardadas exitosamente"}
-
-# =====================================================
-# ENDPOINTS - TESORERO
-# =====================================================
-@app.get("/api/finanzas/dashboard/")
-async def finanzas_dashboard(current_user: dict = Depends(get_current_user)):
-    """Dashboard financiero"""
-    if current_user["rol"] not in ["tesorero", "director"]:
-        raise HTTPException(status_code=403, detail="No autorizado")
-    
-    with get_db() as conn:
-        cur = conn.cursor()
-        
-        cur.execute("SELECT COALESCE(SUM(monto), 0) as total FROM pagos")
-        ingreso_real = float(cur.fetchone()["total"])
-        
-        cur.execute("SELECT COUNT(*) as total FROM inscripciones")
-        total_inscripciones = cur.fetchone()["total"]
-        ingreso_proyectado = float(total_inscripciones * 150)
-        
-        cur.execute("""
-            SELECT 
-                COUNT(DISTINCT i.id) as total_inscripciones,
-                COUNT(DISTINCT p.inscripcion_id) as inscripciones_pagadas
-            FROM inscripciones i
-            LEFT JOIN pagos p ON p.inscripcion_id = i.id
-        """)
-        cobranza = cur.fetchone()
-        tasa_cobranza = (cobranza["inscripciones_pagadas"] / cobranza["total_inscripciones"] * 100) if cobranza["total_inscripciones"] > 0 else 0
-        
-        # Estudiantes con deuda (calculada)
+        # ✅ CORREGIDO: Añadido public. a todas las tablas
         cur.execute("""
             SELECT 
                 u.id,
                 u.username,
                 CONCAT(u.first_name, ' ', u.last_name) as nombre_completo,
-                COUNT(i.id) * 150.0 as deuda_total,
-                true as en_mora
-            FROM usuarios u
-            JOIN inscripciones i ON i.estudiante_id = u.id
-            LEFT JOIN pagos p ON p.inscripcion_id = i.id
-            WHERE u.rol = 'estudiante' AND p.id IS NULL
-            GROUP BY u.id
-            HAVING COUNT(i.id) > 0
-            ORDER BY deuda_total DESC
-            LIMIT 50
-        """)
+                i.nota_final,
+                i.estado
+            FROM public.inscripciones i
+            JOIN public.usuarios u ON i.estudiante_id = u.id
+            WHERE i.seccion_id = %s
+            ORDER BY u.last_name, u.first_name
+        """, (seccion_id,))
         
-        listado_cobranza = []
-        for row in cur.fetchall():
-            listado_cobranza.append({
-                "id": int(row["id"]),
-                "username": str(row["username"]),
-                "nombre_completo": str(row["nombre_completo"]),
-                "deuda_total": float(row["deuda_total"]),
-                "en_mora": bool(row["en_mora"])
-            })
+        estudiantes = [to_python_type(dict(row)) for row in cur.fetchall()]
+        cur.close()
+    
+    return estudiantes
+
+@app.put("/api/profesor/calificacion/{inscripcion_id}/")
+async def actualizar_nota(
+    inscripcion_id: int, 
+    nota_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Actualiza la nota de un estudiante"""
+    if current_user["rol"] != "profesor":
+        raise HTTPException(status_code=403, detail="No autorizado")
+    
+    nota = nota_data.get("nota_final")
+    if nota is None or not (0 <= nota <= 100):
+        raise HTTPException(status_code=400, detail="Nota inválida (0-100)")
+    
+    with get_db() as conn:
+        cur = conn.cursor()
+        
+        # Verificar que la inscripción pertenece a una sección del profesor
+        # ✅ CORREGIDO: Añadido public. a todas las tablas
+        cur.execute("""
+            SELECT i.id 
+            FROM public.inscripciones i
+            JOIN public.secciones s ON i.seccion_id = s.id
+            WHERE i.id = %s AND s.profesor_id = %s
+        """, (inscripcion_id, current_user["id"]))
+        
+        if not cur.fetchone():
+            raise HTTPException(status_code=403, detail="No autorizado")
+        
+        # Actualizar nota
+        # ✅ CORREGIDO: Añadido public.
+        cur.execute("""
+            UPDATE public.inscripciones 
+            SET nota_final = %s 
+            WHERE id = %s
+        """, (nota, inscripcion_id))
         
         cur.close()
     
-    return {
-        "ingreso_proyectado": ingreso_proyectado,
-        "ingreso_real": ingreso_real,
-        "tasa_cobranza": round(tasa_cobranza, 1),
-        "listado_cobranza": listado_cobranza
-    }
+    return {"message": "Nota actualizada exitosamente"}
 
-@app.post("/api/finanzas/registrar-pago/{usuario_id}/")
+# =====================================================
+# ENDPOINTS - TESORERÍA
+# =====================================================
+@app.get("/api/pagos/pendientes/")
+async def get_pagos_pendientes(current_user: dict = Depends(get_current_user)):
+    """Obtiene lista de pagos pendientes"""
+    if current_user["rol"] not in ["tesorero", "director"]:
+        raise HTTPException(status_code=403, detail="No autorizado")
+    
+    with get_db() as conn:
+        cur = conn.cursor()
+        # ✅ CORREGIDO: Añadido public. a todas las tablas
+        cur.execute("""
+            SELECT 
+                u.id as estudiante_id,
+                CONCAT(u.first_name, ' ', u.last_name) as estudiante_nombre,
+                COUNT(i.id) as inscripciones_pendientes,
+                COUNT(i.id) * 150.00 as monto_total
+            FROM public.usuarios u
+            JOIN public.inscripciones i ON i.estudiante_id = u.id
+            LEFT JOIN public.pagos p ON p.inscripcion_id = i.id
+            WHERE u.rol = 'estudiante' AND p.id IS NULL
+            GROUP BY u.id
+            ORDER BY monto_total DESC
+        """)
+        
+        pendientes = [to_python_type(dict(row)) for row in cur.fetchall()]
+        cur.close()
+    
+    return pendientes
+
+@app.post("/api/pagos/registrar/{usuario_id}/")
 async def registrar_pago(usuario_id: int, current_user: dict = Depends(get_current_user)):
-    """Registra pago para un estudiante"""
+    """Registra el pago de todas las deudas de un estudiante"""
     if current_user["rol"] not in ["tesorero", "director"]:
         raise HTTPException(status_code=403, detail="No autorizado")
     
     with get_db() as conn:
         cur = conn.cursor()
         
+        # ✅ CORREGIDO: Añadido public. a todas las tablas
         cur.execute("""
             SELECT i.id
-            FROM inscripciones i
-            LEFT JOIN pagos p ON p.inscripcion_id = i.id
+            FROM public.inscripciones i
+            LEFT JOIN public.pagos p ON p.inscripcion_id = i.id
             WHERE i.estudiante_id = %s AND p.id IS NULL
         """, (usuario_id,))
         
@@ -469,8 +471,9 @@ async def registrar_pago(usuario_id: int, current_user: dict = Depends(get_curre
             return {"message": "No hay deudas pendientes"}
         
         for insc in pendientes:
+            # ✅ CORREGIDO: Añadido public.
             cur.execute("""
-                INSERT INTO pagos (inscripcion_id, monto, metodo_pago, procesado_por_id, comprobante, fecha_pago)
+                INSERT INTO public.pagos (inscripcion_id, monto, metodo_pago, procesado_por_id, comprobante, fecha_pago)
                 VALUES (%s, %s, %s, %s, %s, NOW())
             """, (insc["id"], 150.00, "efectivo", current_user["id"], f"PAG-{datetime.now().timestamp()}"))
         
@@ -490,21 +493,22 @@ async def dashboard_institucional(current_user: dict = Depends(get_current_user)
     with get_db() as conn:
         cur = conn.cursor()
         
-        cur.execute("SELECT COUNT(*) as total FROM usuarios WHERE rol = 'estudiante'")
+        # ✅ CORREGIDO: Añadido public. a todas las tablas
+        cur.execute("SELECT COUNT(*) as total FROM public.usuarios WHERE rol = 'estudiante'")
         total_estudiantes = int(cur.fetchone()["total"])
         
-        cur.execute("SELECT COUNT(*) as total FROM usuarios WHERE rol = 'profesor'")
+        cur.execute("SELECT COUNT(*) as total FROM public.usuarios WHERE rol = 'profesor'")
         total_profesores = int(cur.fetchone()["total"])
         
-        cur.execute("SELECT COUNT(*) as total FROM materias")
+        cur.execute("SELECT COUNT(*) as total FROM public.materias")
         materias_totales = int(cur.fetchone()["total"])
         
         cur.execute("""
             SELECT 
                 c.nombre,
                 COUNT(u.id) as num_alumnos
-            FROM carreras c
-            LEFT JOIN usuarios u ON u.carrera_id = c.id AND u.rol = 'estudiante'
+            FROM public.carreras c
+            LEFT JOIN public.usuarios u ON u.carrera_id = c.id AND u.rol = 'estudiante'
             GROUP BY c.id, c.nombre
             ORDER BY num_alumnos DESC
         """)
@@ -515,12 +519,12 @@ async def dashboard_institucional(current_user: dict = Depends(get_current_user)
         
         cur.execute("""
             SELECT AVG(CAST(nota_final AS DECIMAL)) as promedio
-            FROM inscripciones
+            FROM public.inscripciones
             WHERE nota_final IS NOT NULL
         """)
         promedio = float(cur.fetchone()["promedio"] or 0)
         
-        cur.execute("SELECT COALESCE(SUM(monto), 0) as total FROM pagos")
+        cur.execute("SELECT COALESCE(SUM(monto), 0) as total FROM public.pagos")
         ingresos_totales = float(cur.fetchone()["total"])
         
         cur.execute("""
@@ -531,9 +535,9 @@ async def dashboard_institucional(current_user: dict = Depends(get_current_user)
                 CONCAT(u.first_name, ' ', u.last_name) as nombre,
                 COUNT(i.id) * 150.0 as deuda_total,
                 true as en_mora
-            FROM usuarios u
-            JOIN inscripciones i ON i.estudiante_id = u.id
-            LEFT JOIN pagos p ON p.inscripcion_id = i.id
+            FROM public.usuarios u
+            JOIN public.inscripciones i ON i.estudiante_id = u.id
+            LEFT JOIN public.pagos p ON p.inscripcion_id = i.id
             WHERE u.rol = 'estudiante' AND p.id IS NULL
             GROUP BY u.id
             ORDER BY deuda_total DESC
@@ -568,6 +572,7 @@ async def get_materias(current_user: dict = Depends(get_current_user)):
     """Lista todas las materias"""
     with get_db() as conn:
         cur = conn.cursor()
+        # ✅ CORREGIDO: Añadido public. a todas las tablas
         cur.execute("""
             SELECT 
                 m.id,
@@ -576,8 +581,8 @@ async def get_materias(current_user: dict = Depends(get_current_user)):
                 m.semestre,
                 m.creditos,
                 c.nombre as carrera_nombre
-            FROM materias m
-            JOIN carreras c ON m.carrera_id = c.id
+            FROM public.materias m
+            JOIN public.carreras c ON m.carrera_id = c.id
             ORDER BY c.nombre, m.semestre, m.nombre
         """)
         
@@ -596,7 +601,8 @@ async def detalle_estudiante(estudiante_id: int, current_user: dict = Depends(ge
     with get_db() as conn:
         cur = conn.cursor()
         
-        cur.execute("SELECT * FROM usuarios WHERE id = %s AND rol = 'estudiante'", (estudiante_id,))
+        # ✅ CORREGIDO: Añadido public.
+        cur.execute("SELECT * FROM public.usuarios WHERE id = %s AND rol = 'estudiante'", (estudiante_id,))
         estudiante = cur.fetchone()
         
         if not estudiante:
@@ -604,11 +610,13 @@ async def detalle_estudiante(estudiante_id: int, current_user: dict = Depends(ge
         
         carrera = None
         if estudiante.get("carrera_id"):
-            cur.execute("SELECT id, nombre, codigo FROM carreras WHERE id = %s", (estudiante["carrera_id"],))
+            # ✅ CORREGIDO: Añadido public.
+            cur.execute("SELECT id, nombre, codigo FROM public.carreras WHERE id = %s", (estudiante["carrera_id"],))
             carrera_data = cur.fetchone()
             if carrera_data:
                 carrera = to_python_type(dict(carrera_data))
         
+        # ✅ CORREGIDO: Añadido public. a todas las tablas
         cur.execute("""
             SELECT 
                 i.id,
@@ -619,11 +627,11 @@ async def detalle_estudiante(estudiante_id: int, current_user: dict = Depends(ge
                 i.nota_final,
                 i.estado,
                 CASE WHEN pg.id IS NOT NULL THEN true ELSE false END as pagado
-            FROM inscripciones i
-            JOIN secciones s ON i.seccion_id = s.id
-            JOIN materias m ON s.materia_id = m.id
-            JOIN periodos_lectivos p ON s.periodo_id = p.id
-            LEFT JOIN pagos pg ON pg.inscripcion_id = i.id
+            FROM public.inscripciones i
+            JOIN public.secciones s ON i.seccion_id = s.id
+            JOIN public.materias m ON s.materia_id = m.id
+            JOIN public.periodos_lectivos p ON s.periodo_id = p.id
+            LEFT JOIN public.pagos pg ON pg.inscripcion_id = i.id
             WHERE i.estudiante_id = %s
             ORDER BY p.codigo DESC
         """, (estudiante_id,))
