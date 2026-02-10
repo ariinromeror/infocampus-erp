@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
@@ -11,12 +11,15 @@ from contextlib import contextmanager
 import os
 from dotenv import load_dotenv
 from decimal import Decimal
+from groq import Groq
 
 load_dotenv()
 
 # =====================================================
 # CONFIGURACIÓN
 # =====================================================
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+groq_client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 DATABASE_URL = os.getenv("DATABASE_URL")
 SECRET_KEY = os.getenv("SECRET_KEY_AUTH", "infocampusproject2026")
 ALGORITHM = "HS256"
@@ -677,3 +680,79 @@ async def health():
         return {"status": "ok", "database": "connected"}
     except Exception as e:
         return {"status": "error", "database": "disconnected", "error": str(e)}
+    
+
+@app.post("/api/chat")
+async def chat_esmeralda(request: Request, current_user: dict = Depends(get_current_user)):
+    if not groq_client:
+        raise HTTPException(status_code=500, detail="Servicio de IA no disponible")
+
+    try:
+        with get_db() as conn:
+            cur = conn.cursor()
+            # 1. Traemos notas
+            cur.execute("""
+                SELECT m.nombre, i.nota_final, i.estado 
+                FROM public.inscripciones i 
+                JOIN public.secciones s ON i.seccion_id = s.id
+                JOIN public.materias m ON s.materia_id = m.id 
+                WHERE i.estudiante_id = %s
+            """, (current_user["id"],))
+            notas = cur.fetchall()
+            
+            # 2. Traemos horario (Para que sepa qué clases tiene)
+            cur.execute("""
+                SELECT h.dia_semana, h.hora_inicio, m.nombre as materia
+                FROM public.inscripciones i
+                JOIN public.secciones s ON i.seccion_id = s.id
+                JOIN public.materias m ON s.materia_id = m.id
+                JOIN public.horarios h ON h.seccion_id = s.id
+                WHERE i.estudiante_id = %s AND i.estado = 'activa'
+            """, (current_user["id"],))
+            horario = cur.fetchall()
+            
+            # 3. Traemos deudas
+            cur.execute("""
+                SELECT COUNT(*) as deudas 
+                FROM public.inscripciones i 
+                LEFT JOIN public.pagos p ON p.inscripcion_id = i.id 
+                WHERE i.estudiante_id = %s AND p.id IS NULL
+            """, (current_user["id"],))
+            tiene_deuda = cur.fetchone()["deudas"] > 0
+
+        # Construimos el contexto con datos REALES
+        contexto = f"""
+        Usuario: {current_user['first_name']} {current_user['last_name']} (ID: {current_user['id']})
+        Notas actuales: {notas if notas else 'Sin notas registradas'}
+        Horario de clases: {horario if horario else 'Sin clases activas'}
+        Situación de pagos: {'Pendiente de pago' if tiene_deuda else 'Solvente / Al día'}
+        """
+
+        body = await request.json()
+        
+        system_prompt = f"""
+        Eres Esmeralda, la asistente virtual de Info Campus. 
+        Contexto del alumno: {contexto}
+        
+        Instrucciones:
+        - Responde de forma humana, amable y profesional. Usa emojis.
+        - Si te preguntan '¿Cómo voy?', resume sus notas y menciona si debe pagos.
+        - Si preguntan por horarios, diles qué días tienen clase.
+        - Sé muy breve, no escribas párrafos largos.
+        """
+
+        completion = groq_client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                *[{"role": m["role"], "content": m["content"]} for m in body.get("history", [])],
+                {"role": "user", "content": body.get("message")}
+            ],
+            temperature=0.7
+        )
+
+        return {"response": completion.choices[0].message.content}
+
+    except Exception as e:
+        print(f"❌ Error Esmeralda: {e}")
+        raise HTTPException(status_code=500, detail="Error interno de Esmeralda")
