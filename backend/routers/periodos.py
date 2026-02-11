@@ -8,8 +8,8 @@ from typing import Dict, Any
 from decimal import Decimal
 import logging
 
-from ..auth.dependencies import require_roles
-from ..database import get_db
+from auth.dependencies import require_roles
+from database import get_db
 
 logger = logging.getLogger(__name__)
 

@@ -7,10 +7,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 from typing import Dict, Any
 
-from ..auth.schemas import LoginRequest, TokenResponse
-from ..auth.jwt_handler import create_access_token
-from ..auth.dependencies import get_current_user
-from ..database import get_db
+from auth.schemas import LoginRequest, TokenResponse
+from auth.jwt_handler import create_access_token
+from auth.dependencies import get_current_user
+from database import get_db
 import logging
 
 logger = logging.getLogger(__name__)

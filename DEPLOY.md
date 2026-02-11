@@ -26,7 +26,7 @@ cd backend && pip install -r requirements.txt
 
 #### Start Command:
 ```bash
-cd backend && gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+gunicorn backend.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
 ```
 
 #### Variables de Entorno (Environment Variables):
@@ -44,11 +44,13 @@ ALLOWED_ORIGINS=https://tu-frontend.vercel.app,https://tu-frontend-git-main-tuus
 ### Explicación de Comandos:
 
 ```bash
-gunicorn main:app              # Módulo main, aplicación app
+gunicorn backend.main:app      # Módulo backend.main, aplicación app
 -w 4                           # 4 workers (procesos paralelos)
 -k uvicorn.workers.UvicornWorker  # Worker asíncrono para FastAPI
 --bind 0.0.0.0:$PORT          # Puerto asignado por Render
 ```
+
+**Nota importante:** Usamos `backend.main:app` en lugar de `cd backend && gunicorn main:app` para evitar errores de importación relativa. Esto permite que Python reconozca correctamente la estructura de paquetes.
 
 ### Troubleshooting Render:
 
@@ -337,6 +339,12 @@ render logs --tail
 
 ### Problema: "Module not found"
 **Solución:** Asegúrate de que el Build Command sea `cd backend && pip install -r requirements.txt`
+
+### Problema: "attempted relative import with no known parent package"
+**Solución:** 
+1. Usa el Start Command: `gunicorn backend.main:app ...` (NO uses `cd backend && uvicorn main:app`)
+2. Verifica que todas las importaciones en `backend/` usen rutas absolutas (ej: `from config import settings` en lugar de `from .config import settings`)
+3. Asegúrate de que el archivo `backend/__init__.py` exista (puede estar vacío)
 
 ---
 

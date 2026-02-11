@@ -5,8 +5,8 @@ Implementa RBAC (Role-Based Access Control) con 6 roles
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import List, Dict, Any, Optional
-from .jwt_handler import decode_access_token
-from ..database import get_db
+from auth.jwt_handler import decode_access_token
+from database import get_db
 import logging
 
 logger = logging.getLogger(__name__)

@@ -10,9 +10,9 @@ from datetime import datetime
 from decimal import Decimal
 import logging
 
-from ..auth.dependencies import require_roles
-from ..database import get_db
-from ..services.calculos_financieros import calcular_deuda_total
+from auth.dependencies import require_roles
+from database import get_db
+from services.calculos_financieros import calcular_deuda_total
 
 logger = logging.getLogger(__name__)
 

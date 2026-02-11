@@ -1,13 +1,13 @@
 """
 Módulo de servicios
 """
-from .calculos_financieros import (
+from services.calculos_financieros import (
     calcular_en_mora,
     calcular_deuda_total,
     calcular_deuda_vencida,
     calcular_costo_materia
 )
-from .pdf_generator import (
+from services.pdf_generator import (
     generar_estado_cuenta,
     generar_reporte_pagos,
     generar_certificado_inscripcion

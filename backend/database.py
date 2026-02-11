@@ -6,7 +6,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from psycopg2.pool import ThreadedConnectionPool
 from contextlib import contextmanager
-from .config import settings
+from config import settings
 import logging
 
 # Configurar logging

@@ -9,14 +9,14 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 import logging
 
-from ..auth.dependencies import require_roles, get_current_user
-from ..database import get_db
-from ..services.pdf_generator import (
+from auth.dependencies import require_roles, get_current_user
+from database import get_db
+from services.pdf_generator import (
     generar_estado_cuenta,
     generar_reporte_pagos,
     generar_certificado_inscripcion
 )
-from ..services.calculos_financieros import calcular_deuda_total, calcular_deuda_vencida, calcular_en_mora
+from services.calculos_financieros import calcular_deuda_total, calcular_deuda_vencida, calcular_en_mora
 
 logger = logging.getLogger(__name__)
 

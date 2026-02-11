@@ -5,7 +5,7 @@ Migrado desde Django Token Authentication
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from typing import Optional, Dict, Any
-from .config import settings
+from config import settings
 import logging
 
 logger = logging.getLogger(__name__)

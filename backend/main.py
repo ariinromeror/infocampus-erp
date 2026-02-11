@@ -9,13 +9,13 @@ from contextlib import asynccontextmanager
 import logging
 
 # Configuración
-from .config import settings
+from config import settings
 
 # Database
-from .database import init_connection_pool
+from database import init_connection_pool
 
 # Routers
-from .routers import auth, dashboards, inscripciones, estudiantes, periodos, reportes
+from routers import auth, dashboards, inscripciones, estudiantes, periodos, reportes
 
 # Configurar logging
 logging.basicConfig(
