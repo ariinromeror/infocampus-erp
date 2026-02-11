@@ -21,7 +21,3 @@ reportlab==4.0.8
 
 # AI/ML (Chatbot)
 groq==0.9.0
-
-# Utilities
-decimal
-contextlib2
