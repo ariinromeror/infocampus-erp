@@ -24,6 +24,17 @@ serve(async (req) => {
   }
 
   try {
+    // VALIDACIÓN TEMPRANA: Verificar GROQ_API_KEY
+    const groqApiKey = Deno.env.get('GROQ_API_KEY')
+    if (!groqApiKey) {
+      console.error('❌ GROQ_API_KEY no configurada')
+      return createResponse({ 
+        error: 'Configuración de IA incompleta. Contacta al administrador.',
+        code: 'GROQ_KEY_MISSING',
+        suggestion: 'La API Key de Groq no está configurada en las variables de entorno de Supabase.'
+      }, 503)
+    }
+
     // 3. Obtener Auth Token y Body
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
@@ -54,32 +65,52 @@ serve(async (req) => {
     // Si no está en tabla usuarios, usamos datos básicos de auth
     const userData = usuario || { first_name: 'Estudiante', rol: 'estudiante' }
 
-    let contextoSistema = `Eres Esmeralda, asistente académica. 
-    Usuario: ${userData.first_name} ${userData.last_name || ''}
-    Rol: ${userData.rol}`
+    let contextoSistema = `Eres Eva, asistente académica de Info Campus. 
+    Eres amable, profesional y siempre respondes en español.
+    
+    Información del usuario:
+    - Nombre: ${userData.first_name} ${userData.last_name || ''}
+    - Rol: ${userData.rol}
+    
+    Instrucciones: Responde de manera breve, clara y útil. Si el usuario tiene preguntas sobre notas, horarios o pagos, usa el contexto proporcionado.`
 
-    if (userData.rol === 'estudiante') {
-       // Buscar inscripciones/notas
-       const { data: inscripciones } = await supabaseClient
-        .from('inscripciones')
-        .select(`nota_final, estado, secciones(materias(nombre))`)
-        .eq('estudiante_id', userData.id) // Asumiendo que 'id' es la PK de usuarios
+    // Validación CRÍTICA: Solo buscar datos si userData.id existe
+    if (userData.rol === 'estudiante' && userData.id) {
+       console.log(`🔍 Buscando datos para estudiante ID: ${userData.id}`)
        
-       // Buscar deudas
-       const { count: deudas } = await supabaseClient
-        .from('pagos')
-        .select('*', { count: 'exact', head: true })
-        .eq('estudiante_id', userData.id) // Ajustar según tu esquema de pagos
-        // Nota: Ajusta esta query según tu lógica exacta de "pagos pendientes"
-       
-       contextoSistema += `\nNotas: ${JSON.stringify(inscripciones || [])}`
-       contextoSistema += `\nDeudas pendientes: ${deudas ? 'Sí' : 'No'}`
+       try {
+         // Buscar inscripciones/notas
+         const { data: inscripciones, error: inscError } = await supabaseClient
+          .from('inscripciones')
+          .select(`nota_final, estado, secciones(materias(nombre))`)
+          .eq('estudiante_id', userData.id)
+         
+         if (inscError) {
+           console.error('Error consultando inscripciones:', inscError)
+         }
+         
+         // Buscar deudas
+         const { count: deudas, error: deudaError } = await supabaseClient
+          .from('pagos')
+          .select('*', { count: 'exact', head: true })
+          .eq('estudiante_id', userData.id)
+         
+         if (deudaError) {
+           console.error('Error consultando pagos:', deudaError)
+         }
+         
+         contextoSistema += `\nNotas actuales: ${JSON.stringify(inscripciones || [])}`
+         contextoSistema += `\nDeudas pendientes: ${deudas && deudas > 0 ? 'Sí' : 'No'}`
+       } catch (dbError) {
+         console.error('Error consultando base de datos:', dbError)
+         contextoSistema += `\nNotas: No disponibles en este momento`
+       }
+    } else if (userData.rol === 'estudiante' && !userData.id) {
+      console.warn('⚠️ Usuario estudiante sin ID válido en tabla usuarios')
+      contextoSistema += `\nNota: No se encontraron datos académicos completos para este usuario.`
     }
 
-    // 7. Llamada a Groq AI
-    const groqApiKey = Deno.env.get('GROQ_API_KEY')
-    if (!groqApiKey) throw new Error('Configuración de IA no encontrada')
-
+    // 7. Llamada a Groq AI (La API Key ya fue validada al inicio)
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {

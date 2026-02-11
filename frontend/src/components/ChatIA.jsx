@@ -6,7 +6,7 @@ const ChatIA = () => {
     const [messages, setMessages] = useState([
         {
             role: 'assistant',
-            content: '¡Hola! Soy Esmeralda, tu asistente personal de Info Campus. 💎\n\nPuedo ver tus notas, horarios y estado de cuenta en tiempo real. ¿En qué te ayudo hoy?'
+            content: '¡Hola! Soy Eva, tu asistente personal de Info Campus. 💎\n\nPuedo ver tus notas, horarios y estado de cuenta en tiempo real. ¿En qué te ayudo hoy?'
         }
     ]);
     const [input, setInput] = useState('');
@@ -65,7 +65,7 @@ const ChatIA = () => {
             setMessages(prev => [...prev, botResponse]);
 
         } catch (error) {
-            console.error("Error en Esmeralda:", error);
+            console.error("Error en Eva:", error);
             let errorMsg = 'Lo siento, tuve un problema de conexión. 😅';
             
             if (error.message?.includes('401')) {
@@ -126,7 +126,7 @@ const ChatIA = () => {
                         </div>
                         <div>
                             <h3 className="text-white font-bold text-lg tracking-tight leading-tight flex items-center gap-1">
-                                Esmeralda <Sparkles className="w-3 h-3 text-yellow-300" />
+                                Eva <Sparkles className="w-3 h-3 text-yellow-300" />
                             </h3>
                             <p className="text-indigo-100 text-xs font-medium opacity-90">IA Académica • En línea</p>
                         </div>

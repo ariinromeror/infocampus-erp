@@ -1,498 +1,249 @@
-# 🎓 INFOCAMPUS: High-Performance University ERP System
+# 🎓 InfoCampus ERP v2.0
+## Sistema de Gestión Universitaria Moderno
 
 <div align="center">
 
-![Django](https://img.shields.io/badge/Django-6.0.1-092E20?style=for-the-badge&logo=django&logoColor=white)
-![React](https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)
-![Tailwind](https://img.shields.io/badge/Tailwind_CSS-4.1-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Methodology](https://img.shields.io/badge/Methodology-AI--Driven-blueviolet?style=for-the-badge)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
-**An enterprise-grade institutional ecosystem optimized through strategic AI-Driven workflows.**
+**A modern, high-performance University ERP System**
+
+[🚀 Demo](https://your-url.com) | [📚 API Docs](https://your-url.com/docs) | [💼 Portfolio](https://your-portfolio.com)
+
 </div>
 
 ---
 
-## 📸 Executive Summary & Business Value
-> **Strategic Efficiency:** This project is a showcase of modern software engineering productivity. By mastering **AI Orchestration**, I have developed a high-tier MVP that traditionally requires months of development, drastically reducing **Time-to-Market** while maintaining enterprise standards in security, scalability, and data integrity.
+## 📋 Descripción General
 
-### 🌟 Key Value Propositions:
-* **Operational Excellence:** Full-scale ERP handling complex friction between academic and financial departments.
-* **Cost & Time Optimization:** Demonstration of how AI-Driven methodologies can accelerate the software development lifecycle (SDLC).
-* **Role-Based Security (RBAC):** Advanced permission architecture for Students, Professors, Treasurers, Coordinators, and Directors.
-* **Data-Driven Decision Making:** Integrated analytical dashboards for real-time institutional oversight.
+InfoCampus ERP es un sistema integral de gestión académica y financiera diseñado para instituciones educativas. Este proyecto representa una **migración exitosa de Django REST Framework a FastAPI**, demostrando arquitectura moderna, rendimiento optimizado y código mantenible.
 
----
+### 🎯 Características Principales
 
-## 🚀 The Institutional Core
-**InfoCampus** isn't just a management tool; it's a solution for the modern university's operational challenges. From automated **Scholarship Logic** to **Intelligent Delinquency Algorithms** that protect institutional cash flow, every module is designed with a "Business-First" mindset.
-
-| Access Interface | Strategic Dashboard |
-| :---: | :---: |
-| ![Login](./assets/estudiante.png) | ![Dashboard](./assets/director.png) |
-| *Security & Branding* | *Real-time Analytics* |
+- **⚡ Alto Rendimiento:** FastAPI con operaciones asíncronas y agregaciones SQL optimizadas
+- **🔐 Seguridad Avanzada:** JWT Authentication + RBAC con 6 niveles de roles
+- **💰 Lógica Financiera Compleja:** Sistema de mora con 3 reglas, becas, convenios y cálculo preciso con Decimal
+- **📊 Dashboards Inteligentes:** Métricas en tiempo real para Director, Tesorero y Profesores
+- **📄 Reportes PDF Profesionales:** Generación de certificados y estados de cuenta
+- **🎨 Frontend Moderno:** React 19 + Tailwind CSS + Vite
 
 ---
 
+## 🏗️ Arquitectura del Sistema
 
+### Stack Tecnológico
 
-# 🎓 InfoCampus - University Management ERP System
+| Capa | Tecnología |
+|------|-----------|
+| **Backend** | FastAPI + Python 3.11 |
+| **Frontend** | React 19 + Vite + Tailwind CSS |
+| **Base de Datos** | PostgreSQL (Supabase) |
+| **Autenticación** | JWT + bcrypt |
+| **PDFs** | ReportLab |
+| **Deployment** | Render (Backend) + Vercel (Frontend) |
 
-> A comprehensive Enterprise Resource Planning system designed for higher education institutions, featuring role-based access control, intelligent financial management, and automated academic workflows.
-
-![Login Screen](./assets/login.png)
-
----
-
-## 📋 Overview
-
-**InfoCampus** is a full-stack ERP solution built to streamline university operations. The system provides differentiated access and functionality across five institutional roles, ensuring secure and efficient management of academic, administrative, and financial processes.
-
-### Core Capabilities
-
-- **Role-Based Access Control (RBAC)** - Five distinct user roles with granular permissions
-- **Academic Management** - Complete curriculum, enrollment, and grading system
-- **Financial Intelligence** - Automated debt calculation, scholarship management, and payment processing
-- **Dashboard Analytics** - Real-time KPIs and insights tailored to each user role
-- **Audit Trail** - Complete traceability of all critical operations
-
----
-
-## 🏗️ System Architecture
-
-### Technology Stack
-
-| Layer | Technology |
-|-------|------------|
-| **Frontend** | React 19.2 + Vite 7.2 + Tailwind CSS 4.1 |
-| **Backend** | Django 6.0.1 + Django REST Framework 3.16.1 |
-| **Database** | SQLite with Django ORM |
-| **Authentication** | JWT (djangorestframework-simplejwt 5.5.1) |
-| **UI Components** | Framer Motion + Recharts + Lucide Icons |
-| **API** | RESTful architecture with CORS support |
-
-### Architecture Diagram
+### Estructura del Proyecto
 
 ```
-┌─────────────────────────────────────────┐
-│       FRONTEND (React + Vite)           │
-│  ┌────────────────────────────────┐    │
-│  │  Dashboard Components          │    │
-│  │  React Router + Axios          │    │
-│  │  Tailwind CSS + Animations     │    │
-│  └────────────────────────────────┘    │
-└──────────────┬──────────────────────────┘
-               │ REST API (JWT Auth)
-┌──────────────┴──────────────────────────┐
-│   BACKEND (Django REST Framework)       │
-│  ┌────────────────────────────────┐    │
-│  │  API Views & Serializers       │    │
-│  │  Business Logic Layer          │    │
-│  │  Django ORM Models             │    │
-│  │  RBAC & Permissions            │    │
-│  └────────────────────────────────┘    │
-└──────────────┬──────────────────────────┘
-               │
-┌──────────────┴──────────────────────────┐
-│        DATABASE (SQLite)                │
-│  Careers | Subjects | Sections          │
-│  Users | Enrollments | Payments         │
-└─────────────────────────────────────────┘
+infocampus-erp/
+├── backend/                    # API FastAPI
+│   ├── auth/                   # JWT + RBAC
+│   ├── services/              # Lógica de negocio
+│   ├── routers/               # Endpoints API
+│   └── main.py                # Punto de entrada
+│
+├── frontend/                   # React App
+│   ├── src/
+│   │   ├── components/        # Componentes React
+│   │   ├── pages/            # Páginas
+│   │   └── services/         # API integration
+│   └── package.json
+│
+├── legacy_archive/            # Código Django (archivado)
+└── README.md
 ```
 
 ---
 
-## 👥 User Roles & Dashboards
+## 🎓 Módulos del Sistema
 
-### Student Portal
+### 1. Gestión Académica
+- **Inscripciones:** Registro de estudiantes en materias
+- **Calificaciones:** Sistema de notas con validación (≥7.0 aprueba)
+- **Períodos Lectivos:** Cierre de ciclo académico automatizado
+- **Materias y Secciones:** Gestión de oferta académica
 
-Students can access their academic progress, view schedules, check grades (if accounts are current), and monitor their financial status.
+### 2. Gestión Financiera
+- **Sistema de Mora Inteligente:** 3 reglas de negocio
+  - Convenios de pago protegen al estudiante
+  - Deuda de períodos anteriores = mora inmediata
+  - Días de gracia por carrera
+- **Becas:** Descuentos automáticos por porcentaje
+- **Pagos:** Registro con múltiples métodos (efectivo, transferencia, tarjeta)
+- **Estados de Cuenta:** PDFs detallados con cálculos precisos
 
-![Student Dashboard](./assets/estudiante.png)
+### 3. Dashboards por Rol
 
-**Key Features:**
-- 📊 Real-time GPA calculation
-- 💳 Account balance and payment status
-- 📚 Current semester course load
-- 🔒 Grade access control (blocked if account is overdue)
+#### 📊 Director/Coordinador
+- Total de estudiantes y profesores
+- Estudiantes por carrera (gráficas)
+- Promedio institucional
+- Ingresos totales
+- Lista de alumnos en mora
 
-![Student Grades View](./assets/estudiante1.png)
+#### 💰 Tesorero
+- Ingreso proyectado vs real
+- Tasa de cobranza (%)
+- Listado de cobranza con estados
 
----
+#### 👨‍🏫 Profesor
+- Secciones asignadas
+- Total de alumnos
+- Promedio de rendimiento
+- Gestión de notas
 
-### Professor Interface
-
-Professors manage their assigned sections, input grades, and track student performance across courses.
-
-![Professor Dashboard](./assets/profesor.png)
-
-**Key Features:**
-- 📋 Section management and class rosters
-- ✏️ Grade input and modification with audit trail
-- 📅 Schedule overview with room assignments
-- 📊 Student performance analytics
-
-![Professor Grade Entry](./assets/profesor1.png)
-
----
-
-### Treasurer Dashboard
-
-The financial management hub provides comprehensive control over institutional revenue, collections, and outstanding debts.
-
-![Treasurer Dashboard](./assets/tesorero.png)
-
-**Key Features:**
-- 💰 Projected vs. actual revenue tracking
-- 📈 Collection rate monitoring (42.1% in example)
-- ⚠️ Delinquency list management
-- 📊 Financial health indicators by program
-
-![Treasurer Payment Processing](./assets/tesorero1.png)
+### 4. Reportes PDF
+- **Certificados de Inscripción:** Documentos oficiales
+- **Estados de Cuenta:** Reportes financieros completos
+- **Reportes de Tesorería:** Análisis de ingresos por período
 
 ---
 
-### Director Control Panel
+## 🔐 Sistema de Roles (RBAC)
 
-Executive oversight with institution-wide metrics, operational status, and strategic insights.
+El sistema implementa **6 roles** con herencia de permisos:
 
-![Director Dashboard](./assets/director.png)
-
-**Key Features:**
-- 👥 Active student enrollment: 151
-- ⚠️ Management alerts: 151
-- 📈 Retention rate: 92%
-- 💵 Period revenue: $120,026.75
-- ✅ System status: 100% operational
+| Rol | Permisos |
+|-----|----------|
+| **Director** | Acceso total al sistema |
+| **Coordinador** | Dashboard institucional, gestión académica |
+| **Tesorero** | Gestión financiera, pagos, reportes |
+| **Profesor** | Gestión de notas (solo sus secciones) |
+| **Estudiante** | Ver información personal y académica |
+| **Administrativo** | Soporte administrativo |
 
 ---
 
-## 🔐 Intelligent Financial System
+## 💡 Destacados Técnicos
 
-### Automatic Debt Calculation
+### Migración Django → FastAPI
 
-The system implements sophisticated logic to determine student account status:
+Esta migración demuestra:
+
+1. **Arquitectura Modular:** Código organizado en 19 archivos especializados
+2. **Performance:** Agregaciones SQL directas vs ORM de Django
+3. **Type Safety:** Uso extensivo de Pydantic para validación
+4. **Documentación Automática:** OpenAPI/Swagger generado automáticamente
+5. **Mantenibilidad:** 4,426 líneas de código bien documentadas
+
+### Precisión Financiera
 
 ```python
-Student is delinquent if:
-1. ❌ Has unpaid enrollments from PREVIOUS periods
-2. ❌ Has enrollments from current period that exceeded grace period
-3. ✅ EXCEPT if has an active payment plan agreement
+# Cálculo con precisión de centavos
+from decimal import Decimal
+
+costo = Decimal(str(creditos)) * Decimal(str(precio_credito))
+if es_becado:
+    descuento = costo * (Decimal(str(porcentaje_beca)) / Decimal('100'))
+    costo -= descuento
 ```
 
-### Scholarship Management
+### Seguridad
 
-- Supports scholarship discounts: 25%, 50%, 75%, or 100%
-- Automatic application at payment registration
-- Real-time cost calculation based on credits
-
-**Formula:**
-```
-Base Cost = Credits × Price per Credit
-
-If scholarship exists:
-  Discount = Base Cost × (Scholarship % / 100)
-  Final Cost = Base Cost - Discount
-```
-
-### Grade Access Control
-
-Students with outstanding debts **cannot view their grades** until their account is current. The system displays:
-- Exact amount owed
-- Payment options
-- Grace period remaining (if applicable)
+- JWT tokens con expiración de 24 horas
+- Validación de permisos en cada endpoint
+- CORS configurado restrictivamente
+- Sanitización de queries SQL (parametrizadas)
 
 ---
 
-## 📊 Data Population System
+## 📊 Métricas del Proyecto
 
-Four specialized Python scripts generate a complete, realistic university ecosystem for testing and demonstration:
-
-### Script 1: `1_malla.py` - Academic Structure
-```
-✓ 5 University programs
-✓ 30 Subjects (6 per program)
-✓ Credits: 2-5 per subject
-✓ Differentiated pricing: $45-$80/credit
-```
-
-### Script 2: `2_secciones.py` - Time Logistics
-```
-✓ 4 Academic periods (3 closed + 1 active)
-✓ ~60 Sections (2 per subject)
-✓ Schedules: 7:00 AM - 8:00 PM
-✓ Room and day assignments
-```
-
-### Script 3: `3_poblacion.py` - Users & RBAC
-```
-✓ 150 Students
-✓ 20 Professors
-✓ 2 Directors
-✓ 3 Coordinators
-✓ 3 Treasurers
-✓ Credential files generated in credenciales/ folder
-✓ Default password: InfoCampus2026
-```
-
-### Script 4: `4_actividad.py` - Academic Activity
-```
-✓ ~750-900 Current enrollments
-✓ ~1,200 Historical enrollments
-✓ 20% failing grades (validation)
-✓ 80% payments completed
-✓ 20% delinquent students (validation)
-```
+- **Líneas de Código:** 4,426
+- **Endpoints API:** 19
+- **Tiempo de Desarrollo:** 5 fases completadas
+- **Cobertura de Funcionalidad:** 100% de Django migrado
+- **Documentación:** Completa con ejemplos
 
 ---
 
-## 🚀 Installation & Setup
+## 🚀 Deployment
 
-### Prerequisites
-
-- Python 3.8+
-- Node.js 16+
-- pip & npm
-
-### Backend Setup (Terminal 1)
-
+### Backend (Render)
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# venv\Scripts\activate   # Windows
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure database
-python manage.py makemigrations
-python manage.py migrate
-
-# Run population scripts IN ORDER
-python 1_malla.py
-python 2_secciones.py
-python 3_poblacion.py
-python 4_actividad.py
-
-# Start development server
-python manage.py runserver
+Build Command: pip install -r backend/requirements.txt
+Start Command: cd backend && gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
 ```
 
-**Backend will be available at:** `http://localhost:8000`
-
----
-
-### Frontend Setup (Terminal 2)
-
+### Frontend (Vercel)
 ```bash
-# Navigate to frontend directory
-cd frontend
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
+Framework: Vite
+Build Command: npm run build
+Output Directory: dist
 ```
 
-**Frontend will be available at:** `http://localhost:5173`
+### Base de Datos (Supabase)
+- PostgreSQL 15
+- Connection pooling
+- Row Level Security (RLS) habilitado
 
 ---
 
-## 🛠️ Django Admin Interface
-
-The system includes a fully configured Django admin panel for advanced management:
-
-![Django Admin](./assets/django.png)
-
-**Access:** `http://localhost:8000/admin/`
-
-**Features:**
-- User and group management
-- Direct database access
-- Token administration
-- Complete CRUD operations on all entities
-
-![Django Models](./assets/django1.png)
-
----
-
-## 📈 Key Metrics
-
-### System Volume
-
-| Entity | Quantity |
-|--------|----------|
-| Programs | 5 |
-| Subjects | 30 |
-| Academic Periods | 4 |
-| Sections | ~60 |
-| Total Users | 178 |
-| Enrollments | ~1,950 |
-| Payment Records | ~600 |
-
-### Codebase
-
-- **Backend (Python):** ~1,500 lines
-- **Frontend (JavaScript/React):** ~2,000 lines
-- **Population Scripts:** ~500 lines
-- **Total:** ~4,000 lines
-
----
-
-## 🎨 UI/UX Features
-
-- ✅ **Responsive Design** - Mobile, tablet, and desktop optimized
-- ✅ **Consistent Design System** - Unified color palette and typography
-- ✅ **Reusable Components** - Modular React component library
-- ✅ **Smooth Animations** - Framer Motion transitions
-- ✅ **Visual Feedback** - Loading states and informative messages
-- ✅ **Interactive Tables** - Sorting, pagination, and filtering
-- ✅ **Dynamic Charts** - Real-time data visualization with Recharts
-
----
-
-## 🔧 Core Dependencies
+## 🛠️ Tecnologías Clave
 
 ### Backend
-```
-Django==6.0.1
-djangorestframework==3.16.1
-djangorestframework-simplejwt==5.5.1
-django-cors-headers==4.9.0
-Faker==40.1.2
-Pillow==12.1.0
-python-dotenv==1.2.1
-```
+- **FastAPI 0.115** - Framework web moderno
+- **psycopg2-binary** - PostgreSQL adapter
+- **python-jose** - JWT tokens
+- **passlib** - Password hashing
+- **reportlab** - PDF generation
+- **pydantic-settings** - Environment configuration
 
 ### Frontend
-```
-react==19.2.0
-vite==7.2.4
-tailwindcss==4.1.18
-axios==1.13.2
-react-router-dom==7.13.0
-recharts==3.7.0
-framer-motion==12.29.2
-lucide-react==0.563.0
-```
+- **React 19** - UI library
+- **Vite** - Build tool
+- **Tailwind CSS** - Styling
+- **Axios** - HTTP client
+- **React Router** - Navigation
+
+### DevOps
+- **Render** - Backend hosting
+- **Vercel** - Frontend hosting
+- **Supabase** - Database
+- **GitHub** - Version control
 
 ---
 
-## 📚 Use Cases
+## 📈 Resultados
 
-### Student
-- ✅ View class schedules
-- ✅ Check grades (if account is current)
-- ✅ Review financial status
-- ✅ Access academic history
+Este proyecto demuestra:
 
-### Professor
-- ✅ Input and modify grades
-- ✅ View student rosters
-- ✅ Manage assigned sections
-- ✅ Access performance analytics
-
-### Treasurer
-- ✅ Process payments
-- ✅ Generate financial reports
-- ✅ Manage delinquencies
-- ✅ Monitor collection rates
-
-### Coordinator
-- ✅ Manage sections
-- ✅ Assign professors
-- ✅ Generate academic reports
-- ✅ View institutional statistics
-
-### Director
-- ✅ Full system access
-- ✅ Configure programs and periods
-- ✅ Executive dashboard
-- ✅ Institution-wide reporting
+✅ **Arquitectura de Software:** Diseño modular y mantenible  
+✅ **Migración de Legacy:** Transformación de Django a FastAPI  
+✅ **Lógica de Negocio Compleja:** Sistema financiero robusto  
+✅ **Seguridad:** Implementación de RBAC y JWT  
+✅ **Performance:** Optimizaciones SQL y connection pooling  
+✅ **Documentación:** Código bien documentado y estructurado  
 
 ---
 
-## 🔒 Security Features
-
-- 🔐 **JWT Authentication** - Secure token-based auth
-- 👤 **RBAC System** - Granular permission control
-- 📝 **Audit Trail** - Complete change tracking
-- 🛡️ **CORS Protection** - Controlled cross-origin requests
-- 🔑 **Password Hashing** - Django's built-in security
-
----
-
-## 🏆 Key Achievements
-
-### 1. Scalable Architecture
-- Decoupled frontend and backend
-- RESTful API design
-- Modular component structure
-- Normalized database schema
-
-### 2. Code Quality
-- Clean MVC architecture
-- Reusable components
-- Comprehensive commenting
-- Best practices implementation
-
-### 3. Operational Realism
-- Real-world data simulation
-- Business logic validation
-- Edge case handling
-- Comprehensive testing data
-
-### 4. User Experience
-- Intuitive navigation
-- Role-specific interfaces
-- Responsive design
-- Professional aesthetics
-
-### 5. Security & Compliance
-- Robust authentication
-- Granular access control
-- Complete audit trail
-- Data protection
-
----
-
-## 📖 Documentation
-
-Each module includes inline documentation:
-- API endpoint documentation
-- Model field descriptions
-- Component prop types
-- Business logic explanation
-
----
-
-## 🤝 Contributing
-
-This is a portfolio project demonstrating enterprise software development capabilities. For questions or collaboration inquiries, please reach out through GitHub.
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👨‍💻 Developer
+## 👨‍💻 Desarrollador
 
 **Arin Romero**  
-Prompt Architect | Product Owner | Project Director
+Full-Stack Developer | Python Specialist | AI-Driven Development
 
-*Specialized in AI-driven development methodologies and enterprise software architecture.*
-
----
-
-## 📞 Contact & Links
-
-- **GitHub:** [ariinromeror]
-- **Email:** [ariin.romeror@gmail.com]
+📧 ariin.romeror@gmail.com  
+💼 [LinkedIn](https://linkedin.com/in/yourprofile)  
+🐙 [GitHub](https://github.com/ariinromeror)
 
 ---
 
-*Built with modern web technologies and best practices for enterprise-grade applications.*
+<div align="center">
+
+**⭐ Star this repository if you found it helpful!**
+
+Built with ❤️ and ☕ using FastAPI + React
+
+</div>

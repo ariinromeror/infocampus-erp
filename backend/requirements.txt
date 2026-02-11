@@ -1,0 +1,27 @@
+# Info Campus ERP - Backend Dependencies
+# FastAPI Framework
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+python-multipart==0.0.9
+
+# Database
+psycopg2-binary==2.9.9
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Configuration
+pydantic==2.9.0
+pydantic-settings==2.5.2
+python-dotenv==1.0.1
+
+# PDF Generation
+reportlab==4.0.8
+
+# AI/ML (Chatbot)
+groq==0.9.0
+
+# Utilities
+decimal
+contextlib2

@@ -29,8 +29,13 @@ deno.lock
 .env.local
 .env.*.local
 credenciales/
-*.txt             # Esto ignora 'nuevo_mapa.txt', 'usuarios_y_claves.txt', etc.
-!README.md        # Esto asegura que el README SÍ se suba aunque sea .md
+# Archivos de texto temporales (pero NO requirements.txt)
+usuarios_y_claves.txt
+nuevo_mapa.txt
+
+# README siempre permitido
+!README.md
+!requirements.txt
 
 # Archivos de configuración personal (VS Code)
 .vscode/
