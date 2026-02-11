@@ -4,21 +4,21 @@ export const academicoService = {
     // ==========================================
     // 1. AUTENTICACIÓN Y PERFIL
     // ==========================================
-    getPerfil: () => api.get('user/me/'),
+    getPerfil: () => api.get('/auth/perfil'),
 
     // ==========================================
     // 2. ESTUDIANTE (Poderes Académicos y Financieros)
     // ==========================================
     // Ver materias inscritas y notas actuales
-    getMisInscripciones: () => api.get('inscripciones/'),
+    getMisInscripciones: () => api.get('/inscripciones/estudiante/mis-inscripciones'),
     
     // Historial académico completo
-    getMiHistorial: () => api.get('inscripciones/mi_historial/'),
+    getMiHistorial: () => api.get('/inscripciones/estudiante/mis-inscripciones'),
     
     // EL PODER DEL PDF: Descarga el estado de cuenta real
     descargarPDF: async () => {
         try {
-            const response = await api.get('finanzas/estado-cuenta/', {
+            const response = await api.get('/reportes/estado-cuenta/me', {
                 responseType: 'blob', // Crítico para archivos
             });
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -38,35 +38,35 @@ export const academicoService = {
     // 3. PROFESOR (Gestión de Clases y Notas)
     // ==========================================
     // Ver secciones asignadas y estadísticas
-    getStatsProfesor: () => api.get('profesor/dashboard/'),
+    getStatsProfesor: () => api.get('/dashboards/profesor'),
     
     // Ver lista de alumnos de una sección para poner notas
-    getDetalleSeccionNotas: (seccionId) => api.get(`profesor/seccion/${seccionId}/notas/`),
+    getDetalleSeccionNotas: (seccionId) => api.get(`/inscripciones/seccion/${seccionId}/notas`),
     
     // GUARDAR NOTAS: El poder de calificar
-    postNotasSeccion: (seccionId, data) => api.post(`profesor/seccion/${seccionId}/notas/`, data),
+    postNotasSeccion: (seccionId, data) => api.put(`/inscripciones/${seccionId}/nota`, data),
 
     // ==========================================
     // 4. TESORERÍA (Control de Dinero)
     // ==========================================
     // Dashboard financiero y lista de cobranza
-    getStatsFinanzas: () => api.get('finanzas/dashboard/'),
+    getStatsFinanzas: () => api.get('/dashboards/finanzas'),
     
     // EL PODER DE COBRAR: Registra un pago en el sistema
-    registrarPago: (usuarioId) => api.post(`finanzas/registrar-pago/${usuarioId}/`),
+    registrarPago: (usuarioId) => api.post(`/estudiantes/${usuarioId}/registrar-pago`),
 
     // ==========================================
     // 5. DIRECCIÓN Y COORDINACIÓN (Poderes de Administración)
     // ==========================================
     // Métricas globales (Alumnos, Carreras, Retención)
-    getStatsInstitucional: () => api.get('institucional/dashboard/'),
+    getStatsInstitucional: () => api.get('/dashboards/institucional'),
     
     // Ver TODAS las materias (Malla Curricular)
-    getMaterias: () => api.get('materias/'),
+    getMaterias: () => api.get('/materias'),
     
     // DETALLE DE ESTUDIANTE: Ver ficha técnica de cualquier alumno
-    getEstudiante: (id) => api.get(`estudiante/${id}/`),
+    getEstudiante: (id) => api.get(`/estudiantes/${id}`),
     
     // CERRAR CICLO: El poder de finalizar el semestre y procesar aprobados/reprobados
-    cerrarCiclo: () => api.post('institucional/cerrar-ciclo/'),
+    cerrarCiclo: () => api.post('/periodos/cerrar-ciclo'),
 };

@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
 
 const login = async (username, password) => {
     try {
-        const authResponse = await fetch(`${API_URL}/auth/login`, {  
+        const authResponse = await fetch(`${API_URL}/login`, {  
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),
