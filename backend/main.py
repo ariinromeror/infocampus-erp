@@ -2,6 +2,7 @@
 Info Campus ERP API v2.0
 FastAPI Backend - Arquitectura Modular
 Migrado desde Django REST Framework
+CORREGIDO para Render deployment
 """
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,8 +12,8 @@ import logging
 # Configuración
 from config import settings
 
-# Database
-from database import init_connection_pool
+# Database - CORRECCIÓN: import sin punto relativo
+from database import init_connection_pool, get_db
 
 # Routers
 from routers import auth, dashboards, inscripciones, estudiantes, periodos, reportes
@@ -132,18 +133,21 @@ async def health_check():
     """
     Health check del sistema
     Verifica conexión a base de datos
+    CORRECCIÓN: import sin punto relativo
     """
     try:
-        from .database import get_db
+        # Ya importado al inicio del archivo
         with get_db() as conn:
             cur = conn.cursor()
             cur.execute("SELECT 1")
+            result = cur.fetchone()
             cur.close()
         
         return {
             "status": "ok",
             "database": "connected",
-            "version": settings.APP_VERSION
+            "version": settings.APP_VERSION,
+            "check": result
         }
     except Exception as e:
         logger.error(f"❌ Health check falló: {e}")
