@@ -2,9 +2,6 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
-// Usamos la variable de Vercel que ya auditamos
-const API_BASE = (import.meta.env.VITE_API_URL || "https://infocampus-backend.onrender.com/api").replace(/\/$/, '');
-
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -20,8 +17,8 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            // URL EXACTA: Sin barra final para que FastAPI no dé 404
-            const targetUrl = "https://infocampus-backend.onrender.com/api/login";
+            // CORRECCIÓN 1: La ruta real es /api + /auth + /login
+            const targetUrl = "https://infocampus-backend.onrender.com/api/auth/login";
             
             const response = await fetch(targetUrl, {
                 method: 'POST',
@@ -35,10 +32,10 @@ export const AuthProvider = ({ children }) => {
                 return { success: false, message: data.detail || "Credenciales incorrectas" };
             }
 
-            // Mapeo según tu backend (access y user)
+            // CORRECCIÓN 2: Tu backend devuelve 'access_token', no 'access' ni 'token'
             const sessionData = {
                 ...data.user,
-                token: data.access 
+                token: data.access_token 
             };
 
             setUser(sessionData);
@@ -46,6 +43,7 @@ export const AuthProvider = ({ children }) => {
             return { success: true };
 
         } catch (err) {
+            console.error("Login error:", err);
             return { success: false, message: "Error de conexión" };
         }
     };
