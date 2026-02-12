@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (username, password) => {
         try {
             // IMPORTANTE: Se agrega la barra "/" final para coincidir con tu ruta @app.post("/api/login/")
-            const targetUrl = `${API_BASE}/login/`;
+            const targetUrl = "https://infocampus-backend.onrender.com/api/login";
             
             const response = await fetch(targetUrl, {
                 method: 'POST',
