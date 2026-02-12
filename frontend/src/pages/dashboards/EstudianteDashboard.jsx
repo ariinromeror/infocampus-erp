@@ -58,14 +58,8 @@ const EstudianteDashboard = () => {
   const handleDescargaPDF = async () => {
     if (user?.en_mora) return;
     try {
-      const response = await academicoService.descargarPDF();
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `Expediente_${user?.username}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
+      // FIX: Pasar el ID del usuario actual
+      await academicoService.descargarPDF(user.id);
     } catch (err) { console.error(err); }
   };
 

@@ -31,7 +31,10 @@ import EstudianteDetalle from "./pages/estudiante/EstudianteDetalle";
 import MallaCurricular from "./pages/admin/MallaCurricular";
 
 const DashboardRouter = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  // FIX: Prevenir rebote al login esperando a que termine el loading de AuthContext
+  if (loading) return null;
 
   switch (user?.rol) {
     case 'estudiante':
@@ -67,18 +70,85 @@ function App() {
         >
           <Route path="dashboard" element={<DashboardRouter />} />
 
-          <Route path="secciones" element={<ProfesorSecciones />} />
-          <Route path="gestion-notas/:seccionId" element={<GestionNotas />} />
+          {/* Rutas de Profesor */}
+          <Route 
+            path="secciones" 
+            element={
+              <ProtectedRoute allowedRoles={['profesor', 'director', 'coordinador']}>
+                <ProfesorSecciones />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="gestion-notas/:seccionId" 
+            element={
+              <ProtectedRoute allowedRoles={['profesor', 'director', 'coordinador']}>
+                <GestionNotas />
+              </ProtectedRoute>
+            } 
+          />
 
-          <Route path="validar-pagos" element={<ValidarPagos />} />
-          <Route path="lista-mora" element={<ListaMora />} />
+          {/* Rutas de Tesorería */}
+          <Route 
+            path="validar-pagos" 
+            element={
+              <ProtectedRoute allowedRoles={['tesorero', 'director']}>
+                <ValidarPagos />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="lista-mora" 
+            element={
+              <ProtectedRoute allowedRoles={['tesorero', 'director', 'coordinador']}>
+                <ListaMora />
+              </ProtectedRoute>
+            } 
+          />
 
-          <Route path="notas" element={<MisNotas />} />
-          <Route path="horarios" element={<Horarios />} />
-          <Route path="estado-cuenta" element={<EstadoCuenta />} />
+          {/* Rutas de Estudiante */}
+          <Route 
+            path="notas" 
+            element={
+              <ProtectedRoute allowedRoles={['estudiante']}>
+                <MisNotas />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="horarios" 
+            element={
+              <ProtectedRoute allowedRoles={['estudiante']}>
+                <Horarios />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="estado-cuenta" 
+            element={
+              <ProtectedRoute allowedRoles={['estudiante']}>
+                <EstadoCuenta />
+              </ProtectedRoute>
+            } 
+          />
 
-          <Route path="estudiante/:id" element={<EstudianteDetalle />} />
-          <Route path="malla-curricular" element={<MallaCurricular />} />
+          {/* Rutas de Admin/Gestión */}
+          <Route 
+            path="estudiante/:id" 
+            element={
+              <ProtectedRoute allowedRoles={['director', 'coordinador', 'tesorero', 'administrativo']}>
+                <EstudianteDetalle />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="malla-curricular" 
+            element={
+              <ProtectedRoute allowedRoles={['director', 'coordinador', 'administrativo']}>
+                <MallaCurricular />
+              </ProtectedRoute>
+            } 
+          />
 
           <Route index element={<Navigate to="/dashboard" replace />} />
         </Route>

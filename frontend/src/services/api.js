@@ -11,7 +11,7 @@ api.interceptors.request.use(
         const userData = localStorage.getItem('campus_user');
         if (userData) {
             const user = JSON.parse(userData);
-            // ✅ CORREGIDO: Cambiado de user.access a user.token
+            // ✅ CORREGIDO: Usar user.token que mapeamos en AuthContext
             if (user.token) {
                 config.headers.Authorization = `Bearer ${user.token}`;
             }

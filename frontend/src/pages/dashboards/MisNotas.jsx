@@ -16,7 +16,7 @@ const MisNotas = () => {
         fetchNotas();
     }, []);
 
-    const notasValidas = inscripciones.filter(i => i.nota_final > 0);
+    const notasValidas = inscripciones.filter(i => i.nota_final !== null && i.nota_final !== undefined && i.nota_final > 0);
     const promedio = notasValidas.length > 0 
         ? (notasValidas.reduce((acc, curr) => acc + parseFloat(curr.nota_final), 0) / notasValidas.length).toFixed(2)
         : "0.00";

@@ -17,8 +17,9 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            // CORRECCIÓN 1: La ruta real es /api + /auth + /login
-            const targetUrl = "https://infocampus-backend.onrender.com/api/auth/login";
+            // URL de la API desde variables de entorno o fallback a producción
+            const API_BASE = import.meta.env.VITE_API_URL || "https://infocampus-backend.onrender.com/api";
+            const targetUrl = `${API_BASE}/auth/login`;
             
             const response = await fetch(targetUrl, {
                 method: 'POST',
@@ -32,7 +33,7 @@ export const AuthProvider = ({ children }) => {
                 return { success: false, message: data.detail || "Credenciales incorrectas" };
             }
 
-            // CORRECCIÓN 2: Tu backend devuelve 'access_token', no 'access' ni 'token'
+            // Mapeo de respuesta de FastAPI (access_token -> token)
             const sessionData = {
                 ...data.user,
                 token: data.access_token 

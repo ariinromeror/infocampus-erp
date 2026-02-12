@@ -16,20 +16,40 @@ export const academicoService = {
     getMiHistorial: () => api.get('/inscripciones/estudiante/mis-inscripciones'),
     
     // EL PODER DEL PDF: Descarga el estado de cuenta real
-    descargarPDF: async () => {
+    descargarPDF: async (estudianteId) => {
         try {
-            const response = await api.get('/reportes/estado-cuenta/me', {
+            // El backend requiere el ID del estudiante en la ruta
+            const response = await api.get(`/reportes/estado-cuenta/${estudianteId}`, {
                 responseType: 'blob', // Crítico para archivos
             });
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `Estado_Cuenta_${new Date().getTime()}.pdf`);
+            link.setAttribute('download', `Estado_Cuenta_${estudianteId}_${new Date().getTime()}.pdf`);
             document.body.appendChild(link);
             link.click();
             link.remove();
         } catch (error) {
             console.error("Error al descargar el PDF:", error);
+            throw error;
+        }
+    },
+
+    // Reporte de tesorería para directores/tesoreros
+    getReporteTesoreria: async (dias = 30) => {
+        try {
+            const response = await api.get(`/reportes/tesoreria?dias=${dias}`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Reporte_Tesoreria_${new Date().getTime()}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error("Error al descargar el reporte de tesorería:", error);
             throw error;
         }
     },

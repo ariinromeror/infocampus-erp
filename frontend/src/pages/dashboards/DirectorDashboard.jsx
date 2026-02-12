@@ -84,8 +84,8 @@ const DirectorDashboard = () => {
   const handleDescargarReporte = async () => {
     setDownloadingPDF(true);
     try {
-      await academicoService.descargarPDF();
-      alert('✅ Reporte descargado exitosamente');
+      await academicoService.getReporteTesoreria();
+      alert('✅ Reporte de tesorería descargado exitosamente');
     } catch (error) {
       console.error('Error al descargar reporte:', error);
       alert('❌ Error al descargar el reporte. Por favor intente nuevamente.');
