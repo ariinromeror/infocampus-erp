@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            // IMPORTANTE: Se agrega la barra "/" final para coincidir con tu ruta @app.post("/api/login/")
+            // URL EXACTA: Sin barra final para que FastAPI no dé 404
             const targetUrl = "https://infocampus-backend.onrender.com/api/login";
             
             const response = await fetch(targetUrl, {
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
                 return { success: false, message: data.detail || "Credenciales incorrectas" };
             }
 
-            // Mapeo según tu TokenResponse de Python: usamos data.access
+            // Mapeo según tu backend (access y user)
             const sessionData = {
                 ...data.user,
                 token: data.access 
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
             return { success: true };
 
         } catch (err) {
-            return { success: false, message: "Servidor no disponible" };
+            return { success: false, message: "Error de conexión" };
         }
     };
 
