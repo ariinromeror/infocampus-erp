@@ -1,83 +1,197 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+"""
+Router de Autenticación
+Endpoints: /auth/login, /auth/perfil
+REFERENCIA DJANGO: views.py líneas 398-428
+"""
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer
+from typing import Dict, Any
 
-const AuthContext = createContext(null);
+from auth.schemas import LoginRequest, TokenResponse
+from auth.jwt_handler import create_access_token
+from auth.dependencies import get_current_user
+from database import get_db
+import logging
 
+logger = logging.getLogger(__name__)
 
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
-
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const storedUser = localStorage.getItem('campus_user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-        setLoading(false);
-    }, []);
-
-
-
-const login = async (username, password) => {
-    try {
-        const authResponse = await fetch(`${API_URL.replace(/\/$/, '')}/login`, {  
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password }),
-        });
-
-        const loginData = await authResponse.json();
-
-        if (!authResponse.ok) {
-            return { 
-                success: false, 
-                message: loginData.detail || loginData.error || "Error de credenciales" 
-            };
-        }
-
-        
-        const sessionData = {
-            ...loginData.user,
-            access: loginData.access_token  
-        };
-
-        setUser(sessionData);
-        localStorage.setItem('campus_user', JSON.stringify(sessionData));
-        return { success: true };
-
-    } catch (err) {
-        console.error("Error en login:", err);
-        return { 
-            success: false, 
-            message: "Error de conexión con el servidor" 
-        };
+router = APIRouter(
+    prefix="",  # Sin prefijo adicional, ya que main.py agrega /api
+    tags=["Autenticación"],
+    responses={
+        401: {"description": "No autorizado"},
+        403: {"description": "Prohibido"},
     }
-};
+)
 
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem('campus_user');
-        window.location.href = '/login';
-    };
 
-    const isAdmin = user?.rol === 'director' || user?.rol === 'coordinador';
-    const isStudent = user?.rol === 'estudiante';
-    const isBlocked = user?.en_mora === true;
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    summary="Autenticación de usuarios",
+    description="""
+    Autentica un usuario con username y password.
+    
+    Retorna un token JWT si las credenciales son correctas.
+    
+    **Roles válidos:** estudiante, profesor, coordinador, director, tesorero, administrativo
+    """
+)
+async def login(credentials: LoginRequest) -> TokenResponse:
+    """
+    Autenticación de usuarios
+    
+    REFERENCIA DJANGO: views.py - login_view (líneas 398-419)
+    
+    Args:
+        credentials: Username y password
+    
+    Returns:
+        TokenResponse con access_token y datos del usuario
+    
+    Raises:
+        HTTPException: 401 si credenciales inválidas
+    """
+    logger.info(f"🔐 Intento de login: {credentials.username}")
+    
+    try:
+        with get_db() as conn:
+            cur = conn.cursor()
+            
+            # Buscar usuario por username
+            cur.execute(
+                """
+                SELECT id, username, password, email, rol, 
+                       first_name, last_name, carrera_id,
+                       es_becado, porcentaje_beca
+                FROM public.usuarios 
+                WHERE username = %s
+                """,
+                (credentials.username,)
+            )
+            
+            user = cur.fetchone()
+            cur.close()
+        
+        if not user:
+            logger.warning(f"⚠️ Usuario no encontrado: {credentials.username}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Credenciales inválidas",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        # Convertir a dict
+        user_dict = dict(user)
+        
+        # Verificar password
+        # NOTA: En producción deberías usar bcrypt
+        # Por ahora comparamos directamente (como en el código actual)
+        stored_password = user_dict.get('password', '')
+        if credentials.password != stored_password:
+            logger.warning(f"⚠️ Password incorrecto para: {credentials.username}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Credenciales inválidas",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        # Crear token JWT
+        token_data = {
+            "user_id": user_dict['id'],
+            "username": user_dict['username'],
+            "rol": user_dict['rol']
+        }
+        
+        access_token = create_access_token(token_data)
+        
+        # Preparar datos del usuario (sin password)
+        user_data = {
+            "id": user_dict['id'],
+            "username": user_dict['username'],
+            "email": user_dict.get('email'),
+            "rol": user_dict['rol'],
+            "first_name": user_dict.get('first_name', ''),
+            "last_name": user_dict.get('last_name', ''),
+            "nombre_completo": f"{user_dict.get('first_name', '')} {user_dict.get('last_name', '')}".strip() or user_dict['username'],
+            "carrera_id": user_dict.get('carrera_id'),
+            "es_becado": user_dict.get('es_becado', False),
+            "porcentaje_beca": user_dict.get('porcentaje_beca', 0),
+        }
+        
+        logger.info(f"✅ Login exitoso: {credentials.username} (rol: {user_dict['rol']})")
+        
+        return TokenResponse(
+            access_token=access_token,
+            token_type="bearer",
+            user=user_data
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Error en login: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error interno del servidor: {str(e)}"
+        )
 
-    return (
-        <AuthContext.Provider value={{ 
-            user, 
-            login, 
-            logout, 
-            loading, 
-            isAdmin, 
-            isStudent, 
-            isBlocked 
-        }}>
-            {!loading && children}
-        </AuthContext.Provider>
-    );
-};
 
-export const useAuth = () => useContext(AuthContext);
+@router.get(
+    "/perfil",
+    summary="Obtener perfil del usuario",
+    description="Retorna los datos del usuario autenticado"
+)
+async def obtener_perfil(
+    current_user: Dict[str, Any] = Depends(get_current_user)
+) -> Dict[str, Any]:
+    """
+    Retorna los datos del usuario autenticado
+    
+    REFERENCIA DJANGO: views.py - perfil_usuario (líneas 422-428)
+    
+    Args:
+        current_user: Usuario autenticado (inyectado por Depends)
+    
+    Returns:
+        dict: Datos del usuario
+    """
+    # Preparar datos del usuario (sin información sensible)
+    user_data = {
+        "id": current_user['id'],
+        "username": current_user['username'],
+        "email": current_user.get('email'),
+        "rol": current_user['rol'],
+        "first_name": current_user.get('first_name', ''),
+        "last_name": current_user.get('last_name', ''),
+        "nombre_completo": f"{current_user.get('first_name', '')} {current_user.get('last_name', '')}".strip() or current_user['username'],
+        "carrera_id": current_user.get('carrera_id'),
+        "es_becado": current_user.get('es_becado', False),
+        "porcentaje_beca": current_user.get('porcentaje_beca', 0),
+    }
+    
+    logger.info(f"👤 Perfil consultado: {current_user['username']}")
+    
+    return user_data
+
+
+@router.get(
+    "/verify",
+    summary="Verificar validez del token",
+    description="Endpoint para verificar si un token JWT es válido"
+)
+async def verify_token_endpoint(
+    current_user: Dict[str, Any] = Depends(get_current_user)
+) -> Dict[str, Any]:
+    """
+    Verifica si el token es válido y retorna información básica
+    
+    Returns:
+        dict: Información de validez del token
+    """
+    return {
+        "valid": True,
+        "user_id": current_user['id'],
+        "username": current_user['username'],
+        "rol": current_user['rol']
+    }
