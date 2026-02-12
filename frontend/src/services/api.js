@@ -11,9 +11,9 @@ api.interceptors.request.use(
         const userData = localStorage.getItem('campus_user');
         if (userData) {
             const user = JSON.parse(userData);
-            // FastAPI usa Bearer token
-            if (user.access) {
-                config.headers.Authorization = `Bearer ${user.access}`;
+            // ✅ CORREGIDO: Cambiado de user.access a user.token
+            if (user.token) {
+                config.headers.Authorization = `Bearer ${user.token}`;
             }
         }
         return config;
