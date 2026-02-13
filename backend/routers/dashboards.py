@@ -52,7 +52,7 @@ async def dashboard_institucional(
     
     REFERENCIA DJANGO: views.py - metricas_institucionales (líneas 31-109)
     """
-    logger.info(f"📊 Dashboard institucional solicitado por: {current_user['username']}")
+    logger.info(f"📊 Dashboard institucional solicitado por: {current_user['cedula']}")
     
     try:
         with get_db() as conn:
@@ -102,7 +102,7 @@ async def dashboard_institucional(
             # Obtener estudiantes con inscripciones pendientes
             cur.execute("""
                 SELECT DISTINCT 
-                    u.id, u.username, u.first_name, u.last_name,
+                    u.id, u.cedula, u.first_name, u.last_name,
                     u.carrera_id, u.es_becado, u.porcentaje_beca,
                     u.convenio_activo, u.fecha_limite_convenio
                 FROM public.usuarios u
@@ -145,9 +145,9 @@ async def dashboard_institucional(
                 
                 alumnos_mora.append({
                     'id': est_dict['id'],
-                    'username': est_dict['username'],
-                    'nombre_completo': f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip() or est_dict['username'],
-                    'nombre': f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip() or est_dict['username'],
+                    'username': est_dict['cedula'],
+                    'nombre_completo': f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip() or est_dict['cedula'],
+                    'nombre': f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip() or est_dict['cedula'],
                     'deuda_total': str(deuda),
                     'en_mora': en_mora
                 })
@@ -200,7 +200,7 @@ async def dashboard_finanzas(
     
     REFERENCIA DJANGO: views.py - dashboard_finanzas (líneas 112-186)
     """
-    logger.info(f"💰 Dashboard de finanzas solicitado por: {current_user['username']}")
+    logger.info(f"💰 Dashboard de finanzas solicitado por: {current_user['cedula']}")
     
     try:
         with get_db() as conn:
@@ -280,7 +280,7 @@ async def dashboard_finanzas(
             
             cur.execute("""
                 SELECT 
-                    u.id, u.username, u.first_name, u.last_name,
+                    u.id, u.cedula, u.first_name, u.last_name,
                     u.es_becado, u.porcentaje_beca, u.carrera_id
                 FROM public.usuarios u
                 WHERE u.rol = 'estudiante'
@@ -316,8 +316,8 @@ async def dashboard_finanzas(
                     
                     listado_cobranza.append({
                         'id': est_dict['id'],
-                        'username': est_dict['username'],
-                        'nombre_completo': f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip() or est_dict['username'],
+                        'username': est_dict['cedula'],
+                        'nombre_completo': f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip() or est_dict['cedula'],
                         'en_mora': en_mora,
                         'deuda_total': float(deuda)
                     })
@@ -367,7 +367,7 @@ async def dashboard_profesor(
     
     REFERENCIA DJANGO: views.py - dashboard_profesor (líneas 252-288)
     """
-    logger.info(f"👨‍🏫 Dashboard profesor solicitado por: {current_user['username']}")
+    logger.info(f"👨‍🏫 Dashboard profesor solicitado por: {current_user['cedula']}")
     
     try:
         with get_db() as conn:

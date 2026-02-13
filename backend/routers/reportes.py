@@ -62,7 +62,7 @@ async def certificado_inscripcion(
     """
     Genera certificado de inscripción en PDF
     """
-    logger.info(f"📜 Certificado solicitado para inscripción {inscripcion_id} por {current_user['username']}")
+    logger.info(f"📜 Certificado solicitado para inscripción {inscripcion_id} por {current_user['cedula']}")
     
     try:
         with get_db() as conn:
@@ -75,7 +75,7 @@ async def certificado_inscripcion(
                     i.id,
                     i.fecha_inscripcion,
                     u.id as estudiante_id,
-                    u.username as estudiante_username,
+                    u.cedula as estudiante_cedula,
                     u.first_name as estudiante_first_name,
                     u.last_name as estudiante_last_name,
                     m.nombre as materia_nombre,
@@ -125,7 +125,7 @@ async def certificado_inscripcion(
             # Preparar datos para el PDF
             estudiante_data = {
                 'id': insc_dict['estudiante_id'],
-                'username': insc_dict['estudiante_username'],
+                'cedula': insc_dict['estudiante_cedula'],
                 'first_name': insc_dict['estudiante_first_name'],
                 'last_name': insc_dict['estudiante_last_name']
             }
@@ -212,7 +212,7 @@ async def estado_cuenta_pdf(
     
     REFERENCIA DJANGO: views.py - descargar_estado_cuenta (líneas 435-454)
     """
-    logger.info(f"📊 Estado de cuenta solicitado para estudiante {estudiante_id} por {current_user['username']}")
+    logger.info(f"📊 Estado de cuenta solicitado para estudiante {estudiante_id} por {current_user['cedula']}")
     
     try:
         with get_db() as conn:
@@ -222,7 +222,7 @@ async def estado_cuenta_pdf(
             cur.execute(
                 """
                 SELECT 
-                    u.id, u.username, u.email, u.first_name, u.last_name,
+                    u.id, u.cedula, u.email, u.first_name, u.last_name,
                     u.rol, u.carrera_id, u.es_becado, u.porcentaje_beca,
                     u.convenio_activo, u.fecha_limite_convenio,
                     c.nombre as carrera_nombre, c.codigo as carrera_codigo,
@@ -353,7 +353,7 @@ async def estado_cuenta_pdf(
         )
         
         # Preparar nombre del archivo
-        nombre_estudiante = f"{est_dict.get('first_name', '')}_{est_dict.get('last_name', '')}".strip() or est_dict['username']
+        nombre_estudiante = f"{est_dict.get('first_name', '')}_{est_dict.get('last_name', '')}".strip() or est_dict['cedula']
         nombre_archivo = f"estado_cuenta_{nombre_estudiante}_{datetime.now().strftime('%Y%m%d')}.pdf"
         
         logger.info(f"✅ Estado de cuenta generado: {nombre_archivo}")
@@ -408,7 +408,7 @@ async def reporte_tesoreria(
     """
     Genera reporte de tesorería en PDF
     """
-    logger.info(f"💰 Reporte de tesorería solicitado por {current_user['username']} (últimos {días} días)")
+    logger.info(f"💰 Reporte de tesorería solicitado por {current_user['cedula']} (últimos {días} días)")
     
     try:
         with get_db() as conn:
@@ -427,7 +427,7 @@ async def reporte_tesoreria(
                     p.metodo_pago,
                     p.fecha_pago,
                     p.comprobante,
-                    u.username as estudiante_username,
+                    u.cedula as estudiante_cedula,
                     u.first_name || ' ' || u.last_name as estudiante_nombre,
                     m.nombre as materia_nombre,
                     m.codigo as materia_codigo
@@ -455,7 +455,7 @@ async def reporte_tesoreria(
                 
                 pagos.append({
                     'fecha': row_dict['fecha_pago'].strftime('%d/%m/%Y %H:%M') if row_dict['fecha_pago'] else 'N/A',
-                    'estudiante': row_dict['estudiante_nombre'] or row_dict['estudiante_username'],
+                    'estudiante': row_dict['estudiante_nombre'] or row_dict['estudiante_cedula'],
                     'materia': row_dict['materia_nombre'],
                     'monto': monto,
                     'metodo': row_dict['metodo_pago'].capitalize()
@@ -661,7 +661,7 @@ DESGLOSE POR MÉTODO DE PAGO:
         elements.append(Spacer(1, 30))
         elements.append(Paragraph("_" * 60, normal_style))
         elements.append(Paragraph(
-            f"<para alignment='center' fontSize='8'>Documento generado el {datetime.now().strftime('%d/%m/%Y %H:%M')} por {current_user['username']}</para>",
+            f"<para alignment='center' fontSize='8'>Documento generado el {datetime.now().strftime('%d/%m/%Y %H:%M')} por {current_user['cedula']}</para>",
             normal_style
         ))
         

@@ -112,12 +112,12 @@ def generar_estado_cuenta(
     # Información del estudiante
     elements.append(Paragraph("<b>INFORMACIÓN DEL ESTUDIANTE</b>", header_style))
     
-    nombre_completo = f"{estudiante.get('first_name', '')} {estudiante.get('last_name', '')}".strip() or estudiante.get('username')
+    nombre_completo = f"{estudiante.get('first_name', '')} {estudiante.get('last_name', '')}".strip() or estudiante.get('cedula')
     
     info_data = [
         ['Campo', 'Valor'],
         ['Nombre', nombre_completo],
-        ['Usuario/Matrícula', estudiante.get('username', 'N/A')],
+        ['Cédula', estudiante.get('cedula', 'N/A')],
         ['Email', estudiante.get('email', 'N/A')],
         ['Carrera', carrera.get('nombre', 'N/A') if carrera else 'N/A'],
         ['Código de Carrera', carrera.get('codigo', 'N/A') if carrera else 'N/A'],
@@ -246,7 +246,7 @@ def generar_estado_cuenta(
     doc.build(elements)
     buffer.seek(0)
     
-    logger.info(f"✅ PDF generado para estudiante: {estudiante.get('username')}")
+    logger.info(f"✅ PDF generado para estudiante: {estudiante.get('cedula')}")
     
     return buffer
 
@@ -467,7 +467,7 @@ def generar_certificado_inscripcion(
     <para alignment="center">
     Por medio de la presente se certifica que:<br/><br/>
     <b>{nombre_estudiante}</b><br/>
-    Código: {estudiante.get('username')}<br/><br/>
+    Cédula: {estudiante.get('cedula')}<br/><br/>
     Se encuentra debidamente inscrito(a) en la carrera de <b>{nombre_carrera}</b>,<br/>
     en la materia de <b>{materia}</b>, sección <b>{seccion}</b>,<br/>
     correspondiente al período <b>{periodo}</b>.

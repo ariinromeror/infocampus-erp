@@ -86,7 +86,7 @@ async def registrar_pago(
     
     REFERENCIA DJANGO: views.py - registrar_pago_alumno (líneas 199-245)
     """
-    logger.info(f"💰 Registrando pago para estudiante {estudiante_id} por {current_user['username']}")
+    logger.info(f"💰 Registrando pago para estudiante {estudiante_id} por {current_user['cedula']}")
     
     try:
         with get_db() as conn:
@@ -222,7 +222,7 @@ async def registrar_pago(
             cur.close()
             
             # Mensaje de éxito
-            nombre_estudiante = f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip() or est_dict['username']
+            nombre_estudiante = f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip() or est_dict['cedula']
             
             respuesta = {
                 "message": f"Pago registrado exitosamente para {nombre_estudiante}. {pagos_creados} inscripciones procesadas.",
@@ -232,9 +232,9 @@ async def registrar_pago(
                 "estudiante": {
                     "id": est_dict['id'],
                     "nombre": nombre_estudiante,
-                    "username": est_dict['username']
+                    "username": est_dict['cedula']
                 },
-                "procesado_por": current_user['username'],
+                "procesado_por": current_user['cedula'],
                 "fecha_procesamiento": datetime.now().isoformat()
             }
             
@@ -284,7 +284,7 @@ async def detalle_estudiante(
             cur.execute(
                 """
                 SELECT 
-                    u.id, u.username, u.email, u.dni, u.first_name, u.last_name,
+                    u.id, u.cedula, u.email, u.dni, u.first_name, u.last_name,
                     u.rol, u.carrera_id, u.es_becado, u.porcentaje_beca,
                     u.convenio_activo, u.fecha_limite_convenio,
                     c.nombre as carrera_nombre, c.codigo as carrera_codigo
@@ -356,8 +356,8 @@ async def detalle_estudiante(
             
             return {
                 'id': est_dict['id'],
-                'username': est_dict['username'],
-                'nombre_completo': f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip() or est_dict['username'],
+                'username': est_dict['cedula'],
+                'nombre_completo': f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip() or est_dict['cedula'],
                 'email': est_dict.get('email'),
                 'dni': est_dict.get('dni'),
                 'rol': est_dict['rol'],
@@ -445,7 +445,7 @@ async def estado_cuenta(
             inscripciones = [dict(row) for row in cur.fetchall()]
             
             # Calcular métricas
-            from ..services.calculos_financieros import calcular_en_mora, calcular_deuda_vencida
+            from services.calculos_financieros import calcular_en_mora, calcular_deuda_vencida
             
             en_mora = calcular_en_mora(
                 est_dict,
@@ -466,7 +466,7 @@ async def estado_cuenta(
             
             return {
                 "estudiante_id": estudiante_id,
-                "username": est_dict['username'],
+                "username": est_dict['cedula'],
                 "nombre": f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip(),
                 "en_mora": en_mora,
                 "deuda_total": float(deuda_total),

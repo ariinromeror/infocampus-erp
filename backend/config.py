@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     
     # JWT Configuration
-    SECRET_KEY_AUTH: str = "infocampusproject2026"
+    SECRET_KEY_AUTH: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 horas
     

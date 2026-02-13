@@ -27,7 +27,7 @@ class TokenData(BaseModel):
     Datos decodificados del token JWT
     """
     user_id: int
-    username: str
+    cedula: str
     rol: str
     exp: Optional[int] = None
 
@@ -62,7 +62,7 @@ class UserProfile(BaseModel):
     REFERENCIA DJANGO: views.py - perfil_usuario
     """
     id: int
-    username: str
+    cedula: str
     email: Optional[str] = None
     rol: str
     first_name: Optional[str] = None

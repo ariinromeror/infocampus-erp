@@ -64,7 +64,7 @@ def calcular_en_mora(
             
             # Si el convenio aún está vigente (fecha límite >= hoy)
             if fecha_limite >= date.today():
-                logger.info(f"✅ Estudiante {estudiante.get('username')} protegido por convenio hasta {fecha_limite}")
+                logger.info(f"✅ Estudiante {estudiante.get('cedula')} protegido por convenio hasta {fecha_limite}")
                 return False  # NO está en mora
     
     # Si no hay inscripciones, no hay mora
@@ -123,7 +123,7 @@ def calcular_en_mora(
             
             # Si el período ya terminó antes del inicio del actual → MORA
             if fecha_fin_periodo < fecha_inicio_actual:
-                logger.info(f"🚫 Estudiante {estudiante.get('username')} en mora: deuda de período anterior")
+                logger.info(f"🚫 Estudiante {estudiante.get('cedula')} en mora: deuda de período anterior")
                 cur.close()
                 return True
                 
@@ -176,7 +176,7 @@ def calcular_en_mora(
             
             # Si se inscribió antes de la fecha límite de gracia → MORA
             if fecha_inscripcion < fecha_limite_gracia:
-                logger.info(f"🚫 Estudiante {estudiante.get('username')} en mora: superó días de gracia")
+                logger.info(f"🚫 Estudiante {estudiante.get('cedula')} en mora: superó días de gracia")
                 cur.close()
                 return True
                 

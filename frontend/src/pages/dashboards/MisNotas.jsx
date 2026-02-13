@@ -16,10 +16,18 @@ const MisNotas = () => {
         fetchNotas();
     }, []);
 
-    const notasValidas = inscripciones.filter(i => i.nota_final !== null && i.nota_final !== undefined && i.nota_final > 0);
+    const notasValidas = inscripciones.filter(i => i.nota_final !== null && i.nota_final !== undefined && parseFloat(i.nota_final) > 0);
     const promedio = notasValidas.length > 0 
         ? (notasValidas.reduce((acc, curr) => acc + parseFloat(curr.nota_final), 0) / notasValidas.length).toFixed(2)
         : "0.00";
+    
+    // Función auxiliar para obtener el estado de la nota
+    const getNotaDisplay = (nota) => {
+        if (nota === null || nota === undefined) return { valor: 'En Curso', esNumerica: false };
+        const notaNum = parseFloat(nota);
+        if (isNaN(notaNum) || notaNum <= 0) return { valor: 'En Curso', esNumerica: false };
+        return { valor: notaNum.toFixed(1), esNumerica: true };
+    };
 
     if (loading) return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-slate-900" size={40} /></div>;
 
@@ -94,19 +102,34 @@ const MisNotas = () => {
                                         </p>
                                     </td>
                                     <td className="px-8 py-5 text-center">
-                                        <span className={`text-lg font-black ${parseFloat(ins.nota_final) >= 7 ? 'text-indigo-600' : 'text-slate-400'}`}>
-                                            {ins.nota_final > 0 ? parseFloat(ins.nota_final).toFixed(1) : '--'}
-                                        </span>
+                                        {(() => {
+                                            const notaInfo = getNotaDisplay(ins.nota_final);
+                                            return (
+                                                <span className={`text-lg font-black ${
+                                                    notaInfo.esNumerica && parseFloat(ins.nota_final) >= 7 ? 'text-indigo-600' : 
+                                                    notaInfo.esNumerica ? 'text-slate-400' : 'text-amber-600'
+                                                }`}>
+                                                    {notaInfo.valor}
+                                                </span>
+                                            );
+                                        })()}
                                     </td>
                                     <td className="px-8 py-5 text-right">
-                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase ${
-                                            parseFloat(ins.nota_final) >= 7 
-                                            ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
-                                            : 'bg-slate-100 text-slate-400 border border-slate-200'
-                                        }`}>
-                                            {parseFloat(ins.nota_final) >= 7 ? <CheckCircle size={10} /> : null}
-                                            {parseFloat(ins.nota_final) >= 7 ? 'Acreditada' : 'En Curso'}
-                                        </span>
+                                        {(() => {
+                                            const notaInfo = getNotaDisplay(ins.nota_final);
+                                            const esAprobada = notaInfo.esNumerica && parseFloat(ins.nota_final) >= 7;
+                                            return (
+                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase ${
+                                                    esAprobada
+                                                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
+                                                    : notaInfo.esNumerica ? 'bg-slate-100 text-slate-400 border border-slate-200'
+                                                    : 'bg-amber-50 text-amber-600 border border-amber-100'
+                                                }`}>
+                                                    {esAprobada ? <CheckCircle size={10} /> : null}
+                                                    {esAprobada ? 'Acreditada' : notaInfo.esNumerica ? 'No Acreditada' : 'En Curso'}
+                                                </span>
+                                            );
+                                        })()}
                                     </td>
                                 </tr>
                             ))}
@@ -128,29 +151,47 @@ const MisNotas = () => {
                                     </h3>
                                 </div>
                                 <div className="ml-3 flex-shrink-0">
-                                    <div className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center border-2 ${
-                                        parseFloat(ins.nota_final) >= 7 
-                                        ? 'bg-indigo-50 border-indigo-100' 
-                                        : 'bg-slate-50 border-slate-100'
-                                    }`}>
-                                        <span className={`text-xl font-black ${
-                                            parseFloat(ins.nota_final) >= 7 ? 'text-indigo-600' : 'text-slate-400'
-                                        }`}>
-                                            {ins.nota_final > 0 ? parseFloat(ins.nota_final).toFixed(1) : '--'}
-                                        </span>
-                                        <span className="text-[7px] font-black text-slate-400 uppercase">Nota</span>
-                                    </div>
+                                    {(() => {
+                                        const notaInfo = getNotaDisplay(ins.nota_final);
+                                        const esAprobada = notaInfo.esNumerica && parseFloat(ins.nota_final) >= 7;
+                                        return (
+                                            <div className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center border-2 ${
+                                                esAprobada ? 'bg-indigo-50 border-indigo-100' : 
+                                                notaInfo.esNumerica ? 'bg-slate-50 border-slate-100' :
+                                                'bg-amber-50 border-amber-100'
+                                            }`}>
+                                                <span className={`text-xl font-black ${
+                                                    esAprobada ? 'text-indigo-600' : 
+                                                    notaInfo.esNumerica ? 'text-slate-400' : 'text-amber-600'
+                                                }`}>
+                                                    {notaInfo.valor}
+                                                </span>
+                                                <span className={`text-[7px] font-black uppercase ${
+                                                    notaInfo.esNumerica ? 'text-slate-400' : 'text-amber-600'
+                                                }`}>
+                                                    {notaInfo.esNumerica ? 'Nota' : 'Pendiente'}
+                                                </span>
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             </div>
                             <div className="pt-3 border-t border-slate-100">
-                                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase ${
-                                    parseFloat(ins.nota_final) >= 7 
-                                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
-                                    : 'bg-slate-100 text-slate-400 border border-slate-200'
-                                }`}>
-                                    {parseFloat(ins.nota_final) >= 7 ? <CheckCircle size={10} /> : null}
-                                    {parseFloat(ins.nota_final) >= 7 ? 'Acreditada' : 'En Curso'}
-                                </span>
+                                {(() => {
+                                    const notaInfo = getNotaDisplay(ins.nota_final);
+                                    const esAprobada = notaInfo.esNumerica && parseFloat(ins.nota_final) >= 7;
+                                    return (
+                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase ${
+                                            esAprobada 
+                                            ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
+                                            : notaInfo.esNumerica ? 'bg-slate-100 text-slate-400 border border-slate-200'
+                                            : 'bg-amber-50 text-amber-600 border border-amber-100'
+                                        }`}>
+                                            {esAprobada ? <CheckCircle size={10} /> : null}
+                                            {esAprobada ? 'Acreditada' : notaInfo.esNumerica ? 'No Acreditada' : 'En Curso'}
+                                        </span>
+                                    );
+                                })()}
                             </div>
                         </div>
                     ))}

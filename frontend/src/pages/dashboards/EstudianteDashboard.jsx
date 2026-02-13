@@ -41,7 +41,7 @@ const EstudianteDashboard = () => {
         nombre: item.seccion_detalle?.materia_detalle?.nombre || 'Sin nombre',
         codigo: item.seccion_detalle?.materia_detalle?.codigo || 'N/A',
         creditos: item.seccion_detalle?.materia_detalle?.creditos || 0,
-        nota: parseFloat(item.nota_final) || 0, 
+        nota: item.nota_final !== null && item.nota_final !== undefined ? parseFloat(item.nota_final) : null, 
         estado: item.estado
       }));
 
@@ -149,10 +149,14 @@ const EstudianteDashboard = () => {
                   
                   {/* Badge de Nota: El punto focal */}
                   <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center border-2 flex-shrink-0 ${
-                    m.nota >= 7 ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-slate-50 border-slate-100 text-slate-400'
+                    m.nota !== null && m.nota >= 7 ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : m.nota !== null ? 'bg-slate-50 border-slate-100 text-slate-400' : 'bg-amber-50 border-amber-100 text-amber-600'
                   }`}>
-                    <span className="text-lg sm:text-xl font-black leading-none">{m.nota > 0 ? m.nota.toFixed(1) : '--'}</span>
-                    <span className="text-[7px] font-black uppercase tracking-tighter mt-1">Nota</span>
+                    <span className="text-lg sm:text-xl font-black leading-none">
+                      {m.nota !== null ? m.nota.toFixed(1) : 'En Curso'}
+                    </span>
+                    <span className="text-[7px] font-black uppercase tracking-tighter mt-1">
+                      {m.nota !== null ? 'Nota' : 'Pendiente'}
+                    </span>
                   </div>
                 </div>
 

@@ -1,0 +1,3320 @@
+====================================================================================================
+INFOCAMPUS ERP - CREDENCIALES DE ACCESO
+====================================================================================================
+Generado: 2026-02-13 16:44:10
+Contraseña Universal: campus2026
+====================================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+USUARIOS ADMINISTRATIVOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ROL:      ADMIN
+Nombre:   Roberto Sánchez Mora
+Cédula:   211026225
+Email:    director@infocampus.edu.ec
+Título:   PhD en Administración Educativa
+Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+ROL:      ADMIN
+Nombre:   Patricia Velasco Luna
+Cédula:   244256787
+Email:    coordinador@infocampus.edu.ec
+Título:   Magíster en Gestión Académica
+Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+ROL:      ADMIN
+Nombre:   Marco Játiva Robles
+Cédula:   082772246
+Email:    tesorero@infocampus.edu.ec
+Título:   Contador Público Autorizado
+Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROFESORES (50 total)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[001] Feliciana Cantón
+      Cédula:       048091161
+      Email:        feliciana.cantón@infocampus.edu.ec
+      Título:       PhD en Sistemas Distribuidos
+      Especialidad: Sistemas Operativos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[002] Dominga Roca
+      Cédula:       011229258
+      Email:        dominga.roca@infocampus.edu.ec
+      Título:       Magíster en Ingeniería de Software
+      Especialidad: Desarrollo de Software
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[003] Chelo Flor
+      Cédula:       078439898
+      Email:        chelo.flor@infocampus.edu.ec
+      Título:       Magíster en Ingeniería de Software
+      Especialidad: Desarrollo Web
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[004] José Rocamora
+      Cédula:       090795667
+      Email:        josé.rocamora@infocampus.edu.ec
+      Título:       Magíster en Seguridad Informática
+      Especialidad: Bases de Datos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[005] Ricardo Caballero
+      Cédula:       145291369
+      Email:        ricardo.caballero@infocampus.edu.ec
+      Título:       Magíster en Ingeniería de Software
+      Especialidad: Redes y Telecomunicaciones
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[006] Edelmiro Pinedo
+      Cédula:       041398382
+      Email:        edelmiro.pinedo@infocampus.edu.ec
+      Título:       PhD en Ciencias de la Computación
+      Especialidad: Ciencia de Datos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[007] Julie Baños
+      Cédula:       204846335
+      Email:        julie.baños@infocampus.edu.ec
+      Título:       PhD en Ciencias de la Computación
+      Especialidad: Desarrollo Web
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[008] Leopoldo Santana
+      Cédula:       046082627
+      Email:        leopoldo.santana@infocampus.edu.ec
+      Título:       PhD en Sistemas Distribuidos
+      Especialidad: Arquitectura de Software
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[009] Emelina Donoso
+      Cédula:       205605397
+      Email:        emelina.donoso@infocampus.edu.ec
+      Título:       Magíster en Ingeniería de Software
+      Especialidad: Inteligencia Artificial
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[010] Isidoro Morata
+      Cédula:       223810620
+      Email:        isidoro.morata@infocampus.edu.ec
+      Título:       PhD en Inteligencia Artificial
+      Especialidad: Inteligencia Artificial
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[011] Héctor Miranda
+      Cédula:       046291476
+      Email:        héctor.miranda@infocampus.edu.ec
+      Título:       Magíster en Bases de Datos
+      Especialidad: Ciencia de Datos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[012] Jose Manuel Jódar
+      Cédula:       125219684
+      Email:        jose manuel.jódar@infocampus.edu.ec
+      Título:       Ingeniero en Sistemas
+      Especialidad: Arquitectura de Software
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[013] Ciriaco Arévalo
+      Cédula:       221638720
+      Email:        ciriaco.arévalo@infocampus.edu.ec
+      Título:       Ingeniero en Sistemas
+      Especialidad: Bases de Datos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[014] Rico Solé
+      Cédula:       243171339
+      Email:        rico.solé@infocampus.edu.ec
+      Título:       Magíster en Bases de Datos
+      Especialidad: Sistemas Operativos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[015] María José Nieto
+      Cédula:       218230283
+      Email:        maría josé.nieto@infocampus.edu.ec
+      Título:       Ingeniero en Sistemas
+      Especialidad: Ciencia de Datos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[016] Angelita Escalona
+      Cédula:       080844151
+      Email:        angelita.escalona@infocampus.edu.ec
+      Título:       PhD en Inteligencia Artificial
+      Especialidad: Sistemas Operativos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[017] Raúl Cuéllar
+      Cédula:       033957492
+      Email:        raúl.cuéllar@infocampus.edu.ec
+      Título:       PhD en Sistemas Distribuidos
+      Especialidad: Ciencia de Datos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[018] Dani Parejo
+      Cédula:       217414850
+      Email:        dani.parejo@infocampus.edu.ec
+      Título:       Ingeniero en Sistemas
+      Especialidad: Desarrollo Web
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[019] Lupita Torre
+      Cédula:       092258607
+      Email:        lupita.torre@infocampus.edu.ec
+      Título:       Ingeniero en Sistemas
+      Especialidad: Arquitectura de Software
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[020] Juan Manuel Álamo
+      Cédula:       149418801
+      Email:        juan manuel.álamo@infocampus.edu.ec
+      Título:       PhD en Inteligencia Artificial
+      Especialidad: Redes y Telecomunicaciones
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[021] Urbano Villar
+      Cédula:       177095325
+      Email:        urbano.villar@infocampus.edu.ec
+      Título:       Magíster en Seguridad Informática
+      Especialidad: Desarrollo de Software
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[022] Dionisia Grau
+      Cédula:       052830555
+      Email:        dionisia.grau@infocampus.edu.ec
+      Título:       Ingeniero en Sistemas
+      Especialidad: Sistemas Operativos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[023] Rosalina Murillo
+      Cédula:       036400156
+      Email:        rosalina.murillo@infocampus.edu.ec
+      Título:       PhD en Sistemas Distribuidos
+      Especialidad: Desarrollo Web
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[024] Eligio Suárez
+      Cédula:       098902592
+      Email:        eligio.suárez@infocampus.edu.ec
+      Título:       PhD en Ciencias de la Computación
+      Especialidad: Inteligencia Artificial
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[025] Paulino Roda
+      Cédula:       184805934
+      Email:        paulino.roda@infocampus.edu.ec
+      Título:       Ingeniero en Sistemas
+      Especialidad: Ciencia de Datos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[026] Nereida Canales
+      Cédula:       106165840
+      Email:        nereida.canales@infocampus.edu.ec
+      Título:       Magíster en Bases de Datos
+      Especialidad: Desarrollo de Software
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[027] Gervasio Lopez
+      Cédula:       172532342
+      Email:        gervasio.lopez@infocampus.edu.ec
+      Título:       PhD en Ciencias de la Computación
+      Especialidad: Arquitectura de Software
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[028] Florinda Alcolea
+      Cédula:       179208573
+      Email:        florinda.alcolea@infocampus.edu.ec
+      Título:       Magíster en Ingeniería de Software
+      Especialidad: Ciencia de Datos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[029] Rosaura Quero
+      Cédula:       188963110
+      Email:        rosaura.quero@infocampus.edu.ec
+      Título:       PhD en Ciencias de la Computación
+      Especialidad: Ciencia de Datos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[030] Teo Torrecilla
+      Cédula:       011974230
+      Email:        teo.torrecilla@infocampus.edu.ec
+      Título:       PhD en Inteligencia Artificial
+      Especialidad: Arquitectura de Software
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[031] Benjamín Mir
+      Cédula:       023920659
+      Email:        benjamín.mir@infocampus.edu.ec
+      Título:       PhD en Sistemas Distribuidos
+      Especialidad: Inteligencia Artificial
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[032] Baudelio Verdejo
+      Cédula:       247855662
+      Email:        baudelio.verdejo@infocampus.edu.ec
+      Título:       PhD en Ciencias de la Computación
+      Especialidad: Bases de Datos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[033] Dimas Hoz
+      Cédula:       227992842
+      Email:        dimas.hoz@infocampus.edu.ec
+      Título:       PhD en Sistemas Distribuidos
+      Especialidad: Bases de Datos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[034] Maximiano Julián
+      Cédula:       179443692
+      Email:        maximiano.julián@infocampus.edu.ec
+      Título:       Magíster en Ingeniería de Software
+      Especialidad: Redes y Telecomunicaciones
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[035] Zacarías Molina
+      Cédula:       106704314
+      Email:        zacarías.molina@infocampus.edu.ec
+      Título:       Ingeniero en Sistemas
+      Especialidad: Ciencia de Datos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[036] Brígida Garcés
+      Cédula:       177126882
+      Email:        brígida.garcés@infocampus.edu.ec
+      Título:       Magíster en Ingeniería de Software
+      Especialidad: Redes y Telecomunicaciones
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[037] Lucas Cruz
+      Cédula:       110616886
+      Email:        lucas.cruz@infocampus.edu.ec
+      Título:       PhD en Sistemas Distribuidos
+      Especialidad: Redes y Telecomunicaciones
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[038] Gracia Calleja
+      Cédula:       080074441
+      Email:        gracia.calleja@infocampus.edu.ec
+      Título:       Ingeniero en Sistemas
+      Especialidad: Desarrollo de Software
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[039] Lope Galvez
+      Cédula:       030901393
+      Email:        lope.galvez@infocampus.edu.ec
+      Título:       PhD en Inteligencia Artificial
+      Especialidad: Inteligencia Artificial
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[040] Cirino Roda
+      Cédula:       084701474
+      Email:        cirino.roda@infocampus.edu.ec
+      Título:       Magíster en Bases de Datos
+      Especialidad: Redes y Telecomunicaciones
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[041] Manuela Sala
+      Cédula:       059604201
+      Email:        manuela.sala@infocampus.edu.ec
+      Título:       Magíster en Bases de Datos
+      Especialidad: Redes y Telecomunicaciones
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[042] Andrés Felipe Peiró
+      Cédula:       143098907
+      Email:        andrés felipe.peiró@infocampus.edu.ec
+      Título:       PhD en Ciencias de la Computación
+      Especialidad: Sistemas Operativos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[043] Trini Pallarès
+      Cédula:       146489710
+      Email:        trini.pallarès@infocampus.edu.ec
+      Título:       Magíster en Seguridad Informática
+      Especialidad: Desarrollo de Software
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[044] Maribel Cortes
+      Cédula:       211063556
+      Email:        maribel.cortes@infocampus.edu.ec
+      Título:       Magíster en Bases de Datos
+      Especialidad: Ciencia de Datos
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[045] Micaela Requena
+      Cédula:       083199448
+      Email:        micaela.requena@infocampus.edu.ec
+      Título:       PhD en Sistemas Distribuidos
+      Especialidad: Desarrollo Web
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[046] Iván Flores
+      Cédula:       142292075
+      Email:        iván.flores@infocampus.edu.ec
+      Título:       Magíster en Bases de Datos
+      Especialidad: Redes y Telecomunicaciones
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[047] Sabas Moya
+      Cédula:       158102664
+      Email:        sabas.moya@infocampus.edu.ec
+      Título:       PhD en Ciencias de la Computación
+      Especialidad: Desarrollo de Software
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[048] Natanael Amorós
+      Cédula:       082426156
+      Email:        natanael.amorós@infocampus.edu.ec
+      Título:       Magíster en Bases de Datos
+      Especialidad: Desarrollo Web
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[049] Débora Rovira
+      Cédula:       130172634
+      Email:        débora.rovira@infocampus.edu.ec
+      Título:       Magíster en Bases de Datos
+      Especialidad: Desarrollo de Software
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+[050] Trinidad Falcón
+      Cédula:       097299105
+      Email:        trinidad.falcón@infocampus.edu.ec
+      Título:       Magíster en Bases de Datos
+      Especialidad: Desarrollo Web
+      Password:     campus2026
+----------------------------------------------------------------------------------------------------
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ESTUDIANTES (463 total)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+CARRERA: Administración de Empresas (42 estudiantes)
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+
+[001] Nilda Coll
+      Cédula:   237127324
+      Email:    nilda.coll76@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[002] Jaime Guerrero
+      Cédula:   232325845
+      Email:    jaime.guerrero77@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[003] Consuela Guerra
+      Cédula:   042522584
+      Email:    consuela.guerra78@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[004] Azucena Uribe
+      Cédula:   158151668
+      Email:    azucena.uribe79@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[005] Salvador Bustos
+      Cédula:   034810208
+      Email:    salvador.bustos80@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[006] Ani Mercader
+      Cédula:   104878157
+      Email:    ani.mercader81@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[007] Bernabé Vega
+      Cédula:   188395533
+      Email:    bernabé.vega82@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[008] Cintia Barco
+      Cédula:   196244907
+      Email:    cintia.barco83@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[009] María José Cerdá
+      Cédula:   132519389
+      Email:    maría josé.cerdá84@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[010] Jose Miguel Serna
+      Cédula:   151551499
+      Email:    jose miguel.serna85@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[011] Valentín Guillén
+      Cédula:   206681403
+      Email:    valentín.guillén86@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[012] Cayetana Valcárcel
+      Cédula:   117914759
+      Email:    cayetana.valcárcel87@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[013] Sigfrido Cañete
+      Cédula:   081455052
+      Email:    sigfrido.cañete88@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[014] Lourdes Gaya
+      Cédula:   234947308
+      Email:    lourdes.gaya89@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[015] Armida Valencia
+      Cédula:   142256059
+      Email:    armida.valencia90@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[016] Jeremías Pino
+      Cédula:   206649813
+      Email:    jeremías.pino91@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[017] María Cristina Agudo
+      Cédula:   154699233
+      Email:    maría cristina.agudo92@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[018] Lorenza Llobet
+      Cédula:   228165649
+      Email:    lorenza.llobet93@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[019] Ángel Hervia
+      Cédula:   234479027
+      Email:    ángel.hervia94@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[020] Héctor Talavera
+      Cédula:   139376395
+      Email:    héctor.talavera95@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[021] Rodrigo Chaves
+      Cédula:   207873294
+      Email:    rodrigo.chaves96@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[022] Delfina Pinto
+      Cédula:   204710687
+      Email:    delfina.pinto97@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[023] Eligio Bonet
+      Cédula:   150607727
+      Email:    eligio.bonet98@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[024] Luciana Herrero
+      Cédula:   063138579
+      Email:    luciana.herrero99@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[025] Eufemia Valcárcel
+      Cédula:   164782824
+      Email:    eufemia.valcárcel100@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[026] Melchor Manuel
+      Cédula:   185094689
+      Email:    melchor.manuel101@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[027] Bruno Rebollo
+      Cédula:   196862367
+      Email:    bruno.rebollo102@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[028] Teresa Blázquez
+      Cédula:   203679112
+      Email:    teresa.blázquez103@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[029] Abigaíl Vall
+      Cédula:   042047549
+      Email:    abigaíl.vall104@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[030] Urbano Santamaria
+      Cédula:   088142254
+      Email:    urbano.santamaria105@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[031] Gerónimo Estrada
+      Cédula:   192928423
+      Email:    gerónimo.estrada106@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[032] Danilo Jáuregui
+      Cédula:   025227823
+      Email:    danilo.jáuregui107@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[033] Demetrio España
+      Cédula:   026289282
+      Email:    demetrio.españa108@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[034] Agapito Tormo
+      Cédula:   223672875
+      Email:    agapito.tormo109@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[035] Manuelita Valbuena
+      Cédula:   193071942
+      Email:    manuelita.valbuena110@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[036] Octavia Gálvez
+      Cédula:   200290743
+      Email:    octavia.gálvez111@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[037] Luis Miguel Lastra
+      Cédula:   220138205
+      Email:    luis miguel.lastra112@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[038] Vito Benet
+      Cédula:   012278258
+      Email:    vito.benet113@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[039] Ana Belén Ledesma
+      Cédula:   167815809
+      Email:    ana belén.ledesma114@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[040] Virginia Catalán
+      Cédula:   248316282
+      Email:    virginia.catalán115@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[041] Casemiro Cazorla
+      Cédula:   221514084
+      Email:    casemiro.cazorla116@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[042] Emigdio Piñeiro
+      Cédula:   099663829
+      Email:    emigdio.piñeiro117@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+CARRERA: Arquitectura (37 estudiantes)
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+
+[001] Sergio Mateos
+      Cédula:   176478987
+      Email:    sergio.mateos234@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[002] Gerónimo Ponce
+      Cédula:   240415182
+      Email:    gerónimo.ponce235@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[003] Moreno Seco
+      Cédula:   145734406
+      Email:    moreno.seco236@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[004] Roldán Villalonga
+      Cédula:   024428728
+      Email:    roldán.villalonga237@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[005] Geraldo Cerdá
+      Cédula:   126470325
+      Email:    geraldo.cerdá238@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[006] Lucía Vidal
+      Cédula:   215124395
+      Email:    lucía.vidal239@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[007] Desiderio Catalá
+      Cédula:   010312856
+      Email:    desiderio.catalá240@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[008] Jose Ignacio Lobo
+      Cédula:   087362974
+      Email:    jose ignacio.lobo241@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[009] Lucas Elías
+      Cédula:   026644793
+      Email:    lucas.elías242@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[010] Hugo Barragán
+      Cédula:   159704667
+      Email:    hugo.barragán243@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[011] Joan Manrique
+      Cédula:   183791030
+      Email:    joan.manrique244@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[012] Marcelo Velázquez
+      Cédula:   199810065
+      Email:    marcelo.velázquez245@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[013] Édgar Naranjo
+      Cédula:   144288519
+      Email:    édgar.naranjo246@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[014] Concepción Porras
+      Cédula:   216582851
+      Email:    concepción.porras247@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[015] Vicente Velasco
+      Cédula:   175730132
+      Email:    vicente.velasco248@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[016] Jacinta Bonet
+      Cédula:   083315344
+      Email:    jacinta.bonet249@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[017] Eustaquio Criado
+      Cédula:   188140606
+      Email:    eustaquio.criado250@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[018] Eladio Andres
+      Cédula:   038759782
+      Email:    eladio.andres251@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[019] Odalis Solís
+      Cédula:   033843737
+      Email:    odalis.solís252@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[020] Raquel Donaire
+      Cédula:   073777493
+      Email:    raquel.donaire253@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[021] Estela Hervás
+      Cédula:   133578897
+      Email:    estela.hervás254@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[022] Paca Salgado
+      Cédula:   104377114
+      Email:    paca.salgado255@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[023] Victoriano Ferrán
+      Cédula:   075328122
+      Email:    victoriano.ferrán256@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[024] Otilia Palomar
+      Cédula:   098980165
+      Email:    otilia.palomar257@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[025] Salud Casas
+      Cédula:   168686406
+      Email:    salud.casas258@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[026] Oriana Sandoval
+      Cédula:   152768367
+      Email:    oriana.sandoval259@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[027] Custodia Tirado
+      Cédula:   170879827
+      Email:    custodia.tirado260@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[028] Vicenta Somoza
+      Cédula:   053071269
+      Email:    vicenta.somoza261@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[029] Renata Lobo
+      Cédula:   227016495
+      Email:    renata.lobo262@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[030] Olegario Blasco
+      Cédula:   174561762
+      Email:    olegario.blasco263@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[031] Sabas Tamayo
+      Cédula:   041549857
+      Email:    sabas.tamayo264@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[032] Paulino Rosales
+      Cédula:   096082857
+      Email:    paulino.rosales265@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[033] Clímaco Zapata
+      Cédula:   101685491
+      Email:    clímaco.zapata266@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[034] Trinidad Esteban
+      Cédula:   020736986
+      Email:    trinidad.esteban267@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[035] Valero Baños
+      Cédula:   191938256
+      Email:    valero.baños268@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[036] Teófila Valenciano
+      Cédula:   034942996
+      Email:    teófila.valenciano269@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[037] Olimpia Toledo
+      Cédula:   236973995
+      Email:    olimpia.toledo270@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+CARRERA: Contaduría Pública (36 estudiantes)
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+
+[001] Luna Plana
+      Cédula:   231894217
+      Email:    luna.plana118@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[002] Jose Angel Valero
+      Cédula:   136765054
+      Email:    jose angel.valero119@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[003] Luciano Vallejo
+      Cédula:   227070394
+      Email:    luciano.vallejo120@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[004] Luna Gómez
+      Cédula:   058062894
+      Email:    luna.gómez121@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[005] Maribel Leiva
+      Cédula:   240301601
+      Email:    maribel.leiva122@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[006] Ileana Carlos
+      Cédula:   081367121
+      Email:    ileana.carlos123@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[007] Dimas Vallés
+      Cédula:   204030359
+      Email:    dimas.vallés124@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[008] Abril Pedrosa
+      Cédula:   012912117
+      Email:    abril.pedrosa125@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[009] Amparo Barreda
+      Cédula:   038225583
+      Email:    amparo.barreda126@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[010] Jordi Manzanares
+      Cédula:   199089083
+      Email:    jordi.manzanares127@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[011] Dionisio Palma
+      Cédula:   156509253
+      Email:    dionisio.palma128@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[012] Oriana Dávila
+      Cédula:   044711163
+      Email:    oriana.dávila129@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[013] Cesar Jove
+      Cédula:   013316061
+      Email:    cesar.jove130@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[014] Francisco Jose Otero
+      Cédula:   017783301
+      Email:    francisco jose.otero131@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[015] Soledad Zaragoza
+      Cédula:   036903625
+      Email:    soledad.zaragoza132@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[016] Bautista Suarez
+      Cédula:   119450137
+      Email:    bautista.suarez133@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[017] Juanita Ortiz
+      Cédula:   112840247
+      Email:    juanita.ortiz134@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[018] Heriberto Castrillo
+      Cédula:   149419902
+      Email:    heriberto.castrillo135@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[019] Ulises Torrens
+      Cédula:   061535280
+      Email:    ulises.torrens136@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[020] Emma Giner
+      Cédula:   081153557
+      Email:    emma.giner137@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[021] Cándido Abella
+      Cédula:   067486490
+      Email:    cándido.abella138@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[022] Candelario Nogués
+      Cédula:   215158290
+      Email:    candelario.nogués139@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[023] Josefina Lara
+      Cédula:   190369038
+      Email:    josefina.lara140@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[024] Hilario Donaire
+      Cédula:   211644883
+      Email:    hilario.donaire141@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[025] Jaime Leiva
+      Cédula:   159683501
+      Email:    jaime.leiva142@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[026] Ani Villanueva
+      Cédula:   151850360
+      Email:    ani.villanueva143@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[027] Román Puerta
+      Cédula:   178639427
+      Email:    román.puerta144@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[028] Juan Luis Piñol
+      Cédula:   229054909
+      Email:    juan luis.piñol145@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[029] Olimpia Mateo
+      Cédula:   111611046
+      Email:    olimpia.mateo146@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[030] María Velázquez
+      Cédula:   059743266
+      Email:    maría.velázquez147@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[031] Fabiola Casals
+      Cédula:   228097992
+      Email:    fabiola.casals148@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[032] Inés Gabaldón
+      Cédula:   117201332
+      Email:    inés.gabaldón149@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[033] Adelaida Matas
+      Cédula:   178875686
+      Email:    adelaida.matas150@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[034] María Del Carmen Hernandez
+      Cédula:   206161745
+      Email:    maría del carmen.hernandez151@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[035] Marcelo Domínguez
+      Cédula:   247045814
+      Email:    marcelo.domínguez152@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[036] Renata Carranza
+      Cédula:   247245369
+      Email:    renata.carranza153@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+CARRERA: Derecho (40 estudiantes)
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+
+[001] Clotilde Seco
+      Cédula:   229461999
+      Email:    clotilde.seco154@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[002] Chus Castilla
+      Cédula:   063840181
+      Email:    chus.castilla155@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[003] Efraín Calderon
+      Cédula:   238892512
+      Email:    efraín.calderon156@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[004] Victoria Quintanilla
+      Cédula:   141992386
+      Email:    victoria.quintanilla157@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[005] Jenny Carmona
+      Cédula:   026526392
+      Email:    jenny.carmona158@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[006] Esmeralda Carranza
+      Cédula:   111879940
+      Email:    esmeralda.carranza159@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[007] Natalio Guitart
+      Cédula:   232795702
+      Email:    natalio.guitart160@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[008] Plácido Milla
+      Cédula:   189553408
+      Email:    plácido.milla161@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[009] Renata Tejera
+      Cédula:   149479318
+      Email:    renata.tejera162@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[010] Valero Arteaga
+      Cédula:   218602980
+      Email:    valero.arteaga163@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[011] Anselma Soria
+      Cédula:   196196412
+      Email:    anselma.soria164@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[012] Chus Valentín
+      Cédula:   137045649
+      Email:    chus.valentín165@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[013] Jacinto Santos
+      Cédula:   123768544
+      Email:    jacinto.santos166@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[014] Teófila Córdoba
+      Cédula:   128354992
+      Email:    teófila.córdoba167@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[015] Duilio Sanjuan
+      Cédula:   212850916
+      Email:    duilio.sanjuan168@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[016] Emelina Hurtado
+      Cédula:   070829538
+      Email:    emelina.hurtado169@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[017] Anita Mora
+      Cédula:   187265618
+      Email:    anita.mora170@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[018] Felipe Macías
+      Cédula:   025286488
+      Email:    felipe.macías171@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[019] Modesta Milla
+      Cédula:   135195892
+      Email:    modesta.milla172@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[020] René Armas
+      Cédula:   036082760
+      Email:    rené.armas173@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[021] Pepito Beltran
+      Cédula:   041343848
+      Email:    pepito.beltran174@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[022] Aitana Agullo
+      Cédula:   127044412
+      Email:    aitana.agullo175@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[023] Tomasa Fernández
+      Cédula:   036380959
+      Email:    tomasa.fernández176@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[024] Itziar Corral
+      Cédula:   022070499
+      Email:    itziar.corral177@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[025] Diego Aguado
+      Cédula:   202712048
+      Email:    diego.aguado178@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[026] Margarita Portillo
+      Cédula:   175417368
+      Email:    margarita.portillo179@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[027] Omar Galán
+      Cédula:   176957918
+      Email:    omar.galán180@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[028] Clímaco Figueroa
+      Cédula:   237209902
+      Email:    clímaco.figueroa181@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[029] Florentino Acuña
+      Cédula:   035700280
+      Email:    florentino.acuña182@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[030] Juan José Benito
+      Cédula:   062832250
+      Email:    juan josé.benito183@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[031] Rocío Manso
+      Cédula:   160378427
+      Email:    rocío.manso184@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[032] María Torrent
+      Cédula:   034417500
+      Email:    maría.torrent185@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[033] Félix Peñas
+      Cédula:   055673540
+      Email:    félix.peñas186@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[034] Lisandro Galán
+      Cédula:   056527290
+      Email:    lisandro.galán187@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[035] Consuela Cuevas
+      Cédula:   062338334
+      Email:    consuela.cuevas188@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[036] Francisco Gimenez
+      Cédula:   093665905
+      Email:    francisco.gimenez189@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[037] Azeneth Varela
+      Cédula:   199161684
+      Email:    azeneth.varela190@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[038] Benita Romeu
+      Cédula:   011047670
+      Email:    benita.romeu191@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[039] Leire Aguilar
+      Cédula:   168303742
+      Email:    leire.aguilar192@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[040] Herminio Reyes
+      Cédula:   151722063
+      Email:    herminio.reyes193@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+CARRERA: Diseño Gráfico (36 estudiantes)
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+
+[001] Merche Pi
+      Cédula:   078249736
+      Email:    merche.pi353@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[002] Tania Salazar
+      Cédula:   023940874
+      Email:    tania.salazar354@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[003] Geraldo Alfonso
+      Cédula:   191529979
+      Email:    geraldo.alfonso355@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[004] Darío Cabezas
+      Cédula:   142248273
+      Email:    darío.cabezas356@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[005] Teodora Morante
+      Cédula:   117285166
+      Email:    teodora.morante357@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[006] Joaquín Alfonso
+      Cédula:   067488694
+      Email:    joaquín.alfonso358@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[007] Vito Arnaiz
+      Cédula:   154485854
+      Email:    vito.arnaiz359@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[008] Jovita Casado
+      Cédula:   075155528
+      Email:    jovita.casado360@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[009] Flavia Abril
+      Cédula:   224272804
+      Email:    flavia.abril361@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[010] Galo Aguirre
+      Cédula:   047106857
+      Email:    galo.aguirre362@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[011] Eloísa Gallart
+      Cédula:   121610610
+      Email:    eloísa.gallart363@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[012] Luisina Lledó
+      Cédula:   051949043
+      Email:    luisina.lledó364@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[013] Soledad Gomez
+      Cédula:   246520226
+      Email:    soledad.gomez365@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[014] María Barros
+      Cédula:   072288339
+      Email:    maría.barros366@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[015] Estefanía Ródenas
+      Cédula:   214523125
+      Email:    estefanía.ródenas367@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[016] Celia Azorin
+      Cédula:   143673870
+      Email:    celia.azorin368@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[017] Guadalupe Campoy
+      Cédula:   235502985
+      Email:    guadalupe.campoy369@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[018] Florinda Pallarès
+      Cédula:   060334367
+      Email:    florinda.pallarès370@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[019] Herberto Fortuny
+      Cédula:   175804092
+      Email:    herberto.fortuny371@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[020] Jorge Terrón
+      Cédula:   089887624
+      Email:    jorge.terrón372@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[021] Plácido Arranz
+      Cédula:   089333451
+      Email:    plácido.arranz373@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[022] Sonia Cantero
+      Cédula:   193877340
+      Email:    sonia.cantero374@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[023] Jose Ignacio Arteaga
+      Cédula:   018501207
+      Email:    jose ignacio.arteaga375@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[024] Sofía Verdú
+      Cédula:   112963411
+      Email:    sofía.verdú376@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[025] Tamara Pi
+      Cédula:   035738761
+      Email:    tamara.pi377@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[026] Nilda Valencia
+      Cédula:   246830307
+      Email:    nilda.valencia378@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[027] Plácido Arenas
+      Cédula:   089854017
+      Email:    plácido.arenas379@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[028] Albano Suarez
+      Cédula:   240994876
+      Email:    albano.suarez380@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[029] Amor Perera
+      Cédula:   205965778
+      Email:    amor.perera381@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[030] Clementina Portillo
+      Cédula:   085335039
+      Email:    clementina.portillo382@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[031] Amílcar Torres
+      Cédula:   150278095
+      Email:    amílcar.torres383@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[032] Dan Castelló
+      Cédula:   026459507
+      Email:    dan.castelló384@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[033] Paloma Pujol
+      Cédula:   128393580
+      Email:    paloma.pujol385@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[034] Luz Rosales
+      Cédula:   067077289
+      Email:    luz.rosales386@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[035] Cruz Vargas
+      Cédula:   035178368
+      Email:    cruz.vargas387@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[036] Yéssica Cerezo
+      Cédula:   230452275
+      Email:    yéssica.cerezo388@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+CARRERA: Enfermería (37 estudiantes)
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+
+[001] Ambrosio Jordán
+      Cédula:   082745951
+      Email:    ambrosio.jordán316@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[002] Angelita Carrillo
+      Cédula:   059663121
+      Email:    angelita.carrillo317@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[003] José Manuel Barba
+      Cédula:   174728449
+      Email:    josé manuel.barba318@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[004] Baltasar Heras
+      Cédula:   247665678
+      Email:    baltasar.heras319@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[005] Serafina Ramos
+      Cédula:   077281581
+      Email:    serafina.ramos320@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[006] María Belén Azorin
+      Cédula:   110048174
+      Email:    maría belén.azorin321@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[007] Fulgencio Morán
+      Cédula:   150448580
+      Email:    fulgencio.morán322@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[008] Augusto Quero
+      Cédula:   064097874
+      Email:    augusto.quero323@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[009] Margarita Urrutia
+      Cédula:   026655993
+      Email:    margarita.urrutia324@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[010] Isaura Sedano
+      Cédula:   231001139
+      Email:    isaura.sedano325@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[011] Estefanía Piquer
+      Cédula:   010729386
+      Email:    estefanía.piquer326@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[012] Matías Arregui
+      Cédula:   161240068
+      Email:    matías.arregui327@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[013] Adoración Juan
+      Cédula:   102401312
+      Email:    adoración.juan328@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[014] Pacífica Llamas
+      Cédula:   202461477
+      Email:    pacífica.llamas329@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[015] Úrsula Camino
+      Cédula:   207901736
+      Email:    úrsula.camino330@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[016] Mohamed Baquero
+      Cédula:   126329780
+      Email:    mohamed.baquero331@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[017] Fabio Carreño
+      Cédula:   230889079
+      Email:    fabio.carreño332@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[018] Ciro Arjona
+      Cédula:   100821875
+      Email:    ciro.arjona333@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[019] Cloe Asenjo
+      Cédula:   170378638
+      Email:    cloe.asenjo334@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[020] Manuel Mir
+      Cédula:   182799776
+      Email:    manuel.mir335@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[021] Albina Seguí
+      Cédula:   093041761
+      Email:    albina.seguí336@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[022] Espiridión Herranz
+      Cédula:   218804373
+      Email:    espiridión.herranz337@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[023] Heriberto Mariño
+      Cédula:   091324960
+      Email:    heriberto.mariño338@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[024] Carolina Bartolomé
+      Cédula:   191325236
+      Email:    carolina.bartolomé339@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[025] Adelina Castro
+      Cédula:   047642039
+      Email:    adelina.castro340@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[026] Asdrubal Alfaro
+      Cédula:   040742287
+      Email:    asdrubal.alfaro341@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[027] Arturo Lastra
+      Cédula:   065133096
+      Email:    arturo.lastra342@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[028] Luisa Manzano
+      Cédula:   098066974
+      Email:    luisa.manzano343@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[029] Juan Pablo Perales
+      Cédula:   027901104
+      Email:    juan pablo.perales344@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[030] Samu Córdoba
+      Cédula:   088002693
+      Email:    samu.córdoba345@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[031] Fidela Fuertes
+      Cédula:   126964927
+      Email:    fidela.fuertes346@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[032] Carmina Miguel
+      Cédula:   085260322
+      Email:    carmina.miguel347@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[033] Duilio Asenjo
+      Cédula:   048706033
+      Email:    duilio.asenjo348@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[034] Guadalupe Paniagua
+      Cédula:   037908100
+      Email:    guadalupe.paniagua349@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[035] Melania Prat
+      Cédula:   123305759
+      Email:    melania.prat350@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[036] Ainara Antúnez
+      Cédula:   078797423
+      Email:    ainara.antúnez351@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[037] Máxima Clavero
+      Cédula:   210997185
+      Email:    máxima.clavero352@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+CARRERA: Gastronomía (37 estudiantes)
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+
+[001] Francisco Perea
+      Cédula:   112816779
+      Email:    francisco.perea427@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[002] Encarnación Seguí
+      Cédula:   017286814
+      Email:    encarnación.seguí428@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[003] Fabricio Ibáñez
+      Cédula:   059454779
+      Email:    fabricio.ibáñez429@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[004] Dan Falcó
+      Cédula:   183766151
+      Email:    dan.falcó430@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[005] Mercedes Pulido
+      Cédula:   010657128
+      Email:    mercedes.pulido431@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[006] María Romeu
+      Cédula:   138617265
+      Email:    maría.romeu432@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[007] Eustaquio Grande
+      Cédula:   158625339
+      Email:    eustaquio.grande433@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[008] Arcelia Roldán
+      Cédula:   123172892
+      Email:    arcelia.roldán434@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[009] Lino Cabrero
+      Cédula:   198177193
+      Email:    lino.cabrero435@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[010] Daniela Plana
+      Cédula:   189050947
+      Email:    daniela.plana436@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[011] Silvio Iriarte
+      Cédula:   021437020
+      Email:    silvio.iriarte437@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[012] Isidora Vilanova
+      Cédula:   070315743
+      Email:    isidora.vilanova438@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[013] Leandra Ledesma
+      Cédula:   141536435
+      Email:    leandra.ledesma439@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[014] Soledad Laguna
+      Cédula:   098211469
+      Email:    soledad.laguna440@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[015] Carmen Fábregas
+      Cédula:   237346663
+      Email:    carmen.fábregas441@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[016] Luisina Escribano
+      Cédula:   051817392
+      Email:    luisina.escribano442@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[017] Albano Cabo
+      Cédula:   104486830
+      Email:    albano.cabo443@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[018] Emilio Tenorio
+      Cédula:   125446688
+      Email:    emilio.tenorio444@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[019] Amado González
+      Cédula:   115937980
+      Email:    amado.gonzález445@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[020] Elodia Corbacho
+      Cédula:   061420245
+      Email:    elodia.corbacho446@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[021] Lorena Tejera
+      Cédula:   142118548
+      Email:    lorena.tejera447@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[022] Emiliano Hoyos
+      Cédula:   197190065
+      Email:    emiliano.hoyos448@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[023] Ainoa Cañellas
+      Cédula:   167118423
+      Email:    ainoa.cañellas449@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[024] Baltasar Camino
+      Cédula:   225544315
+      Email:    baltasar.camino450@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[025] Marcelino Soriano
+      Cédula:   058935394
+      Email:    marcelino.soriano451@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[026] Leire Gordillo
+      Cédula:   162078501
+      Email:    leire.gordillo452@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[027] Nieves Pera
+      Cédula:   186422866
+      Email:    nieves.pera453@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[028] Carmen Franch
+      Cédula:   167331414
+      Email:    carmen.franch454@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[029] Maxi Portillo
+      Cédula:   028575771
+      Email:    maxi.portillo455@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[030] Lina Guardiola
+      Cédula:   178216899
+      Email:    lina.guardiola456@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[031] Anastasia Cabanillas
+      Cédula:   118804694
+      Email:    anastasia.cabanillas457@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[032] Édgar Jordá
+      Cédula:   223002303
+      Email:    édgar.jordá458@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[033] Antonia Sandoval
+      Cédula:   231048001
+      Email:    antonia.sandoval459@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[034] Paco Solano
+      Cédula:   044640524
+      Email:    paco.solano460@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[035] Fabricio Soriano
+      Cédula:   075113000
+      Email:    fabricio.soriano461@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[036] Leocadio Quirós
+      Cédula:   157690441
+      Email:    leocadio.quirós462@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[037] Jennifer Cuevas
+      Cédula:   197969273
+      Email:    jennifer.cuevas463@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+CARRERA: Ingeniería Industrial (37 estudiantes)
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+
+[001] Paulino Rocha
+      Cédula:   024397519
+      Email:    paulino.rocha39@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[002] Jaime Romeu
+      Cédula:   096264525
+      Email:    jaime.romeu40@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[003] Ildefonso Peñalver
+      Cédula:   211819182
+      Email:    ildefonso.peñalver41@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[004] Elvira Salamanca
+      Cédula:   019159784
+      Email:    elvira.salamanca42@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[005] Héctor Cervantes
+      Cédula:   154804150
+      Email:    héctor.cervantes43@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[006] Alejo Segura
+      Cédula:   064113349
+      Email:    alejo.segura44@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[007] Dolores Pérez
+      Cédula:   133079688
+      Email:    dolores.pérez45@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[008] Hector Durán
+      Cédula:   190364069
+      Email:    hector.durán46@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[009] Martín Serrano
+      Cédula:   046379781
+      Email:    martín.serrano47@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[010] Trini Nuñez
+      Cédula:   208812270
+      Email:    trini.nuñez48@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[011] Irene Pomares
+      Cédula:   081292477
+      Email:    irene.pomares49@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[012] Isidora Zurita
+      Cédula:   110518317
+      Email:    isidora.zurita50@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[013] María Manuela Zurita
+      Cédula:   180541722
+      Email:    maría manuela.zurita51@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[014] Vidal Guillén
+      Cédula:   237677278
+      Email:    vidal.guillén52@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[015] Sandra Pera
+      Cédula:   109386945
+      Email:    sandra.pera53@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[016] Raúl Gutiérrez
+      Cédula:   127284076
+      Email:    raúl.gutiérrez54@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[017] Ildefonso Conde
+      Cédula:   073774483
+      Email:    ildefonso.conde55@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[018] Jose Antonio Cobo
+      Cédula:   043310636
+      Email:    jose antonio.cobo56@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[019] Fabiola Pombo
+      Cédula:   090057174
+      Email:    fabiola.pombo57@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[020] Lilia Seco
+      Cédula:   194492198
+      Email:    lilia.seco58@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[021] Tamara Páez
+      Cédula:   041420172
+      Email:    tamara.páez59@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[022] Mariano Salmerón
+      Cédula:   033124205
+      Email:    mariano.salmerón60@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[023] Jonatan Pazos
+      Cédula:   157311797
+      Email:    jonatan.pazos61@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[024] Gilberto Valera
+      Cédula:   073277501
+      Email:    gilberto.valera62@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[025] Berto Manrique
+      Cédula:   159492738
+      Email:    berto.manrique63@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[026] Martin Puig
+      Cédula:   033968790
+      Email:    martin.puig64@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[027] Ani Baquero
+      Cédula:   141571015
+      Email:    ani.baquero65@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[028] Dora Correa
+      Cédula:   022831131
+      Email:    dora.correa66@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[029] Jose Ignacio Ramis
+      Cédula:   047722131
+      Email:    jose ignacio.ramis67@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[030] Melchor Herranz
+      Cédula:   151627086
+      Email:    melchor.herranz68@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[031] Alonso Bosch
+      Cédula:   011240044
+      Email:    alonso.bosch69@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[032] Lucía Paz
+      Cédula:   190800177
+      Email:    lucía.paz70@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[033] Raúl Nicolau
+      Cédula:   196665620
+      Email:    raúl.nicolau71@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[034] Nacio Montalbán
+      Cédula:   221899398
+      Email:    nacio.montalbán72@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[035] Gabriela Goñi
+      Cédula:   180476919
+      Email:    gabriela.goñi73@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[036] Jessica Frías
+      Cédula:   170689606
+      Email:    jessica.frías74@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[037] Isa Lamas
+      Cédula:   217796907
+      Email:    isa.lamas75@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+CARRERA: Ingeniería en Sistemas (38 estudiantes)
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+
+[001] Prudencio Rosado
+      Cédula:   103061324
+      Email:    prudencio.rosado1@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[002] Santiago Abad
+      Cédula:   178165080
+      Email:    santiago.abad2@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[003] Hortensia Menéndez
+      Cédula:   201708011
+      Email:    hortensia.menéndez3@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[004] Josefa Villaverde
+      Cédula:   201439589
+      Email:    josefa.villaverde4@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[005] Amada Haro
+      Cédula:   054479434
+      Email:    amada.haro5@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[006] Adelaida Ricart
+      Cédula:   038223508
+      Email:    adelaida.ricart6@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[007] Tristán Torralba
+      Cédula:   102459469
+      Email:    tristán.torralba7@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[008] Nicolás Pinilla
+      Cédula:   228313921
+      Email:    nicolás.pinilla8@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[009] Haydée Carbó
+      Cédula:   094634210
+      Email:    haydée.carbó9@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[010] Dora Herrero
+      Cédula:   021665095
+      Email:    dora.herrero10@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[011] Laura Coronado
+      Cédula:   067578478
+      Email:    laura.coronado11@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[012] Renata Morcillo
+      Cédula:   198155287
+      Email:    renata.morcillo12@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[013] Victorino Alemany
+      Cédula:   123715198
+      Email:    victorino.alemany13@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[014] Maximiano Carreras
+      Cédula:   202970733
+      Email:    maximiano.carreras14@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[015] Carolina Manzano
+      Cédula:   012772343
+      Email:    carolina.manzano15@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[016] Balduino Cordero
+      Cédula:   092825622
+      Email:    balduino.cordero16@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[017] Emilia Cabezas
+      Cédula:   124860394
+      Email:    emilia.cabezas17@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[018] Rosalina Santiago
+      Cédula:   034368203
+      Email:    rosalina.santiago18@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[019] Marco Quevedo
+      Cédula:   044187241
+      Email:    marco.quevedo19@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[020] Adoración Villena
+      Cédula:   149536265
+      Email:    adoración.villena20@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[021] Martirio Arco
+      Cédula:   018970535
+      Email:    martirio.arco21@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[022] Eleuterio Maestre
+      Cédula:   244531756
+      Email:    eleuterio.maestre22@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[023] Jose Francisco Saura
+      Cédula:   076697229
+      Email:    jose francisco.saura23@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[024] María Carmen Pi
+      Cédula:   138874224
+      Email:    maría carmen.pi24@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[025] Natanael Cabrera
+      Cédula:   157463638
+      Email:    natanael.cabrera25@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[026] Susana Torrents
+      Cédula:   221297571
+      Email:    susana.torrents26@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[027] Esteban Hidalgo
+      Cédula:   083154511
+      Email:    esteban.hidalgo27@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[028] Adela Maestre
+      Cédula:   156929181
+      Email:    adela.maestre28@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[029] Manolo Almeida
+      Cédula:   210936021
+      Email:    manolo.almeida29@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[030] Cruz Patiño
+      Cédula:   047139816
+      Email:    cruz.patiño30@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[031] Lourdes Puerta
+      Cédula:   208447470
+      Email:    lourdes.puerta31@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[032] Bernardino Simó
+      Cédula:   084803013
+      Email:    bernardino.simó32@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[033] Fabián Ribera
+      Cédula:   095335239
+      Email:    fabián.ribera33@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[034] Donato Sanz
+      Cédula:   146346954
+      Email:    donato.sanz34@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[035] Calixta Iglesia
+      Cédula:   196500149
+      Email:    calixta.iglesia35@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[036] Porfirio Vilanova
+      Cédula:   148783826
+      Email:    porfirio.vilanova36@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[037] Eusebio Bastida
+      Cédula:   242881334
+      Email:    eusebio.bastida37@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[038] Claudio Milla
+      Cédula:   199695205
+      Email:    claudio.milla38@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+CARRERA: Marketing Digital (38 estudiantes)
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+
+[001] Manuela Portillo
+      Cédula:   148757111
+      Email:    manuela.portillo389@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[002] Vicente Badía
+      Cédula:   050378356
+      Email:    vicente.badía390@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[003] Olalla Morillo
+      Cédula:   071026985
+      Email:    olalla.morillo391@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[004] Roque Garcia
+      Cédula:   106493821
+      Email:    roque.garcia392@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[005] Moreno Pont
+      Cédula:   135195646
+      Email:    moreno.pont393@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[006] Marita Hervia
+      Cédula:   190158471
+      Email:    marita.hervia394@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[007] Amado Grande
+      Cédula:   180881639
+      Email:    amado.grande395@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[008] Fulgencio Fuente
+      Cédula:   193499397
+      Email:    fulgencio.fuente396@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[009] Plácido Puig
+      Cédula:   047181276
+      Email:    plácido.puig397@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[010] José Ángel Pintor
+      Cédula:   036211727
+      Email:    josé ángel.pintor398@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[011] Luciana Perelló
+      Cédula:   185898235
+      Email:    luciana.perelló399@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[012] María Manuela Olivé
+      Cédula:   046156911
+      Email:    maría manuela.olivé400@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[013] Gloria Cuéllar
+      Cédula:   049817411
+      Email:    gloria.cuéllar401@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[014] Maxi Ocaña
+      Cédula:   096686594
+      Email:    maxi.ocaña402@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[015] Juliana Cañizares
+      Cédula:   059638221
+      Email:    juliana.cañizares403@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[016] Ruperta Delgado
+      Cédula:   027965565
+      Email:    ruperta.delgado404@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[017] Dafne Arnaiz
+      Cédula:   231911107
+      Email:    dafne.arnaiz405@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[018] Emiliana Barceló
+      Cédula:   096634366
+      Email:    emiliana.barceló406@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[019] Modesto Alegria
+      Cédula:   028829937
+      Email:    modesto.alegria407@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[020] Rocío Vargas
+      Cédula:   063917693
+      Email:    rocío.vargas408@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[021] Felipe Morera
+      Cédula:   095863508
+      Email:    felipe.morera409@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[022] Juan Antonio Carlos
+      Cédula:   085512530
+      Email:    juan antonio.carlos410@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[023] Iris Cases
+      Cédula:   122878343
+      Email:    iris.cases411@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[024] Pastora Aramburu
+      Cédula:   022895296
+      Email:    pastora.aramburu412@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[025] Marcelino Cuervo
+      Cédula:   216538214
+      Email:    marcelino.cuervo413@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[026] Baltasar Mateu
+      Cédula:   162678818
+      Email:    baltasar.mateu414@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[027] Prudencia Diéguez
+      Cédula:   234444393
+      Email:    prudencia.diéguez415@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[028] Fortunata Perez
+      Cédula:   228864352
+      Email:    fortunata.perez416@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[029] Narcisa Escrivá
+      Cédula:   101505139
+      Email:    narcisa.escrivá417@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[030] Bárbara Casanova
+      Cédula:   214197509
+      Email:    bárbara.casanova418@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[031] Prudencio Duarte
+      Cédula:   225713824
+      Email:    prudencio.duarte419@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[032] Angelino Fabra
+      Cédula:   146407135
+      Email:    angelino.fabra420@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[033] Jordana Clemente
+      Cédula:   113719656
+      Email:    jordana.clemente421@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[034] Blas Mur
+      Cédula:   228189934
+      Email:    blas.mur422@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[035] Benigna Oller
+      Cédula:   225686224
+      Email:    benigna.oller423@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[036] Reyes Lastra
+      Cédula:   124614015
+      Email:    reyes.lastra424@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[037] Ramona Bosch
+      Cédula:   163524788
+      Email:    ramona.bosch425@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[038] Goyo Aguilar
+      Cédula:   052210026
+      Email:    goyo.aguilar426@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+CARRERA: Medicina (45 estudiantes)
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+
+[001] Josefa Porta
+      Cédula:   185402491
+      Email:    josefa.porta271@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[002] Vinicio Alegre
+      Cédula:   046243420
+      Email:    vinicio.alegre272@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[003] Judith Castrillo
+      Cédula:   110664926
+      Email:    judith.castrillo273@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[004] Samu Morata
+      Cédula:   142712711
+      Email:    samu.morata274@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[005] Eliseo Cabo
+      Cédula:   034161712
+      Email:    eliseo.cabo275@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[006] Jorge Díaz
+      Cédula:   121095966
+      Email:    jorge.díaz276@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[007] Georgina Galindo
+      Cédula:   042091537
+      Email:    georgina.galindo277@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[008] Tania Santana
+      Cédula:   011371106
+      Email:    tania.santana278@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[009] Jeremías Canet
+      Cédula:   106406637
+      Email:    jeremías.canet279@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[010] Elías Seco
+      Cédula:   198177820
+      Email:    elías.seco280@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[011] Narcisa Domínguez
+      Cédula:   066289366
+      Email:    narcisa.domínguez281@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[012] Tomasa Adadia
+      Cédula:   247622651
+      Email:    tomasa.adadia282@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[013] Flora Botella
+      Cédula:   206843135
+      Email:    flora.botella283@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[014] Julián Galan
+      Cédula:   105632512
+      Email:    julián.galan284@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[015] Hernando Chacón
+      Cédula:   247603853
+      Email:    hernando.chacón285@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[016] Paula Casado
+      Cédula:   198188667
+      Email:    paula.casado286@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[017] Josefina Colomer
+      Cédula:   154871662
+      Email:    josefina.colomer287@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[018] Gabriela Morera
+      Cédula:   054253777
+      Email:    gabriela.morera288@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[019] Leonor Machado
+      Cédula:   159502514
+      Email:    leonor.machado289@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[020] Zoraida Amaya
+      Cédula:   180829130
+      Email:    zoraida.amaya290@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[021] Demetrio Mena
+      Cédula:   043689545
+      Email:    demetrio.mena291@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[022] Ariel Prado
+      Cédula:   116111090
+      Email:    ariel.prado292@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[023] Ildefonso Saldaña
+      Cédula:   155410133
+      Email:    ildefonso.saldaña293@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[024] Yaiza Llano
+      Cédula:   017109627
+      Email:    yaiza.llano294@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[025] Abilio Correa
+      Cédula:   124359731
+      Email:    abilio.correa295@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[026] Eusebia Tamarit
+      Cédula:   157334400
+      Email:    eusebia.tamarit296@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[027] Viviana Palacio
+      Cédula:   211710032
+      Email:    viviana.palacio297@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[028] Palmira Cobo
+      Cédula:   118447080
+      Email:    palmira.cobo298@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[029] Demetrio Castro
+      Cédula:   130773207
+      Email:    demetrio.castro299@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[030] Eladio Bermudez
+      Cédula:   091605393
+      Email:    eladio.bermudez300@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[031] Agustín Bárcena
+      Cédula:   151275097
+      Email:    agustín.bárcena301@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[032] Conrado Alcalá
+      Cédula:   191364825
+      Email:    conrado.alcalá302@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[033] Aroa Goñi
+      Cédula:   209088868
+      Email:    aroa.goñi303@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[034] Magdalena Mesa
+      Cédula:   176438555
+      Email:    magdalena.mesa304@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[035] Salvador Cal
+      Cédula:   182513426
+      Email:    salvador.cal305@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[036] Elisa Quiroga
+      Cédula:   120508149
+      Email:    elisa.quiroga306@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[037] Gastón Piñeiro
+      Cédula:   147435820
+      Email:    gastón.piñeiro307@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[038] Silvia Carrera
+      Cédula:   100288204
+      Email:    silvia.carrera308@estudiantes.infocampus.edu.ec
+      Beca:     Hermanos (20%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[039] Imelda Trujillo
+      Cédula:   188118710
+      Email:    imelda.trujillo309@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[040] Nydia Amores
+      Cédula:   247572892
+      Email:    nydia.amores310@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[041] Bárbara Moreno
+      Cédula:   154365509
+      Email:    bárbara.moreno311@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[042] Obdulia Nicolás
+      Cédula:   079722608
+      Email:    obdulia.nicolás312@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[043] Bonifacio Talavera
+      Cédula:   073844565
+      Email:    bonifacio.talavera313@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[044] Gertrudis Solsona
+      Cédula:   114303387
+      Email:    gertrudis.solsona314@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[045] Flavia Cueto
+      Cédula:   056963398
+      Email:    flavia.cueto315@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+CARRERA: Psicología (40 estudiantes)
+▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸▸
+
+[001] Carmelita Azorin
+      Cédula:   202327766
+      Email:    carmelita.azorin194@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[002] Azahar Macías
+      Cédula:   128588933
+      Email:    azahar.macías195@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[003] Chema Llorente
+      Cédula:   051053063
+      Email:    chema.llorente196@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[004] Adalberto Julián
+      Cédula:   119756157
+      Email:    adalberto.julián197@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[005] Demetrio Jordá
+      Cédula:   160094423
+      Email:    demetrio.jordá198@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[006] Gervasio Falcón
+      Cédula:   020295023
+      Email:    gervasio.falcón199@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[007] Rocío Arnal
+      Cédula:   180888324
+      Email:    rocío.arnal200@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[008] Ani Olivera
+      Cédula:   120420040
+      Email:    ani.olivera201@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[009] Julio César Soto
+      Cédula:   036528750
+      Email:    julio césar.soto202@estudiantes.infocampus.edu.ec
+      Beca:     Completa (100%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[010] Nereida Conde
+      Cédula:   051413037
+      Email:    nereida.conde203@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[011] Marcela Nadal
+      Cédula:   079533853
+      Email:    marcela.nadal204@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[012] Matilde Salvador
+      Cédula:   177156175
+      Email:    matilde.salvador205@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[013] Kike Salgado
+      Cédula:   195531958
+      Email:    kike.salgado206@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[014] Carlota Balaguer
+      Cédula:   149322623
+      Email:    carlota.balaguer207@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[015] Rosalinda Morell
+      Cédula:   240611868
+      Email:    rosalinda.morell208@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[016] Fabricio Mateos
+      Cédula:   053033104
+      Email:    fabricio.mateos209@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[017] Ruperto Iborra
+      Cédula:   233430311
+      Email:    ruperto.iborra210@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[018] Víctor Lladó
+      Cédula:   185694395
+      Email:    víctor.lladó211@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[019] Isaac Nogués
+      Cédula:   185708699
+      Email:    isaac.nogués212@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[020] Olga Pizarro
+      Cédula:   084808634
+      Email:    olga.pizarro213@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[021] Marc Fiol
+      Cédula:   128979055
+      Email:    marc.fiol214@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[022] Ramiro Borrás
+      Cédula:   122304561
+      Email:    ramiro.borrás215@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[023] Guadalupe Almazán
+      Cédula:   214783641
+      Email:    guadalupe.almazán216@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[024] Vinicio Marqués
+      Cédula:   051645584
+      Email:    vinicio.marqués217@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[025] Emperatriz Luna
+      Cédula:   021433377
+      Email:    emperatriz.luna218@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Convenio: Convenio activo
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[026] Gema Trillo
+      Cédula:   147500641
+      Email:    gema.trillo219@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[027] Palmira Larrañaga
+      Cédula:   219243500
+      Email:    palmira.larrañaga220@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[028] Severo Camacho
+      Cédula:   026826236
+      Email:    severo.camacho221@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[029] Paola Morales
+      Cédula:   020312886
+      Email:    paola.morales222@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[030] Iker Miranda
+      Cédula:   058490755
+      Email:    iker.miranda223@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[031] Concepción Pulido
+      Cédula:   232014768
+      Email:    concepción.pulido224@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[032] Mariana Alberdi
+      Cédula:   206867161
+      Email:    mariana.alberdi225@estudiantes.infocampus.edu.ec
+      Beca:     Excelencia Académica (50%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[033] Eligio Navarrete
+      Cédula:   165981284
+      Email:    eligio.navarrete226@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[034] Azucena Hoz
+      Cédula:   114610754
+      Email:    azucena.hoz227@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[035] Esteban Saez
+      Cédula:   221488002
+      Email:    esteban.saez228@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[036] Hugo Galán
+      Cédula:   231669737
+      Email:    hugo.galán229@estudiantes.infocampus.edu.ec
+      Beca:     Deportiva (30%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[037] Montserrat Linares
+      Cédula:   249391774
+      Email:    montserrat.linares230@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[038] Zacarías Almeida
+      Cédula:   089915548
+      Email:    zacarías.almeida231@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[039] Tania Andreu
+      Cédula:   028946746
+      Email:    tania.andreu232@estudiantes.infocampus.edu.ec
+      Beca:     Necesidad Económica (40%)
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+[040] Fortunata Chacón
+      Cédula:   043751742
+      Email:    fortunata.chacón233@estudiantes.infocampus.edu.ec
+      Beca:     Sin beca
+      Password: campus2026
+----------------------------------------------------------------------------------------------------
+
+====================================================================================================
+RESUMEN DE CREDENCIALES
+====================================================================================================
+
+Total Administrativos: 3
+Total Profesores:      50
+Total Estudiantes:     463
+GRAN TOTAL:            516
+
+
+Estudiantes con Beca:     141 (30.5%)
+Estudiantes con Convenio: 46 (9.9%)
+
+Distribución por Carrera:
+  • Medicina: 45 estudiantes
+  • Administración de Empresas: 42 estudiantes
+  • Derecho: 40 estudiantes
+  • Psicología: 40 estudiantes
+  • Ingeniería en Sistemas: 38 estudiantes
+  • Marketing Digital: 38 estudiantes
+  • Ingeniería Industrial: 37 estudiantes
+  • Arquitectura: 37 estudiantes
+  • Enfermería: 37 estudiantes
+  • Gastronomía: 37 estudiantes
+  • Contaduría Pública: 36 estudiantes
+  • Diseño Gráfico: 36 estudiantes
+
+====================================================================================================
+NOTAS IMPORTANTES:
+====================================================================================================
+1. La contraseña 'campus2026' es universal para TODOS los usuarios
+2. Los estudiantes tienen historial académico de 1 a 4 años
+3. El 30% de estudiantes tienen becas activas
+4. El 10% de estudiantes tienen convenios de pago vigentes
+5. Todos los datos son generados con Faker para realismo
+6. IMPORTANTE: Las inscripciones están vinculadas con pago_id
+7. Tabla usuarios usa first_name y last_name (NO nombre_completo)
+8. Campo password_hash (NO password)
+9. Campos de beca: es_becado, porcentaje_beca, tipo_beca
+10. Campos de convenio: convenio_activo, fecha_limite_convenio
+====================================================================================================

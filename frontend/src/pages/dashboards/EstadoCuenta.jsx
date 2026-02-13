@@ -14,7 +14,7 @@ const EstadoCuenta = () => {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.body.appendChild(document.createElement('a'));
             link.href = url;
-            link.setAttribute('download', `Estado_Cuenta_${user.username}.pdf`);
+            link.setAttribute('download', `Estado_Cuenta_${user.cedula || user.username}.pdf`);
             link.click();
             link.parentNode.removeChild(link);
         } catch (err) {

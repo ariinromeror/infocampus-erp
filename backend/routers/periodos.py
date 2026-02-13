@@ -53,7 +53,7 @@ async def cerrar_ciclo_lectivo(
     
     REFERENCIA DJANGO: views.py - cerrar_ciclo_lectivo (líneas 529-602)
     """
-    logger.info(f"🔄 Cierre de ciclo solicitado por Director: {current_user['username']}")
+    logger.info(f"🔄 Cierre de ciclo solicitado por Director: {current_user['cedula']}")
     
     try:
         with get_db() as conn:
@@ -179,7 +179,7 @@ async def cerrar_ciclo_lectivo(
                     "total_procesados": total_procesados,
                     "tasa_aprobacion": round((aprobados / total_procesados * 100), 2) if total_procesados > 0 else 0
                 },
-                "cerrado_por": current_user['username'],
+                "cerrado_por": current_user['cedula'],
                 "fecha_cierre": __import__('datetime').datetime.now().isoformat()
             }
             

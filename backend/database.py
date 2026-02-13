@@ -49,11 +49,9 @@ def init_connection_pool(min_conn=1, max_conn=10):
         logger.info("✅ Pool de conexiones PostgreSQL inicializado")
         logger.info(f"   Host: {db_params['host']}:{db_params['port']}")
         logger.info(f"   Database: {db_params['dbname']}")
-    except Exception as e:
-        logger.error(f"❌ Error inicializando pool de conexiones: {e}")
-        logger.error(f"   DATABASE_URL format: {settings.DATABASE_URL[:30]}...")
-        raise
-
+        except Exception as e:
+            logger.error(f"❌ Error inicializando pool de conexiones: {e}")
+            raise
 @contextmanager
 def get_db():
     """

@@ -6,6 +6,7 @@ REFERENCIA DJANGO: views.py líneas 398-428
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 from typing import Dict, Any
+import bcrypt
 
 from auth.schemas import LoginRequest, TokenResponse
 from auth.jwt_handler import create_access_token
@@ -30,7 +31,7 @@ router = APIRouter(
     response_model=TokenResponse,
     summary="Autenticación de usuarios",
     description="""
-    Autentica un usuario con username y password.
+    Autentica un usuario con cédula y password.
     
     Retorna un token JWT si las credenciales son correctas.
     
@@ -44,7 +45,7 @@ async def login(credentials: LoginRequest) -> TokenResponse:
     REFERENCIA DJANGO: views.py - login_view (líneas 398-419)
     
     Args:
-        credentials: Username y password
+        credentials: Cedula (campo username en frontend) y password
     
     Returns:
         TokenResponse con access_token y datos del usuario
@@ -58,14 +59,14 @@ async def login(credentials: LoginRequest) -> TokenResponse:
         with get_db() as conn:
             cur = conn.cursor()
             
-            # Buscar usuario por username
+            # Buscar usuario por cedula (el campo username en frontend envía la cedula)
             cur.execute(
                 """
-                SELECT id, username, password, email, rol, 
+                SELECT id, cedula, password_hash, email, rol, 
                        first_name, last_name, carrera_id,
                        es_becado, porcentaje_beca
                 FROM public.usuarios 
-                WHERE username = %s
+                WHERE cedula = %s
                 """,
                 (credentials.username,)
             )
@@ -84,11 +85,9 @@ async def login(credentials: LoginRequest) -> TokenResponse:
         # Convertir a dict
         user_dict = dict(user)
         
-        # Verificar password
-        # NOTA: En producción deberías usar bcrypt
-        # Por ahora comparamos directamente (como en el código actual)
-        stored_password = user_dict.get('password', '')
-        if credentials.password != stored_password:
+        # Verificar password usando bcrypt
+        stored_password_hash = user_dict.get('password_hash', '')
+        if not bcrypt.checkpw(credentials.password.encode('utf-8'), stored_password_hash.encode('utf-8')):
             logger.warning(f"⚠️ Password incorrecto para: {credentials.username}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -99,7 +98,7 @@ async def login(credentials: LoginRequest) -> TokenResponse:
         # Crear token JWT
         token_data = {
             "user_id": user_dict['id'],
-            "username": user_dict['username'],
+            "cedula": user_dict['cedula'],
             "rol": user_dict['rol']
         }
         
@@ -108,12 +107,12 @@ async def login(credentials: LoginRequest) -> TokenResponse:
         # Preparar datos del usuario (sin password)
         user_data = {
             "id": user_dict['id'],
-            "username": user_dict['username'],
+            "cedula": user_dict['cedula'],
             "email": user_dict.get('email'),
             "rol": user_dict['rol'],
             "first_name": user_dict.get('first_name', ''),
             "last_name": user_dict.get('last_name', ''),
-            "nombre_completo": f"{user_dict.get('first_name', '')} {user_dict.get('last_name', '')}".strip() or user_dict['username'],
+            "nombre_completo": f"{user_dict.get('first_name', '')} {user_dict.get('last_name', '')}".strip() or user_dict['cedula'],
             "carrera_id": user_dict.get('carrera_id'),
             "es_becado": user_dict.get('es_becado', False),
             "porcentaje_beca": user_dict.get('porcentaje_beca', 0),
@@ -159,18 +158,18 @@ async def obtener_perfil(
     # Preparar datos del usuario (sin información sensible)
     user_data = {
         "id": current_user['id'],
-        "username": current_user['username'],
+        "cedula": current_user['cedula'],
         "email": current_user.get('email'),
         "rol": current_user['rol'],
         "first_name": current_user.get('first_name', ''),
         "last_name": current_user.get('last_name', ''),
-        "nombre_completo": f"{current_user.get('first_name', '')} {current_user.get('last_name', '')}".strip() or current_user['username'],
+        "nombre_completo": f"{current_user.get('first_name', '')} {current_user.get('last_name', '')}".strip() or current_user['cedula'],
         "carrera_id": current_user.get('carrera_id'),
         "es_becado": current_user.get('es_becado', False),
         "porcentaje_beca": current_user.get('porcentaje_beca', 0),
     }
     
-    logger.info(f"👤 Perfil consultado: {current_user['username']}")
+    logger.info(f"👤 Perfil consultado: {current_user['cedula']}")
     
     return user_data
 
@@ -192,6 +191,6 @@ async def verify_token_endpoint(
     return {
         "valid": True,
         "user_id": current_user['id'],
-        "username": current_user['username'],
+        "cedula": current_user['cedula'],
         "rol": current_user['rol']
     }

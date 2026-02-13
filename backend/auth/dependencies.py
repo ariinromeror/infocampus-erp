@@ -93,7 +93,7 @@ async def get_current_user(
     else:
         user_dict = dict(user)
     
-    logger.info(f"✅ Usuario autenticado: {user_dict.get('username')} (rol: {user_dict.get('rol')})")
+    logger.info(f"✅ Usuario autenticado: {user_dict.get('cedula')} (rol: {user_dict.get('rol')})")
     
     return user_dict
 
@@ -134,7 +134,7 @@ def require_roles(allowed_roles: List[str]):
         
         if user_rol not in allowed_roles:
             logger.warning(
-                f"🚫 Acceso denegado: usuario {current_user.get('username')} "
+                f"🚫 Acceso denegado: usuario {current_user.get('cedula')} "
                 f"con rol '{user_rol}' intentó acceder a recurso que requiere: {allowed_roles}"
             )
             raise HTTPException(

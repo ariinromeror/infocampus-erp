@@ -51,6 +51,7 @@ class InscripcionResponse(BaseModel):
     nota_final: Optional[float]
     estado: str
     pagado: bool
+    pago_id: Optional[int] = None  # Nuevo campo para relación con pagos
 
 
 # ================================================================
@@ -83,7 +84,7 @@ async def actualizar_nota(
     
     REFERENCIA DJANGO: views.py - gestion_notas_seccion (líneas 305-311)
     """
-    logger.info(f"📝 Actualizando nota para inscripción {inscripcion_id} por {current_user['username']}")
+    logger.info(f"📝 Actualizando nota para inscripción {inscripcion_id} por {current_user['cedula']}")
     
     try:
         with get_db() as conn:
@@ -215,7 +216,7 @@ async def actualizar_nota(
                 "inscripcion_id": inscripcion_id,
                 "nota_final": nota_data.nota_final,
                 "estado": nuevo_estado,
-                "puesto_por": current_user['username'],
+                "puesto_por": current_user['cedula'],
                 "fecha_actualizacion": datetime.now().isoformat()
             }
             
@@ -307,7 +308,7 @@ async def obtener_notas_seccion(
                     i.estado,
                     i.fecha_nota_puesta,
                     u.id as estudiante_id,
-                    u.username as estudiante_carnet,
+                    u.cedula as estudiante_carnet,
                     u.first_name || ' ' || u.last_name as estudiante_nombre,
                     CASE WHEN p.id IS NOT NULL THEN true ELSE false END as pagado
                 FROM public.inscripciones i
@@ -377,6 +378,7 @@ async def mis_inscripciones(
                     i.nota_final,
                     i.estado,
                     i.fecha_inscripcion,
+                    i.pago_id,
                     m.nombre as materia_nombre,
                     m.codigo as materia_codigo,
                     m.creditos,
@@ -394,7 +396,7 @@ async def mis_inscripciones(
                 """,
                 (current_user['id'],)
             )
-            
+
             inscripciones = []
             for row in cur.fetchall():
                 row_dict = dict(row)
@@ -409,6 +411,7 @@ async def mis_inscripciones(
                     "nota_final": float(row_dict['nota_final']) if row_dict['nota_final'] else None,
                     "estado": row_dict['estado'],
                     "pagado": row_dict['pagado'],
+                    "pago_id": row_dict['pago_id'],
                     "fecha_inscripcion": row_dict['fecha_inscripcion'].isoformat() if row_dict['fecha_inscripcion'] else None
                 })
             
@@ -449,7 +452,7 @@ async def detalle_inscripcion(
                     m.creditos,
                     s.codigo_seccion,
                     p.nombre as periodo_nombre,
-                    u.username as estudiante_username,
+                    u.cedula as estudiante_username,
                     u.first_name || ' ' || u.last_name as estudiante_nombre
                 FROM public.inscripciones i
                 JOIN public.secciones s ON i.seccion_id = s.id
