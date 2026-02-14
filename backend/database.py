@@ -33,7 +33,6 @@ def parse_database_url(url: str) -> dict:
 def init_connection_pool(min_conn=1, max_conn=10):
     """
     Inicializa el pool de conexiones a PostgreSQL
-    CORRECCIÓN: ThreadedConnectionPool requiere parámetros individuales, NO URL directa
     """
     global connection_pool
     try:
@@ -44,24 +43,19 @@ def init_connection_pool(min_conn=1, max_conn=10):
         connection_pool = ThreadedConnectionPool(
             minconn=min_conn,
             maxconn=max_conn,
-            **db_params  # Desempaquetar los parámetros parseados
+            **db_params
         )
         logger.info("✅ Pool de conexiones PostgreSQL inicializado")
         logger.info(f"   Host: {db_params['host']}:{db_params['port']}")
         logger.info(f"   Database: {db_params['dbname']}")
-        except Exception as e:
-            logger.error(f"❌ Error inicializando pool de conexiones: {e}")
-            raise
+    except Exception as e:
+        logger.error(f"❌ Error inicializando pool de conexiones: {e}")
+        raise
+
 @contextmanager
 def get_db():
     """
     Context manager para obtener conexión a la base de datos
-    
-    Uso:
-        with get_db() as conn:
-            cur = conn.cursor()
-            cur.execute("SELECT * FROM usuarios")
-            results = cur.fetchall()
     """
     global connection_pool
     
@@ -71,7 +65,6 @@ def get_db():
     conn = None
     try:
         conn = connection_pool.getconn()
-        # Configurar cursor factory para esta conexión
         conn.cursor_factory = RealDictCursor
         yield conn
         conn.commit()
@@ -86,7 +79,7 @@ def get_db():
 
 def get_db_direct():
     """
-    Obtiene una conexión directa (sin pool) - para casos especiales
+    Obtiene una conexión directa (sin pool)
     """
     db_params = parse_database_url(settings.DATABASE_URL)
     return psycopg2.connect(
