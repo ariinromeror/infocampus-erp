@@ -6,6 +6,7 @@ python-multipart==0.0.9
 
 # Database
 psycopg2-binary==2.9.10
+asyncpg==0.30.0
 
 # Web Server (NEW)
 gunicorn==23.0.0
