@@ -1,0 +1,141 @@
+====================================================================================================
+INFOCAMPUS ERP — CREDENCIALES DE ACCESO
+====================================================================================================
+Generado : 2026-03-17 10:18:15
+Contraseña universal: campus2026
+====================================================================================================
+
+USUARIOS DEMO (Login.jsx Demo Access Panel)
+------------------------------------------------------------
+  ROL            EMAIL                                      USERNAME             PASS
+------------------------------------------------------------
+  DIRECTOR       director@infocampus.edu.es                 director             campus2026
+  COORDINADOR    coordinador@infocampus.edu.es              coordinador          campus2026
+  TESORERO       tesorero@infocampus.edu.es                 tesorero             campus2026
+  ADMINISTRATIVO secretaria@infocampus.edu.es               secretaria           campus2026
+  PROFESOR       profesor@infocampus.edu.es                 profesor             campus2026
+  ESTUDIANTE     estudiante@infocampus.edu.es               estudiante           campus2026
+
+PROFESORES (primeros 15)
+------------------------------------------------------------
+  Feliciana Cantón | feliciana.canton | feliciana.canton@infocampus.edu.es | campus2026
+  Dominga Roca | dominga.roca | dominga.roca@infocampus.edu.es | campus2026
+  Chelo Flor | chelo.flor | chelo.flor@infocampus.edu.es | campus2026
+  José Rocamora | jose.rocamora | jose.rocamora@infocampus.edu.es | campus2026
+  Ricardo Caballero | ricardo.caballero | ricardo.caballero@infocampus.edu.es | campus2026
+  Edelmiro Pinedo | edelmiro.pinedo | edelmiro.pinedo@infocampus.edu.es | campus2026
+  Julie Baños | julie.banos | julie.banos@infocampus.edu.es | campus2026
+  Leopoldo Santana | leopoldo.santana | leopoldo.santana@infocampus.edu.es | campus2026
+  Emelina Donoso | emelina.donoso | emelina.donoso@infocampus.edu.es | campus2026
+  Isidoro Morata | isidoro.morata | isidoro.morata@infocampus.edu.es | campus2026
+  Héctor Miranda | hector.miranda | hector.miranda@infocampus.edu.es | campus2026
+  Jose Manuel Jódar | jose.manuel.jodar | jose.manuel.jodar@infocampus.edu.es | campus2026
+  Ciriaco Arévalo | ciriaco.arevalo | ciriaco.arevalo@infocampus.edu.es | campus2026
+  Rico Solé | rico.sole | rico.sole@infocampus.edu.es | campus2026
+  María José Nieto | maria.jose.nieto | maria.jose.nieto@infocampus.edu.es | campus2026
+
+ESTUDIANTES (muestra por carrera)
+------------------------------------------------------------
+
+  Administración de Empresas (14 alumnos)
+    Dora Herrero | dora.herrero18 | dora.herrero18@alumnos.infocampus.edu.es | Sin beca
+    Ángel Coronado | angel.coronado19 | angel.coronado19@alumnos.infocampus.edu.es | Sin beca
+    Renata Morcillo | renata.morcillo20 | renata.morcillo20@alumnos.infocampus.edu.es | Sin beca
+    Victorino Alemany | victorino.alemany21 | victorino.alemany21@alumnos.infocampus.edu.es | Sin beca
+    Maximiano Carreras | maximiano.carreras22 | maximiano.carreras22@alumnos.infocampus.edu.es | Sin beca
+
+  Arquitectura (17 alumnos)
+    Jose Antonio Cobo | jose.antonio.cobo64 | jose.antonio.cobo64@alumnos.infocampus.edu.es | Sin beca
+    Fabiola Pombo | fabiola.pombo65 | fabiola.pombo65@alumnos.infocampus.edu.es | Sin beca
+    Lilia Seco | lilia.seco66 | lilia.seco66@alumnos.infocampus.edu.es | Necesidad Económica 40%
+    Tamara Páez | tamara.paez67 | tamara.paez67@alumnos.infocampus.edu.es | Deportiva 30%
+    Mariano Salmerón | mariano.salmeron68 | mariano.salmeron68@alumnos.infocampus.edu.es | Sin beca
+
+  Contabilidad y Finanzas (14 alumnos)
+    Chus Valentín | chus.valentin173 | chus.valentin173@alumnos.infocampus.edu.es | Sin beca
+    Jacinto Santos | jacinto.santos174 | jacinto.santos174@alumnos.infocampus.edu.es | Familia Numerosa 20%
+    Teófila Córdoba | teofila.cordoba175 | teofila.cordoba175@alumnos.infocampus.edu.es | Sin beca
+    Duilio Sanjuan | duilio.sanjuan176 | duilio.sanjuan176@alumnos.infocampus.edu.es | Sin beca
+    Emelina Hurtado | emelina.hurtado177 | emelina.hurtado177@alumnos.infocampus.edu.es | Sin beca
+
+  Derecho (16 alumnos)
+    María Carmen Pi | maria.carmen.pi32 | maria.carmen.pi32@alumnos.infocampus.edu.es | Sin beca
+    Natanael Cabrera | natanael.cabrera33 | natanael.cabrera33@alumnos.infocampus.edu.es | Sin beca
+    Susana Torrents | susana.torrents34 | susana.torrents34@alumnos.infocampus.edu.es | Sin beca
+    Esteban Hidalgo | esteban.hidalgo35 | esteban.hidalgo35@alumnos.infocampus.edu.es | Beca Completa 100%
+    Adela Maestre | adela.maestre36 | adela.maestre36@alumnos.infocampus.edu.es | Deportiva 30%
+
+  Diseño Gráfico (18 alumnos)
+    Abigaíl Vall | abigail.vall112 | abigail.vall112@alumnos.infocampus.edu.es | Sin beca
+    Urbano Santamaria | urbano.santamaria113 | urbano.santamaria113@alumnos.infocampus.edu.es | Sin beca
+    Gerónimo Estrada | geronimo.estrada114 | geronimo.estrada114@alumnos.infocampus.edu.es | Sin beca
+    Danilo Jáuregui | danilo.jauregui115 | danilo.jauregui115@alumnos.infocampus.edu.es | Sin beca
+    Demetrio España | demetrio.espana116 | demetrio.espana116@alumnos.infocampus.edu.es | Excelencia Académica 50%
+
+  Enfermería (14 alumnos)
+    Armida Valencia | armida.valencia98 | armida.valencia98@alumnos.infocampus.edu.es | Sin beca
+    Jeremías Pino | jeremias.pino99 | jeremias.pino99@alumnos.infocampus.edu.es | Familia Numerosa 20%
+    María Cristina Agudo | maria.cristina.agudo100 | maria.cristina.agudo100@alumnos.infocampus.edu.es | Sin beca
+    Lorenza Llobet | lorenza.llobet101 | lorenza.llobet101@alumnos.infocampus.edu.es | Familia Numerosa 20%
+    Ángel Hervia | angel.hervia102 | angel.hervia102@alumnos.infocampus.edu.es | Sin beca
+
+  Gastronomía (15 alumnos)
+    Ulises Torrens | ulises.torrens144 | ulises.torrens144@alumnos.infocampus.edu.es | Sin beca
+    Emma Giner | emma.giner145 | emma.giner145@alumnos.infocampus.edu.es | Sin beca
+    Cándido Abella | candido.abella146 | candido.abella146@alumnos.infocampus.edu.es | Necesidad Económica 40%
+    Candelario Nogués | candelario.nogues147 | candelario.nogues147@alumnos.infocampus.edu.es | Sin beca
+    Josefina Lara | josefina.lara148 | josefina.lara148@alumnos.infocampus.edu.es | Sin beca
+
+  Ingeniería Informática (18 alumnos)
+    Diego Herrera Molina | estudiante | estudiante@infocampus.edu.es | Sin beca
+    Benjamín Mir | benjamin.mir1 | benjamin.mir1@alumnos.infocampus.edu.es | Sin beca
+    Estefanía Bilbao | estefania.bilbao2 | estefania.bilbao2@alumnos.infocampus.edu.es | Sin beca
+    Cornelio Beltrán | cornelio.beltran3 | cornelio.beltran3@alumnos.infocampus.edu.es | Sin beca
+    Manuelita Cortés | manuelita.cortes4 | manuelita.cortes4@alumnos.infocampus.edu.es | Sin beca
+
+  Marketing Digital (14 alumnos)
+    Maribel Leiva | maribel.leiva130 | maribel.leiva130@alumnos.infocampus.edu.es | Deportiva 30%
+    Ileana Carlos | ileana.carlos131 | ileana.carlos131@alumnos.infocampus.edu.es | Sin beca
+    Dimas Vallés | dimas.valles132 | dimas.valles132@alumnos.infocampus.edu.es | Sin beca
+    Abril Pedrosa | abril.pedrosa133 | abril.pedrosa133@alumnos.infocampus.edu.es | Sin beca
+    Amparo Barreda | amparo.barreda134 | amparo.barreda134@alumnos.infocampus.edu.es | Sin beca
+
+  Medicina (17 alumnos)
+    Gabriela Goñi | gabriela.goni81 | gabriela.goni81@alumnos.infocampus.edu.es | Sin beca
+    Jessica Frías | jessica.frias82 | jessica.frias82@alumnos.infocampus.edu.es | Sin beca
+    Lorena Lamas | lorena.lamas83 | lorena.lamas83@alumnos.infocampus.edu.es | Sin beca
+    Nilda Coll | nilda.coll84 | nilda.coll84@alumnos.infocampus.edu.es | Sin beca
+    Jaime Guerrero | jaime.guerrero85 | jaime.guerrero85@alumnos.infocampus.edu.es | Sin beca
+
+  Psicología (16 alumnos)
+    Jaime Romeu | jaime.romeu48 | jaime.romeu48@alumnos.infocampus.edu.es | Sin beca
+    Ildefonso Peñalver | ildefonso.penalver49 | ildefonso.penalver49@alumnos.infocampus.edu.es | Necesidad Económica 40%
+    Elvira Salamanca | elvira.salamanca50 | elvira.salamanca50@alumnos.infocampus.edu.es | Sin beca
+    Héctor Cervantes | hector.cervantes51 | hector.cervantes51@alumnos.infocampus.edu.es | Excelencia Académica 50%
+    Alejo Segura | alejo.segura52 | alejo.segura52@alumnos.infocampus.edu.es | Sin beca
+
+  Turismo y Hostelería (14 alumnos)
+    María Del Carmen Hernandez | maria.del.carmen.hernandez159 | maria.del.carmen.hernandez159@alumnos.infocampus.edu.es | Sin beca
+    Marcelo Domínguez | marcelo.dominguez160 | marcelo.dominguez160@alumnos.infocampus.edu.es | Sin beca
+    Renata Carranza | renata.carranza161 | renata.carranza161@alumnos.infocampus.edu.es | Sin beca
+    Clotilde Seco | clotilde.seco162 | clotilde.seco162@alumnos.infocampus.edu.es | Sin beca
+    Chus Castilla | chus.castilla163 | chus.castilla163@alumnos.infocampus.edu.es | Sin beca
+
+====================================================================================================
+RESUMEN
+====================================================================================================
+Administrativos/Demo : 6
+Profesores           : 30
+Estudiantes          : 187
+Con beca             : 52 (27.4%)
+Con convenio         : 8
+
+NOTAS IMPORTANTES
+  1. Contraseña universal: campus2026
+  2. Login: email O cedula + password
+  3. Período activo: 2026-1 (2026-02-01 -> 2026-06-30)
+  4. Aprobación: nota >= 7.0
+  5. Mora: inscripción con pago_id IS NULL en período anterior ya cerrado
+  6. Tabla historial_notas: 20 correcciones de notas de ejemplo
+  7. Asistencias: columna observaciones añadida (~15% tardanza/justificado)
+  8. configuracion_ia: columna actualizado_en (sin tipo ni created_at)

@@ -46,7 +46,7 @@ router = APIRouter(
     """
 )
 async def cerrar_ciclo_lectivo(
-    current_user: Dict[str, Any] = Depends(require_roles(['director']))
+    current_user: Dict[str, Any] = Depends(require_roles(['director', 'admin']))
 ) -> Dict[str, Any]:
     """
     Cierra el ciclo lectivo activo
@@ -56,11 +56,8 @@ async def cerrar_ciclo_lectivo(
     logger.info(f"🔄 Cierre de ciclo solicitado por Director: {current_user['cedula']}")
     
     try:
-        with get_db() as conn:
-            cur = conn.cursor()
-            
-            # 1. BUSCAR PERÍODO ACTIVO
-            cur.execute(
+        async with get_db() as conn:
+            periodo_activo = await conn.fetchrow(
                 """
                 SELECT * FROM public.periodos_lectivos 
                 WHERE activo = true 
@@ -68,8 +65,6 @@ async def cerrar_ciclo_lectivo(
                 LIMIT 1
                 """
             )
-            
-            periodo_activo = cur.fetchone()
             
             if not periodo_activo:
                 raise HTTPException(
@@ -81,20 +76,17 @@ async def cerrar_ciclo_lectivo(
             
             logger.info(f"📅 Período a cerrar: {periodo_dict['nombre']} ({periodo_dict['codigo']})")
             
-            # 2. VERIFICAR QUE TODAS LAS INSCRIPCIONES TENGAN NOTA
-            cur.execute(
+            result = await conn.fetchrow(
                 """
                 SELECT COUNT(*) as total
                 FROM public.inscripciones i
                 JOIN public.secciones s ON i.seccion_id = s.id
-                WHERE s.periodo_id = %s
+                WHERE s.periodo_id = $1
                 AND i.nota_final IS NULL
-                AND i.estado = 'inscrito'
+                AND i.estado = 'activo'
                 """,
-                (periodo_dict['id'],)
+                periodo_dict['id'],
             )
-            
-            result = cur.fetchone()
             cantidad_sin_nota = result['total']
             
             if cantidad_sin_nota > 0:
@@ -107,19 +99,16 @@ async def cerrar_ciclo_lectivo(
                     }
                 )
             
-            # 3. OBTENER TODAS LAS INSCRIPCIONES DEL PERÍODO
-            cur.execute(
+            inscripciones = await conn.fetch(
                 """
                 SELECT i.id, i.nota_final, i.estado
                 FROM public.inscripciones i
                 JOIN public.secciones s ON i.seccion_id = s.id
-                WHERE s.periodo_id = %s
-                AND i.estado = 'inscrito'
+                WHERE s.periodo_id = $1
+                AND i.estado = 'activo'
                 """,
-                (periodo_dict['id'],)
+                periodo_dict['id'],
             )
-            
-            inscripciones = cur.fetchall()
             
             # 4. PROCESAR CADA INSCRIPCIÓN
             NOTA_APROBACION = Decimal('7.0')
@@ -139,30 +128,25 @@ async def cerrar_ciclo_lectivo(
                         nuevo_estado = 'reprobado'
                         reprobados += 1
                     
-                    # Actualizar estado
-                    cur.execute(
+                    await conn.execute(
                         """
                         UPDATE public.inscripciones 
-                        SET estado = %s 
-                        WHERE id = %s
+                        SET estado = $1 
+                        WHERE id = $2
                         """,
-                        (nuevo_estado, insc_dict['id'])
+                        nuevo_estado, insc_dict['id'],
                     )
                     
                     logger.debug(f"✓ Inscripción {insc_dict['id']}: {nuevo_estado} (nota: {nota})")
             
-            # 5. DESACTIVAR EL PERÍODO
-            cur.execute(
+            await conn.execute(
                 """
                 UPDATE public.periodos_lectivos 
                 SET activo = false 
-                WHERE id = %s
+                WHERE id = $1
                 """,
-                (periodo_dict['id'],)
+                periodo_dict['id'],
             )
-            
-            conn.commit()
-            cur.close()
             
             total_procesados = aprobados + reprobados
             
@@ -206,16 +190,14 @@ async def cerrar_ciclo_lectivo(
     description="Retorna el período lectivo actualmente activo"
 )
 async def obtener_periodo_activo(
-    current_user: Dict[str, Any] = Depends(require_roles(['director', 'coordinador', 'administrativo']))
+    current_user: Dict[str, Any] = Depends(require_roles(['director', 'coordinador', 'administrativo', 'tesorero', 'profesor', 'estudiante']))
 ) -> Dict[str, Any]:
     """
     Obtiene el período lectivo activo
     """
     try:
-        with get_db() as conn:
-            cur = conn.cursor()
-            
-            cur.execute(
+        async with get_db() as conn:
+            periodo = await conn.fetchrow(
                 """
                 SELECT * FROM public.periodos_lectivos 
                 WHERE activo = true 
@@ -223,10 +205,7 @@ async def obtener_periodo_activo(
                 LIMIT 1
                 """
             )
-            
-            periodo = cur.fetchone()
-            cur.close()
-            
+
             if not periodo:
                 return {
                     "activo": False,
@@ -261,23 +240,18 @@ async def obtener_periodo_activo(
 )
 async def estadisticas_periodo(
     periodo_id: int,
-    current_user: Dict[str, Any] = Depends(require_roles(['director', 'coordinador', 'administrativo']))
+    current_user: Dict[str, Any] = Depends(require_roles(['director', 'coordinador', 'administrativo', 'tesorero', 'profesor', 'estudiante']))
 ) -> Dict[str, Any]:
     """
     Obtiene estadísticas de un período
     """
     try:
-        with get_db() as conn:
-            cur = conn.cursor()
-            
-            # Verificar que existe el período
-            cur.execute(
-                "SELECT * FROM public.periodos_lectivos WHERE id = %s",
-                (periodo_id,)
+        async with get_db() as conn:
+            periodo = await conn.fetchrow(
+                "SELECT * FROM public.periodos_lectivos WHERE id = $1",
+                periodo_id,
             )
-            
-            periodo = cur.fetchone()
-            
+
             if not periodo:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
@@ -286,50 +260,39 @@ async def estadisticas_periodo(
             
             periodo_dict = dict(periodo)
             
-            # Estadísticas de inscripciones
-            cur.execute(
+            stats = await conn.fetchrow(
                 """
                 SELECT 
                     COUNT(*) as total_inscripciones,
                     COUNT(CASE WHEN estado = 'aprobado' THEN 1 END) as aprobados,
                     COUNT(CASE WHEN estado = 'reprobado' THEN 1 END) as reprobados,
-                    COUNT(CASE WHEN estado = 'inscrito' THEN 1 END) as inscritos,
+                    COUNT(CASE WHEN estado = 'activo' THEN 1 END) as inscritos,
                     AVG(nota_final) as promedio_general
                 FROM public.inscripciones i
                 JOIN public.secciones s ON i.seccion_id = s.id
-                WHERE s.periodo_id = %s
+                WHERE s.periodo_id = $1
                 """,
-                (periodo_id,)
+                periodo_id,
             )
-            
-            stats = cur.fetchone()
-            
-            # Estudiantes únicos
-            cur.execute(
+
+            estudiantes = await conn.fetchrow(
                 """
                 SELECT COUNT(DISTINCT i.estudiante_id) as total_estudiantes
                 FROM public.inscripciones i
                 JOIN public.secciones s ON i.seccion_id = s.id
-                WHERE s.periodo_id = %s
+                WHERE s.periodo_id = $1
                 """,
-                (periodo_id,)
+                periodo_id,
             )
-            
-            estudiantes = cur.fetchone()
-            
-            # Secciones
-            cur.execute(
+
+            secciones = await conn.fetchrow(
                 """
                 SELECT COUNT(*) as total_secciones
                 FROM public.secciones
-                WHERE periodo_id = %s
+                WHERE periodo_id = $1
                 """,
-                (periodo_id,)
+                periodo_id,
             )
-            
-            secciones = cur.fetchone()
-            
-            cur.close()
             
             total_insc = stats['total_inscripciones'] or 0
             aprobados = stats['aprobados'] or 0

@@ -1,45 +1,50 @@
-# Entornos virtuales (Python)
-venv/
-env/
-.venv/
-.python-version
+# ============================================================
+# .gitignore — InfoCampus ERP
+# Coloca este archivo en la RAÍZ del repositorio
+# ============================================================
 
-# Python / Django
-*.pyc
+# ── Secretos — NUNCA subir al repositorio ───────────────────
+backend/.env
+scripts_db/.env
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+
+# ── Python ──────────────────────────────────────────────────
 __pycache__/
-db.sqlite3
-db.sqlite3-journal
-staticfiles/
-media/
-
-# Node / React
-node_modules/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
 dist/
 build/
-.eslintcache
-npm-debug.log*
+.eggs/
+*.egg
+venv/
+.venv/
+env/
+.env/
 
-# Supabase & Deno (Edge Functions)
-.supabase/
+# ── Node / Frontend ─────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.local
+
+# ── Supabase ─────────────────────────────────────────────────
 supabase/.temp/
-deno.lock
+supabase/functions/.cache/
 
-# SEGURIDAD (Crítico)
-.env
-.env.local
-.env.*.local
-credenciales/
-# Archivos de texto temporales (pero NO requirements.txt)
-usuarios_y_claves.txt
-nuevo_mapa.txt
-
-# README siempre permitido
-!README.md
-!requirements.txt
-
-# Archivos de configuración personal (VS Code)
-.vscode/
-
-# Archivos de sistema
+# ── IDE / OS ─────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log
+logs/

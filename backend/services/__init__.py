@@ -9,7 +9,7 @@ from services.calculos_financieros import (
 )
 from services.pdf_generator import (
     generar_estado_cuenta,
-    generar_reporte_pagos,
+    generar_reporte_recaudacion,
     generar_certificado_inscripcion
 )
 
@@ -19,6 +19,6 @@ __all__ = [
     'calcular_deuda_vencida',
     'calcular_costo_materia',
     'generar_estado_cuenta',
-    'generar_reporte_pagos',
+    'generar_reporte_recaudacion',
     'generar_certificado_inscripcion',
 ]

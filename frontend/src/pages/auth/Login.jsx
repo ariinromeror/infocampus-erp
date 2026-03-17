@@ -1,178 +1,273 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { User, Lock, AlertCircle, Loader2, BookOpen } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  User, Lock, AlertCircle, Loader2, BookOpen, ChevronRight,
+  GraduationCap, Wallet, LayoutList, BookMarked, FolderOpen,
+} from 'lucide-react';
+import { z } from 'zod';
+
+const ROLE_PATHS = {
+  estudiante: '/estudiante/dashboard',
+  profesor: '/profesor/dashboard',
+  tesorero: '/tesorero/dashboard',
+  director: '/director/dashboard',
+  coordinador: '/coordinador/dashboard',
+  admin: '/director/dashboard',
+  administrativo: '/secretaria/dashboard',
+};
+
+const loginSchema = z.object({
+  email: z.string().email("Formato de email inválido"),
+  password: z.string().min(1, "La contraseña es obligatoria"),
+});
+
+const DEMO_ROLES = [
+  { label: "Director", email: "director@infocampus.edu.es", Icon: GraduationCap },
+  { label: "Tesorero", email: "tesorero@infocampus.edu.es", Icon: Wallet },
+  { label: "Coordinador", email: "coordinador@infocampus.edu.es", Icon: LayoutList },
+  { label: "Profesor", email: "profesor@infocampus.edu.es", Icon: BookOpen },
+  { label: "Estudiante", email: "estudiante@infocampus.edu.es", Icon: BookMarked },
+  { label: "Secretaría", email: "secretaria@infocampus.edu.es", Icon: FolderOpen },
+];
+
+const DEMO_PASSWORD = "campus2026";
 
 const Login = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [localError, setLocalError] = useState('');
-    const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
+  const [activeDemo, setActiveDemo] = useState(null);
 
-    const { login } = useAuth();
-    const navigate = useNavigate();
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setLocalError('');
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: null });
+    if (authError) setAuthError("");
+  };
 
-        const result = await login(username, password);
+  const handleSubmit = async (e) => {
+    e?.preventDefault();
+    setLoading(true);
+    setAuthError("");
+    const validation = loginSchema.safeParse(formData);
+    if (!validation.success) {
+      const formattedErrors = validation.error.format();
+      setErrors({
+        email: formattedErrors.email?._errors[0],
+        password: formattedErrors.password?._errors[0],
+      });
+      setLoading(false);
+      return;
+    }
+    const result = await login(formData.email.trim(), formData.password);
+    if (result.success) {
+      const destination = ROLE_PATHS[result.rol] || '/';
+      navigate(destination, { replace: true });
+    } else {
+      setAuthError(result.error || "Acceso denegado. Verifica tus credenciales.");
+      setLoading(false);
+    }
+  };
 
-        if (result.success) {
-            navigate('/dashboard');
-        } else {
-            setLocalError(result.message || 'Credenciales incorrectas');
-            setLoading(false);
-        }
-    };
+  const handleDemoLogin = async (role) => {
+    setActiveDemo(role.label);
+    setErrors({});
+    setAuthError("");
+    setFormData({ email: role.email, password: DEMO_PASSWORD });
+    setLoading(true);
+    const result = await login(role.email, DEMO_PASSWORD);
+    if (result.success) {
+      navigate(ROLE_PATHS[result.rol] || '/', { replace: true });
+    } else {
+      setAuthError(result.error || "Error al entrar con la cuenta demo.");
+      setLoading(false);
+    }
+    setActiveDemo(null);
+  };
 
-    return (
-        <div className="min-h-screen flex flex-col lg:flex-row font-sans bg-slate-50">
-             
-            {/* MITAD IZQUIERDA - DECORACIÓN CON BIBLIOTECA DIFUMINADA */}
-            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-                {/* Imagen de la Biblioteca con Blur */}
-                <img 
-                    src="/campus-bg.jpg" 
-                    alt="Biblioteca Institucional" 
-                    className="absolute inset-0 w-full h-full object-cover scale-105 blur-[3px]"
-                />
-                
-                {/* Capa de contraste Indigo/Slate profundo */}
-                <div className="absolute inset-0 bg-slate-900/70 mix-blend-multiply"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
-                
-                {/* Contenido del lado izquierdo */}
-                <div className="relative z-10 w-full flex flex-col justify-center p-16 text-white">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="p-3 bg-indigo-500/20 backdrop-blur-md rounded-2xl border border-white/10">
-                            <BookOpen className="h-10 w-10 text-indigo-300" />
-                        </div>
-                    </div>
-                    
-                    <h1 className="text-6xl font-black mb-4 italic tracking-tighter leading-none">
-                        INFO <span className="text-indigo-400">CAMPUS</span>
-                    </h1>
-                    
-                    <p className="text-xl text-slate-300 max-w-md font-light leading-relaxed">
-                        Gestiona tu trayectoria académica en un entorno diseñado para la excelencia.
-                    </p>
-                    
-                    {/* Estadísticas con efecto de Cristal Esmerilado (Glassmorphism) */}
-                    <div className="grid grid-cols-3 gap-4 mt-12 p-6 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl">
-                        <div className="text-center border-r border-white/10">
-                            <p className="text-3xl font-black text-white">450+</p>
-                            <p className="text-[10px] text-indigo-300 uppercase tracking-[0.2em] font-bold mt-1">Alumnos</p>
-                        </div>
-                        <div className="text-center border-r border-white/10">
-                            <p className="text-3xl font-black text-white">45+</p>
-                            <p className="text-[10px] text-indigo-300 uppercase tracking-[0.2em] font-bold mt-1">Docentes</p>
-                        </div>
-                        <div className="text-center">
-                            <p className="text-3xl font-black text-white">5</p>
-                            <p className="text-[10px] text-indigo-300 uppercase tracking-[0.2em] font-bold mt-1">Carreras</p>
-                        </div>
-                    </div>
-                </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-100 overflow-hidden relative">
+      {/* Background: campus image with dark overlay */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="/campus-bg.jpg"
+          className="w-full h-full object-cover"
+          alt=""
+          onError={(e) => { e.target.style.display = 'none'; }}
+        />
+        <div className="absolute inset-0 bg-slate-900/75" />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="relative z-10 w-full max-w-[1000px] flex flex-col lg:flex-row m-4 rounded-xl overflow-hidden bg-white shadow-2xl"
+      >
+        {/* Left panel: branding */}
+        <div className="hidden lg:flex lg:w-5/12 p-12 flex-col justify-between bg-slate-900 relative">
+          <div className="absolute inset-0 opacity-30">
+            <img src="/campus-bg.jpg" className="w-full h-full object-cover grayscale" alt="" />
+          </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-11 h-11 bg-white flex items-center justify-center rounded-xl">
+                <BookOpen className="h-6 w-6 text-indigo-600" strokeWidth={1.5} />
+              </div>
+              <span className="text-lg font-semibold text-white tracking-tight">Info Campus</span>
             </div>
+            <h1 className="text-4xl font-bold text-white leading-tight mb-3">
+              Gestión académica
+            </h1>
+            <p className="text-slate-400 text-sm">Sistema integrado para instituciones educativas.</p>
+          </div>
 
-            {/* HEADER MÓVIL - Solo visible en móvil */}
-            <div className="lg:hidden bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 text-center">
-                <div className="flex items-center justify-center gap-3 mb-3">
-                    <div className="p-2 bg-indigo-500/20 backdrop-blur-md rounded-xl border border-white/10">
-                        <BookOpen className="h-6 w-6 text-indigo-300" />
-                    </div>
-                </div>
-                <h1 className="text-3xl sm:text-4xl font-black italic tracking-tighter">
-                    INFO <span className="text-indigo-400">CAMPUS</span>
-                </h1>
-                <p className="text-sm text-slate-300 mt-2 font-light">
-                    Sistema de Gestión Académica
-                </p>
+          <div className="relative z-10">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-3">Acceso Demo</p>
+            <p className="text-slate-400 text-xs mb-4">
+              Explora el sistema como cualquier rol. Un clic para autenticarse.
+            </p>
+            <div className="grid grid-cols-1 gap-2">
+              {DEMO_ROLES.map((role) => {
+                const Icon = role.Icon;
+                return (
+                <motion.button
+                  key={role.label}
+                  whileHover={{ x: 2 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => handleDemoLogin(role)}
+                  disabled={loading}
+                  className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-left disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                    <Icon size={16} className="text-indigo-400" strokeWidth={1.5} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm font-medium">{role.label}</p>
+                    <p className="text-slate-500 text-[10px] truncate">{role.email}</p>
+                  </div>
+                  {activeDemo === role.label ? (
+                    <Loader2 className="w-4 h-4 text-white animate-spin shrink-0" strokeWidth={1.5} />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white shrink-0" strokeWidth={1.5} />
+                  )}
+                </motion.button>
+              );})}
             </div>
-
-            {/* MITAD DERECHA - FORMULARIO */}
-            <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-white lg:bg-transparent">
-                <div className="max-w-md w-full space-y-6 sm:space-y-8 bg-white p-6 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-100">
-                    
-                    <div className="text-center lg:text-left mb-6 sm:mb-8">
-                        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter uppercase italic">
-                            Acceso Institucional
-                        </h2>
-                        <p className="mt-2 text-xs sm:text-sm text-slate-500 font-medium">
-                             Ingresa tus credenciales para continuar
-                        </p>
-                    </div>
-
-                    <form className="mt-6 sm:mt-8 space-y-5 sm:space-y-6" onSubmit={handleSubmit}>
-                        <div className="space-y-4 sm:space-y-5">
-                            <div>
-                                <label className="text-slate-700 text-[10px] sm:text-[11px] font-black uppercase tracking-widest mb-2 block">Usuario</label>
-                                <div className="relative flex items-center">
-                                    <User className="w-4 h-4 sm:w-5 sm:h-5 absolute left-3 sm:left-4 text-slate-400" />
-                                    <input
-                                        type="text"
-                                        required
-                                        className="w-full text-sm border border-slate-200 focus:border-indigo-600 focus:ring-2 sm:focus:ring-4 focus:ring-indigo-50 rounded-xl pl-10 sm:pl-12 pr-4 py-3 sm:py-4 outline-none transition-all bg-slate-50/50"
-                                        placeholder="usuario.alumno"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="text-slate-700 text-[10px] sm:text-[11px] font-black uppercase tracking-widest mb-2 block">Contraseña</label>
-                                <div className="relative flex items-center">
-                                    <Lock className="w-4 h-4 sm:w-5 sm:h-5 absolute left-3 sm:left-4 text-slate-400" />
-                                    <input
-                                        type="password"
-                                        required
-                                        className="w-full text-sm border border-slate-200 focus:border-indigo-600 focus:ring-2 sm:focus:ring-4 focus:ring-indigo-50 rounded-xl pl-10 sm:pl-12 pr-4 py-3 sm:py-4 outline-none transition-all bg-slate-50/50"
-                                        placeholder="••••••••"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {localError && (
-                            <div className="flex items-center gap-2 sm:gap-3 bg-red-50 border border-red-100 text-red-700 text-xs p-3 sm:p-4 rounded-xl shadow-sm">
-                                <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                                <span className="font-bold">{localError}</span>
-                            </div>
-                        )}
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className={`
-                                w-full flex justify-center items-center py-4 sm:py-5 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-200 text-xs font-black text-white bg-slate-900 hover:bg-indigo-950 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 transition-all active:scale-[0.98]
-                                ${loading ? 'opacity-80 cursor-not-allowed' : ''}
-                            `}
-                        >
-                            {loading ? (
-                                <>
-                                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                                    VALIDANDO...
-                                </>
-                            ) : (
-                                'INGRESAR AL PORTAL'
-                            )}
-                        </button>
-                    </form>
-                    
-                    <div className="pt-4 sm:pt-6 text-center">
-                        <p className="text-[10px] sm:text-[11px] text-slate-400 font-bold uppercase tracking-widest">
-                            © 2026 Sistema de Gestión Académica
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <p className="text-slate-500 text-[10px] mt-3">Contraseña: <span className="font-mono text-slate-400">{DEMO_PASSWORD}</span></p>
+          </div>
         </div>
-    );
+
+        {/* Right panel: form */}
+        <div className="flex-1 p-8 lg:p-12 flex flex-col justify-center bg-white">
+          <div className="max-w-sm mx-auto w-full">
+            <header className="mb-8">
+              <h2 className="text-2xl font-bold text-slate-900">Portal de Acceso</h2>
+              <p className="text-slate-500 text-sm mt-1">Introduce tus credenciales</p>
+            </header>
+
+            {/* Demo (mobile) */}
+            <div className="lg:hidden mb-6">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-3">Acceso Demo</p>
+              <div className="flex flex-wrap gap-2">
+                {DEMO_ROLES.map((role) => {
+                  const Icon = role.Icon;
+                  return (
+                  <motion.button
+                    key={role.label}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => handleDemoLogin(role)}
+                    disabled={loading}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-50 transition-colors"
+                  >
+                    <Icon size={14} strokeWidth={1.5} />
+                    {activeDemo === role.label ? <Loader2 size={14} className="animate-spin" /> : role.label}
+                  </motion.button>
+                );})}
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" strokeWidth={1.5} />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    autoComplete="email"
+                    className="w-full border border-slate-200 focus:border-indigo-500 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 outline-none transition-colors placeholder:text-slate-400 text-sm"
+                    placeholder="correo@infocampus.edu.es"
+                  />
+                </div>
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                    <AlertCircle size={12} strokeWidth={1.5} /> {errors.email}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" strokeWidth={1.5} />
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    autoComplete="current-password"
+                    className="w-full border border-slate-200 focus:border-indigo-500 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 outline-none transition-colors placeholder:text-slate-400 text-sm"
+                    placeholder="Contraseña"
+                  />
+                </div>
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                    <AlertCircle size={12} strokeWidth={1.5} /> {errors.password}
+                  </p>
+                )}
+              </div>
+
+              <AnimatePresence>
+                {authError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm flex items-center gap-2"
+                  >
+                    <AlertCircle size={16} strokeWidth={1.5} />
+                    {authError}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" strokeWidth={1.5} />
+                ) : (
+                  <>Ingresar <ChevronRight size={18} strokeWidth={1.5} /></>
+                )}
+              </button>
+            </form>
+
+            <p className="text-slate-400 text-xs text-center mt-6">
+              Acceso exclusivo para personal autorizado
+            </p>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
 };
 
 export default Login;

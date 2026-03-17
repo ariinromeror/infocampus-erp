@@ -1,0 +1,28 @@
+# render.yaml
+# Coloca este archivo en la RAÍZ del repositorio (al mismo nivel que backend/ y frontend/)
+#
+# Variables de entorno a configurar en Render Dashboard (no las pongas aquí en texto plano):
+#   DATABASE_URL     → postgresql://...@pooler.supabase.com:5432/postgres  (puerto 5432, NO 6543)
+#   SECRET_KEY_AUTH  → valor fuerte: python -c "import secrets; print(secrets.token_hex(32))"
+#   ALLOWED_ORIGINS  → https://tu-proyecto.vercel.app
+
+services:
+  - type: web
+    name: infocampus-backend
+    env: python
+    region: frankfurt    # Más cercano a Supabase eu-west-1 (Irlanda) que oregon
+    plan: free
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && gunicorn main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # Configura manualmente en Render Dashboard
+      - key: SECRET_KEY_AUTH
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"

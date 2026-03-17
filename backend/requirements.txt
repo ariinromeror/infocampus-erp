@@ -12,6 +12,7 @@ gunicorn==23.0.0
 
 # Authentication & Security
 python-jose[cryptography]==3.3.0
+slowapi==0.1.9
 passlib[bcrypt]==1.7.4
 bcrypt==4.2.0
 
@@ -24,4 +25,4 @@ python-dotenv==1.0.1
 reportlab==4.0.8
 
 # AI/ML (Chatbot)
-groq==0.9.0
+groq==1.1.1

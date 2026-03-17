@@ -1,92 +1,116 @@
 import api from './api';
 
 export const academicoService = {
-    // ==========================================
-    // 1. AUTENTICACIÓN Y PERFIL
-    // ==========================================
     getPerfil: () => api.get('/auth/perfil'),
 
-    // ==========================================
-    // 2. ESTUDIANTE (Poderes Académicos y Financieros)
-    // ==========================================
-    // Ver materias inscritas y notas actuales
     getMisInscripciones: () => api.get('/inscripciones/estudiante/mis-inscripciones'),
-    
-    // Historial académico completo
     getMiHistorial: () => api.get('/inscripciones/estudiante/mis-inscripciones'),
-    
-    // EL PODER DEL PDF: Descarga el estado de cuenta real
+
     descargarPDF: async (estudianteId) => {
-        try {
-            // El backend requiere el ID del estudiante en la ruta
-            const response = await api.get(`/reportes/estado-cuenta/${estudianteId}`, {
-                responseType: 'blob', // Crítico para archivos
-            });
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `Estado_Cuenta_${estudianteId}_${new Date().getTime()}.pdf`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-        } catch (error) {
-            console.error("Error al descargar el PDF:", error);
-            throw error;
-        }
+        const response = await api.get(`/reportes/estado-cuenta/${estudianteId}`, { responseType: 'blob' });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Estado_Cuenta_${estudianteId}_${new Date().getTime()}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
     },
 
-    // Reporte de tesorería para directores/tesoreros
     getReporteTesoreria: async (dias = 30) => {
-        try {
-            const response = await api.get(`/reportes/tesoreria?dias=${dias}`, {
-                responseType: 'blob',
-            });
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `Reporte_Tesoreria_${new Date().getTime()}.pdf`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-        } catch (error) {
-            console.error("Error al descargar el reporte de tesorería:", error);
-            throw error;
-        }
+        const response = await api.get(`/reportes/tesoreria?dias=${dias}`, { responseType: 'blob' });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Reporte_Tesoreria_${new Date().getTime()}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
     },
 
-    // ==========================================
-    // 3. PROFESOR (Gestión de Clases y Notas)
-    // ==========================================
-    // Ver secciones asignadas y estadísticas
+    getReporteNotas: async (estudianteId) => {
+        const response = await api.get(`/reportes/notas/${estudianteId}`, { responseType: 'blob' });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Boletin_Notas_${estudianteId}_${new Date().getTime()}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    },
+
+    getReporteInscripcion: async (inscripcionId) => {
+        const response = await api.get(`/reportes/inscripcion/${inscripcionId}`, { responseType: 'blob' });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Certificado_Inscripcion_${inscripcionId}_${new Date().getTime()}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    },
+
     getStatsProfesor: () => api.get('/dashboards/profesor'),
-    
-    // Ver lista de alumnos de una sección para poner notas
     getDetalleSeccionNotas: (seccionId) => api.get(`/inscripciones/seccion/${seccionId}/notas`),
-    
-    // GUARDAR NOTAS: El poder de calificar
     postNotasSeccion: (seccionId, data) => api.put(`/inscripciones/${seccionId}/nota`, data),
+    corregirNota: (inscripcionId, data) => api.put(`/academico/inscripciones/${inscripcionId}/corregir-nota`, data),
+    actualizarNota: (inscripcionId, data) => api.put(`/inscripciones/${inscripcionId}/nota`, data),
 
-    // ==========================================
-    // 4. TESORERÍA (Control de Dinero)
-    // ==========================================
-    // Dashboard financiero y lista de cobranza
     getStatsFinanzas: () => api.get('/dashboards/finanzas'),
-    
-    // EL PODER DE COBRAR: Registra un pago en el sistema
-    registrarPago: (usuarioId) => api.post(`/estudiantes/${usuarioId}/registrar-pago`),
+    registrarPago: (usuarioId, data) => api.post(`/estudiantes/${usuarioId}/registrar-pago`, data),
 
-    // ==========================================
-    // 5. DIRECCIÓN Y COORDINACIÓN (Poderes de Administración)
-    // ==========================================
-    // Métricas globales (Alumnos, Carreras, Retención)
     getStatsInstitucional: () => api.get('/dashboards/institucional'),
-    
-    // Ver TODAS las materias (Malla Curricular)
-    getMaterias: () => api.get('/materias'),
-    
-    // DETALLE DE ESTUDIANTE: Ver ficha técnica de cualquier alumno
+    getIAContexto: () => api.get('/ia/contexto'),
+
+    getMaterias: (params) => api.get('/academico/materias', { params }),
+    getCarreras: () => api.get('/academico/carreras'),
     getEstudiante: (id) => api.get(`/estudiantes/${id}`),
-    
-    // CERRAR CICLO: El poder de finalizar el semestre y procesar aprobados/reprobados
+    getEstadoCuenta: (id) => api.get(`/estudiantes/${id}/estado-cuenta`),
+    getHorarioEstudiante: (id) => api.get(`/estudiante/${id}/horario`),
+
     cerrarCiclo: () => api.post('/periodos/cerrar-ciclo'),
+
+    getPeriodos: () => api.get('/academico/periodos'),
+    getPeriodoActivo: () => api.get('/periodos/activo'),
+    getPeriodoEstadisticas: (id) => api.get(`/periodos/${id}/estadisticas`),
+    crearPeriodo: (data) => api.post('/academico/periodos', data),
+    actualizarPeriodo: (id, data) => api.put(`/academico/periodos/${id}`, data),
+
+    getSecciones: (params) => api.get('/academico/secciones', { params }),
+    crearSeccion: (data) => api.post('/academico/secciones', data),
+    actualizarSeccion: (id, data) => api.put(`/academico/secciones/${id}`, data),
+    getInscripcion: (id) => api.get(`/inscripciones/${id}`),
+
+    getEstudiantesSeccion: (seccionId) => api.get(`/academico/secciones/${seccionId}/estudiantes`),
+
+    getEstudiantes: (params) => api.get('/academico/estudiantes', { params }),
+
+    getProfesores: (params) => api.get('/academico/profesores', { params }),
+    getProfesorSecciones: (id) => api.get(`/profesor/${id}/secciones`),
+    getProfesorAlumnos: (profesorId, seccionId) => api.get(`/profesor/${profesorId}/seccion/${seccionId}/alumnos`),
+    getProfesorEvaluaciones: (profesorId, seccionId) => api.get(`/profesor/${profesorId}/seccion/${seccionId}/evaluaciones`),
+    getProfesorAsistenciaHistorica: (profesorId, seccionId) => api.get(`/profesor/${profesorId}/seccion/${seccionId}/asistencia-historica`),
+    getRendimientoProfesor: (profesorId, periodoId) => api.get(`/academico/profesores/${profesorId}/rendimiento`, { params: { periodo_id: periodoId } }),
+    getHorarios: (params) => api.get('/academico/horarios', { params }),
+
+    getUsuarios: (params) => api.get('/administrativo/usuarios', { params }),
+    crearUsuario: (data) => api.post('/administrativo/usuarios', data),
+    actualizarUsuario: (id, data) => api.put(`/administrativo/usuarios/${id}`, data),
+    inscribirEstudiante: (data) => api.post('/administrativo/inscribir-estudiante', data),
+
+    getTesoreroKpis: () => api.get('/tesorero/resumen-kpis'),
+    getTesoreroPagos: (params) => api.get('/tesorero/pagos', { params }),
+    getTesoreroMora: () => api.get('/tesorero/estudiantes-mora'),
+    getTesoreroIngresos: () => api.get('/tesorero/ingresos-por-periodo'),
+    buscarEstudiante: (q) => api.get('/tesorero/buscar-estudiante', { params: { q } }),
+
+    actualizarCarrera: (id, data) => api.put(`/academico/carreras/${id}`, data),
+    actualizarConvenio: (estudianteId, data) => api.put(`/estudiantes/${estudianteId}/convenio`, data),
+
+    asignarProfesor: (seccionId, data) => api.put(`/academico/secciones/${seccionId}`, data),
+
+    // ── Director ──────────────────────────────────────────────────────────────
+    getHistorialNotas:       (params) => api.get('/director/historial-notas', { params }),
+    getConfiguracion:        ()        => api.get('/director/configuracion'),
+    actualizarConfiguracion: (data)    => api.put(`/director/configuracion/${data.clave}`, data),
 };

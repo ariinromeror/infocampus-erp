@@ -1,12 +1,46 @@
+# ===================================
+# InfoCampus ERP - Requirements
+# Backend FastAPI + PostgreSQL
+# ===================================
+
+# Framework Web
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
 gunicorn==22.0.0
+
+# Base de Datos
 psycopg2-binary==2.9.9
+
+# Autenticación y Seguridad
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+bcrypt==4.0.1  
+passlib
+
+# Utilidades
 python-multipart==0.0.9
 python-dotenv==1.0.1
+
+# Validación de Datos
 pydantic==2.9.0
 pydantic-settings==2.5.2
+
+# IA y API Externa
 groq
+
+# Reportes PDF
 reportlab==4.0.8
+
+# ===================================
+# Dependencias para Scripts de Población
+
+# ===================================
+Faker==18.0.0  
+
+# ===================================
+# NOTAS IMPORTANTES:
+# - bcrypt==4.0.1 es CRÍTICO para compatibilidad con passlib
+# - NO actualizar bcrypt a 5.x (rompe compatibilidad)
+# - passlib[bcrypt] instala bcrypt como dependencia, pero
+#   especificar la versión explícita evita conflictos
+# ===================================

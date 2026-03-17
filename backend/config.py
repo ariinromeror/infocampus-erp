@@ -15,10 +15,13 @@ class Settings(BaseSettings):
     # JWT Configuration
     SECRET_KEY_AUTH: str
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 horas
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60  # 60 minutos (antes: 1440 = 24 horas)
     
     # CORS
     ALLOWED_ORIGINS: str = "https://ariinromeror-infocampus-erp.vercel.app"
+
+    # AI / Groq
+    GROQ_API_KEY: str = ""
     
     # App Info
     APP_NAME: str = "Info Campus ERP API"
@@ -27,6 +30,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  
 
 @lru_cache()
 def get_settings() -> Settings:

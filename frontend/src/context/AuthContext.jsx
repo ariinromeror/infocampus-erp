@@ -1,67 +1,109 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { Loader2 } from 'lucide-react';
+import api from '../services/api';
 
 const AuthContext = createContext(null);
 
+/**
+ * AuthProvider — Manages authentication state and session restoration.
+ * Blocks the component tree until localStorage is read to prevent race conditions
+ * where child components would fire API requests without a token (causing 401s).
+ */
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('campus_user');
-        if (storedUser) {
-            try { setUser(JSON.parse(storedUser)); } 
-            catch (e) { localStorage.removeItem('campus_user'); }
-        }
-        setLoading(false);
+        const restoreSession = async () => {
+            try {
+                const storedUser = localStorage.getItem('campus_user');
+                if (storedUser) {
+                    const parsedUser = JSON.parse(storedUser);
+                    if (parsedUser?.token && parsedUser?.rol) {
+                        try {
+                            await api.get('/auth/verify');
+                            setUser(parsedUser);
+                        } catch (verifyError) {
+                            if (verifyError.response?.status === 401) {
+                                localStorage.removeItem('campus_user');
+                                setUser(null);
+                            } else {
+                                setUser(parsedUser);
+                            }
+                        }
+                    } else {
+                        localStorage.removeItem('campus_user');
+                    }
+                }
+            } catch {
+                localStorage.removeItem('campus_user');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        restoreSession();
     }, []);
 
-    const login = async (username, password) => {
+    const login = useCallback(async (username, password) => {
         try {
-            // URL de la API desde variables de entorno o fallback a producción
-            const API_BASE = import.meta.env.VITE_API_URL || "https://infocampus-backend.onrender.com/api";
-            const targetUrl = `${API_BASE}/auth/login`;
-            
-            const response = await fetch(targetUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
-            });
+            const response = await api.post('/auth/login', { username, password });
+            const loginResponse = response.data;
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                return { success: false, message: data.detail || "Credenciales incorrectas" };
-            }
-
-            // Mapeo de respuesta de FastAPI (access_token -> token)
-            const sessionData = {
-                ...data.user,
-                token: data.access_token 
+            const userData = {
+                username: loginResponse.user.email || loginResponse.user.cedula,
+                rol:      loginResponse.user.rol,
+                role:     loginResponse.user.rol,
+                token:    loginResponse.access_token,
+                id:       loginResponse.user.id,
+                email:    loginResponse.user.email,
+                cedula:   loginResponse.user.cedula,
+                nombre:   loginResponse.user.nombre_completo,
+                carrera:  loginResponse.user.carrera_nombre || null,
             };
 
-            setUser(sessionData);
-            localStorage.setItem('campus_user', JSON.stringify(sessionData));
-            return { success: true };
+            setUser(userData);
+            localStorage.setItem('campus_user', JSON.stringify(userData));
 
-        } catch (err) {
-            console.error("Login error:", err);
-            return { success: false, message: "Error de conexión" };
+            return { success: true, rol: loginResponse.user.rol };
+
+        } catch (error) {
+            console.error('Login error:', error);
+            return {
+                success: false,
+                error: error.response?.data?.detail || 'Error de conexión con el servidor',
+            };
         }
-    };
+    }, []);
 
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem('campus_user');
-        window.location.href = '/login';
-    };
+    const logout = useCallback(async () => {
+        try {
+            const storedUser = localStorage.getItem('campus_user');
+            if (storedUser) {
+                const parsed = JSON.parse(storedUser);
+                if (parsed?.token) {
+                    await api.post('/auth/logout', {}, {
+                        headers: { Authorization: `Bearer ${parsed.token}` }
+                    });
+                }
+            }
+        } catch {
+            // Ignore logout API errors; still clear local state
+        } finally {
+            setUser(null);
+            localStorage.removeItem('campus_user');
+        }
+    }, []);
 
     return (
-        <AuthContext.Provider value={{ 
-            user, login, logout, loading,
-            isAdmin: user?.rol === 'director' || user?.rol === 'coordinador',
-            isStudent: user?.rol === 'estudiante'
-        }}>
-            {children}
+        <AuthContext.Provider value={{ user, login, logout, loading }}>
+            {loading ? (
+                <div className="flex h-screen items-center justify-center">
+                    <Loader2 className="animate-spin text-indigo-600" size={48} />
+                </div>
+            ) : (
+                children
+            )}
         </AuthContext.Provider>
     );
 };

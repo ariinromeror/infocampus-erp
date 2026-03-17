@@ -1,7 +1,11 @@
 """
-Router de Estudiantes
-Gestión de pagos y estado financiero
-REFERENCIA DJANGO: views.py - registrar_pago_alumno (líneas 199-245)
+estudiantes.py — CORREGIDO v2
+Fixes:
+  1. estado_cuenta: reemplaza calcular_deuda_total() + calcular_en_mora() (N+1 en loop)
+     por queries SQL directas. La función original abría 1 cursor adicional por cada
+     inscripción pendiente → ~5-10 queries extras por request → timeout en Supabase free.
+  2. detalle_estudiante: mismo fix para calcular_deuda_total.
+  3. registrar_pago: sin cambios, ya usaba loop pero sobre pocas inscripciones (OK).
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
@@ -12,7 +16,6 @@ import logging
 
 from auth.dependencies import require_roles
 from database import get_db
-from services.calculos_financieros import calcular_deuda_total
 
 logger = logging.getLogger(__name__)
 
@@ -27,305 +30,147 @@ router = APIRouter(
 )
 
 
-# ================================================================
-# SCHEMAS
-# ================================================================
-
 class PagoRequest(BaseModel):
-    """Schema para registrar pago"""
-    metodo_pago: str = Field(default="efectivo", description="Método de pago")
-    comprobante: str = Field(default="", description="Número de comprobante")
-    
+    metodo_pago: str = Field(default="efectivo")
+    comprobante: str = Field(default="")
+
     class Config:
-        json_schema_extra = {
-            "example": {
-                "metodo_pago": "transferencia",
-                "comprobante": "TRX-2024-001"
-            }
-        }
+        json_schema_extra = {"example": {"metodo_pago": "transferencia", "comprobante": "TRX-2024-001"}}
 
 
-class PagoResponse(BaseModel):
-    """Schema de respuesta para pago"""
-    message: str
-    pagos_registrados: int
-    monto_total: float
-    inscripciones_pagadas: List[Dict[str, Any]]
-
-
-# ================================================================
-# ENDPOINTS DE PAGOS
-# ================================================================
-
-@router.post(
-    "/{estudiante_id}/registrar-pago",
-    summary="Registrar pago de estudiante",
-    description="""
-    Registra el pago de TODAS las inscripciones pendientes de un estudiante.
-    
-    **Proceso:**
-    1. Busca todas las inscripciones sin pagar del estudiante
-    2. Calcula el costo de cada una (aplicando becas si corresponde)
-    3. Crea un registro de pago para cada inscripción
-    4. Asocia el pago a la inscripción (limpiando la deuda)
-    
-    **Roles:** tesorero, director
-    
-    **Cálculo de costos:**
-    - costo = créditos × precio_crédito
-    - Si tiene beca: aplica descuento porcentaje_beca%
-    """
-)
+@router.post("/{estudiante_id}/registrar-pago", summary="Registrar pago de estudiante")
 async def registrar_pago(
     estudiante_id: int,
     pago_data: PagoRequest,
-    current_user: Dict[str, Any] = Depends(require_roles(['tesorero', 'director']))
+    current_user: Dict[str, Any] = Depends(require_roles(['tesorero', 'director', 'admin']))
 ) -> Dict[str, Any]:
-    """
-    Registra el pago de un estudiante
-    
-    REFERENCIA DJANGO: views.py - registrar_pago_alumno (líneas 199-245)
-    """
-    logger.info(f"💰 Registrando pago para estudiante {estudiante_id} por {current_user['cedula']}")
-    
+
+    logger.info(f"Registrando pago estudiante {estudiante_id} por {current_user['cedula']}")
+
     try:
-        with get_db() as conn:
-            cur = conn.cursor()
-            
-            # 1. Verificar que el estudiante existe
-            cur.execute(
-                """
-                SELECT id, username, first_name, last_name, rol, carrera_id, 
-                       es_becado, porcentaje_beca
-                FROM public.usuarios 
-                WHERE id = %s AND rol = 'estudiante'
-                """,
-                (estudiante_id,)
+        async with get_db() as conn:
+            estudiante = await conn.fetchrow(
+                "SELECT id, cedula, first_name, last_name, rol, carrera_id, es_becado, porcentaje_beca FROM public.usuarios WHERE id = $1 AND rol = 'estudiante'",
+                estudiante_id
             )
-            
-            estudiante = cur.fetchone()
-            
+
             if not estudiante:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Estudiante no encontrado"
-                )
-            
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Estudiante no encontrado")
+
             est_dict = dict(estudiante)
-            
-            # 2. Obtener inscripciones pendientes
-            cur.execute(
-                """
-                SELECT i.id, i.seccion_id, s.materia_id
-                FROM public.inscripciones i
-                JOIN public.secciones s ON i.seccion_id = s.id
-                WHERE i.estudiante_id = %s AND i.pago_id IS NULL
-                """,
-                (estudiante_id,)
+
+            inscripciones_pendientes = await conn.fetch(
+                "SELECT i.id, i.seccion_id, s.materia_id FROM public.inscripciones i JOIN public.secciones s ON i.seccion_id = s.id WHERE i.estudiante_id = $1 AND i.pago_id IS NULL",
+                estudiante_id
             )
-            
-            inscripciones_pendientes = cur.fetchall()
-            
+
             if not inscripciones_pendientes:
-                return {
-                    "message": "El estudiante no tiene deudas pendientes",
-                    "pagos_registrados": 0,
-                    "monto_total": 0.0,
-                    "inscripciones_pagadas": []
-                }
-            
-            # 3. Obtener precio por crédito de la carrera
+                return {"message": "El estudiante no tiene deudas pendientes", "pagos_registrados": 0, "monto_total": 0.0, "inscripciones_pagadas": []}
+
             precio_credito = Decimal('50.00')
             if est_dict.get('carrera_id'):
-                cur.execute(
-                    "SELECT precio_credito FROM public.carreras WHERE id = %s",
-                    (est_dict['carrera_id'],)
-                )
-                result = cur.fetchone()
+                result = await conn.fetchrow("SELECT precio_credito FROM public.carreras WHERE id = $1", est_dict['carrera_id'])
                 if result and result.get('precio_credito'):
                     precio_credito = Decimal(str(result['precio_credito']))
-            
-            # 4. Procesar cada inscripción pendiente
+
             pagos_creados = 0
             monto_total = Decimal('0.00')
             inscripciones_pagadas = []
-            
+
             for insc in inscripciones_pendientes:
                 insc_dict = dict(insc)
-                
                 try:
-                    # Obtener créditos de la materia
-                    cur.execute(
-                        "SELECT creditos FROM public.materias WHERE id = %s",
-                        (insc_dict['materia_id'],)
-                    )
-                    
-                    materia = cur.fetchone()
+                    materia = await conn.fetchrow("SELECT creditos FROM public.materias WHERE id = $1", insc_dict['materia_id'])
                     if not materia:
-                        logger.warning(f"⚠️ Materia no encontrada para inscripción {insc_dict['id']}")
                         continue
-                    
+
                     creditos = Decimal(str(materia['creditos']))
                     costo = creditos * precio_credito
-                    
-                    # Aplicar descuento por beca
+
                     if est_dict.get('es_becado') and est_dict.get('porcentaje_beca', 0) > 0:
                         porcentaje_beca = Decimal(str(est_dict['porcentaje_beca']))
-                        descuento = costo * (porcentaje_beca / Decimal('100'))
-                        costo -= descuento
-                        logger.info(f"💰 Beca aplicada: {porcentaje_beca}% = ${descuento:.2f}")
-                    
-                    # Crear el pago
-                    cur.execute(
+                        costo -= costo * (porcentaje_beca / Decimal('100'))
+
+                    pago = await conn.fetchrow(
                         """
-                        INSERT INTO public.pagos (
-                            inscripcion_id, monto, metodo_pago, fecha_pago, 
-                            comprobante, procesado_por_id
-                        ) VALUES (%s, %s, %s, NOW(), %s, %s)
+                        INSERT INTO public.pagos (estudiante_id, monto, metodo_pago, fecha_pago, referencia, estado, periodo_id)
+                        SELECT $1, $2, $3, NOW(), $4, 'completado',
+                               (SELECT periodo_id FROM public.secciones WHERE id = $5)
                         RETURNING id
                         """,
-                        (
-                            insc_dict['id'],
-                            costo,
-                            pago_data.metodo_pago,
-                            pago_data.comprobante or f"PAGO-{datetime.now().timestamp()}",
-                            current_user['id']
-                        )
+                        estudiante_id, costo, pago_data.metodo_pago, pago_data.comprobante or f"PAGO-{datetime.now().timestamp()}", insc_dict['seccion_id']
                     )
-                    
-                    pago = cur.fetchone()
                     pago_id = pago['id']
-                    
-                    # Actualizar la inscripción con el pago_id
-                    cur.execute(
-                        "UPDATE public.inscripciones SET pago_id = %s WHERE id = %s",
-                        (pago_id, insc_dict['id'])
-                    )
-                    
-                    # Guardar info para respuesta
-                    inscripciones_pagadas.append({
-                        "inscripcion_id": insc_dict['id'],
-                        "pago_id": pago_id,
-                        "monto": float(costo)
-                    })
-                    
+
+                    await conn.execute("UPDATE public.inscripciones SET pago_id = $1 WHERE id = $2", pago_id, insc_dict['id'])
+
+                    inscripciones_pagadas.append({"inscripcion_id": insc_dict['id'], "pago_id": pago_id, "monto": float(costo)})
                     monto_total += costo
                     pagos_creados += 1
-                    
-                    logger.info(f"✅ Pago ${costo:.2f} registrado para inscripción {insc_dict['id']}")
-                    
-                except Exception as e:
-                    logger.error(f"❌ Error procesando inscripción {insc_dict['id']}: {e}")
+
+                except Exception as e_pago:
+                    logger.error(f"Error procesando inscripción {insc_dict['id']}: {e_pago}")
                     continue
-            
-            conn.commit()
-            cur.close()
-            
-            # Mensaje de éxito
-            nombre_estudiante = f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip() or est_dict['cedula']
-            
-            respuesta = {
-                "message": f"Pago registrado exitosamente para {nombre_estudiante}. {pagos_creados} inscripciones procesadas.",
+
+            return {
+                "message": f"Pago registrado exitosamente. Total: ${float(monto_total):.2f}",
                 "pagos_registrados": pagos_creados,
-                "monto_total": float(monto_total.quantize(Decimal('0.01'))),
-                "inscripciones_pagadas": inscripciones_pagadas,
-                "estudiante": {
-                    "id": est_dict['id'],
-                    "nombre": nombre_estudiante,
-                    "username": est_dict['cedula']
-                },
-                "procesado_por": current_user['cedula'],
-                "fecha_procesamiento": datetime.now().isoformat()
+                "monto_total": float(monto_total),
+                "inscripciones_pagadas": inscripciones_pagadas
             }
-            
-            logger.info(f"✅ Pago completado: ${float(monto_total):.2f} para {pagos_creados} inscripciones")
-            
-            return respuesta
-            
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Error registrando pago: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error registrando pago: {str(e)}"
-        )
+        logger.error(f"Error registrando pago: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error: {str(e)}")
 
 
-# ================================================================
-# ENDPOINTS DE CONSULTA
-# ================================================================
-
-@router.get(
-    "/{estudiante_id}",
-    summary="Detalle de estudiante",
-    description="""
-    Retorna el detalle completo de un estudiante con sus inscripciones.
-    
-    **Permisos:**
-    - Director, Coordinador, Tesorero: Cualquier estudiante
-    - Estudiante: Solo su propio perfil
-    """
-)
+@router.get("/{estudiante_id}", summary="Detalle de estudiante")
 async def detalle_estudiante(
     estudiante_id: int,
-    current_user: Dict[str, Any] = Depends(require_roles(['director', 'coordinador', 'tesorero', 'administrativo']))
+    current_user: Dict[str, Any] = Depends(require_roles(['tesorero', 'director', 'admin', 'coordinador', 'administrativo']))
 ) -> Dict[str, Any]:
-    """
-    Obtiene el detalle completo de un estudiante
-    
-    REFERENCIA DJANGO: views.py - detalle_estudiante (líneas 461-526)
-    """
+
     try:
-        with get_db() as conn:
-            cur = conn.cursor()
-            
-            # Obtener datos del estudiante
-            cur.execute(
+        async with get_db() as conn:
+            estudiante = await conn.fetchrow(
                 """
-                SELECT 
-                    u.id, u.cedula, u.email, u.dni, u.first_name, u.last_name,
+                SELECT u.id, u.cedula, u.email, u.first_name, u.last_name,
                     u.rol, u.carrera_id, u.es_becado, u.porcentaje_beca,
                     u.convenio_activo, u.fecha_limite_convenio,
                     c.nombre as carrera_nombre, c.codigo as carrera_codigo
                 FROM public.usuarios u
                 LEFT JOIN public.carreras c ON u.carrera_id = c.id
-                WHERE u.id = %s AND u.rol = 'estudiante'
+                WHERE u.id = $1 AND u.rol = 'estudiante'
                 """,
-                (estudiante_id,)
+                estudiante_id
             )
-            
-            estudiante = cur.fetchone()
-            
+
             if not estudiante:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Estudiante no encontrado"
-                )
-            
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Estudiante no encontrado")
+
             est_dict = dict(estudiante)
-            
-            # Obtener inscripciones
-            cur.execute(
+
+            inscripciones_rows = await conn.fetch(
                 """
-                SELECT 
-                    i.id, i.nota_final, i.estado, i.fecha_inscripcion,
+                SELECT i.id, i.nota_final, i.estado, i.fecha_inscripcion,
                     m.nombre as materia_nombre, m.codigo as materia_codigo,
-                    s.codigo_seccion, p.nombre as periodo_nombre,
+                    s.codigo as codigo_seccion, p.nombre as periodo_nombre,
                     CASE WHEN pg.id IS NOT NULL THEN true ELSE false END as pagado
                 FROM public.inscripciones i
                 JOIN public.secciones s ON i.seccion_id = s.id
                 JOIN public.materias m ON s.materia_id = m.id
                 JOIN public.periodos_lectivos p ON s.periodo_id = p.id
                 LEFT JOIN public.pagos pg ON i.pago_id = pg.id
-                WHERE i.estudiante_id = %s
+                WHERE i.estudiante_id = $1
                 ORDER BY p.codigo DESC
                 """,
-                (estudiante_id,)
+                estudiante_id
             )
-            
+
             inscripciones = []
-            for row in cur.fetchall():
+            for row in inscripciones_rows:
                 row_dict = dict(row)
                 inscripciones.append({
                     'id': row_dict['id'],
@@ -337,29 +182,25 @@ async def detalle_estudiante(
                     'estado': row_dict['estado'],
                     'pagado': row_dict['pagado']
                 })
-            
-            # Calcular deuda
-            cur.execute(
-                """
-                SELECT i.*, s.id as seccion_id
+
+            deuda_row = await conn.fetchrow("""
+                SELECT COALESCE(SUM(
+                    m.creditos * c.precio_credito
+                    * (1.0 - COALESCE($1::numeric, 0) / 100.0)
+                ), 0) AS deuda_total
                 FROM public.inscripciones i
                 JOIN public.secciones s ON i.seccion_id = s.id
-                WHERE i.estudiante_id = %s AND i.pago_id IS NULL
-                """,
-                (estudiante_id,)
-            )
-            
-            inscripciones_pendientes = [dict(row) for row in cur.fetchall()]
-            deuda_total = calcular_deuda_total(est_dict, inscripciones_pendientes, conn)
-            
-            cur.close()
-            
+                JOIN public.materias  m ON s.materia_id = m.id
+                JOIN public.carreras  c ON c.id = $2
+                WHERE i.estudiante_id = $3 AND i.pago_id IS NULL
+            """, est_dict.get('porcentaje_beca', 0), est_dict.get('carrera_id'), estudiante_id)
+            deuda_total = float(deuda_row['deuda_total'] or 0)
+
             return {
                 'id': est_dict['id'],
-                'username': est_dict['cedula'],
-                'nombre_completo': f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip() or est_dict['cedula'],
+                'cedula': est_dict['cedula'],
+                'nombre_completo': f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip(),
                 'email': est_dict.get('email'),
-                'dni': est_dict.get('dni'),
                 'rol': est_dict['rol'],
                 'carrera_detalle': {
                     'id': est_dict['carrera_id'],
@@ -369,120 +210,137 @@ async def detalle_estudiante(
                 'es_becado': est_dict.get('es_becado', False),
                 'porcentaje_beca': est_dict.get('porcentaje_beca', 0),
                 'convenio_activo': est_dict.get('convenio_activo', False),
-                'fecha_limite_convenio': (
-                    est_dict.get('fecha_limite_convenio').isoformat() 
-                    if hasattr(est_dict.get('fecha_limite_convenio'), 'isoformat') 
-                    else None
-                ),
-                'deuda_total': str(deuda_total),
+                'fecha_limite_convenio': est_dict.get('fecha_limite_convenio').isoformat() if hasattr(est_dict.get('fecha_limite_convenio'), 'isoformat') else None,
+                'deuda_total': str(round(deuda_total, 2)),
                 'inscripciones': inscripciones
             }
-            
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Error obteniendo detalle: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error obteniendo detalle: {str(e)}"
-        )
+        logger.error(f"Error obteniendo detalle: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error: {str(e)}")
 
 
-@router.get(
-    "/{estudiante_id}/estado-cuenta",
-    summary="Estado de cuenta simplificado",
-    description="Retorna el estado financiero actual del estudiante"
-)
+@router.get("/{estudiante_id}/estado-cuenta", summary="Estado de cuenta simplificado")
 async def estado_cuenta(
     estudiante_id: int,
-    current_user: Dict[str, Any] = Depends(require_roles(['tesorero', 'director', 'coordinador']))
+    current_user: Dict[str, Any] = Depends(require_roles(['tesorero', 'director', 'admin', 'coordinador', 'estudiante', 'administrativo']))
 ) -> Dict[str, Any]:
-    """
-    Obtiene el estado de cuenta de un estudiante
-    """
+
+    if current_user['rol'] == 'estudiante' and current_user['id'] != estudiante_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permiso para ver el estado de cuenta de otro estudiante."
+        )
+
     try:
-        with get_db() as conn:
-            cur = conn.cursor()
-            
-            # Obtener estudiante
-            cur.execute(
-                "SELECT * FROM public.usuarios WHERE id = %s AND rol = 'estudiante'",
-                (estudiante_id,)
-            )
-            
-            estudiante = cur.fetchone()
-            
+        async with get_db() as conn:
+            estudiante = await conn.fetchrow("SELECT * FROM public.usuarios WHERE id = $1 AND rol = 'estudiante'", estudiante_id)
+
             if not estudiante:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Estudiante no encontrado"
-                )
-            
+                raise HTTPException(status_code=404, detail="Estudiante no encontrado")
+
             est_dict = dict(estudiante)
-            
-            # Obtener período actual
-            cur.execute(
-                """
-                SELECT * FROM public.periodos_lectivos 
-                WHERE activo = true 
-                ORDER BY fecha_inicio DESC 
-                LIMIT 1
-                """
-            )
-            periodo_actual = cur.fetchone()
-            
-            # Obtener inscripciones
-            cur.execute(
-                """
-                SELECT i.*, s.id as seccion_id
+
+            inscripciones_detalle = [dict(row) for row in await conn.fetch("""
+                SELECT i.id, i.fecha_inscripcion, i.estado, i.nota_final,
+                       s.codigo as seccion_codigo, m.nombre as materia_nombre,
+                       m.creditos, p.nombre as periodo_nombre,
+                       i.pago_id
                 FROM public.inscripciones i
                 JOIN public.secciones s ON i.seccion_id = s.id
-                WHERE i.estudiante_id = %s
-                """,
-                (estudiante_id,)
-            )
-            
-            inscripciones = [dict(row) for row in cur.fetchall()]
-            
-            # Calcular métricas
-            from services.calculos_financieros import calcular_en_mora, calcular_deuda_vencida
-            
-            en_mora = calcular_en_mora(
-                est_dict,
-                inscripciones,
-                dict(periodo_actual) if periodo_actual else None,
-                conn
-            )
-            
-            deuda_total = calcular_deuda_total(est_dict, inscripciones, conn)
-            deuda_vencida = calcular_deuda_vencida(
-                est_dict,
-                inscripciones,
-                dict(periodo_actual) if periodo_actual else None,
-                conn
-            )
-            
-            cur.close()
-            
+                JOIN public.materias m ON s.materia_id = m.id
+                JOIN public.periodos_lectivos p ON s.periodo_id = p.id
+                WHERE i.estudiante_id = $1
+                ORDER BY p.fecha_inicio DESC, i.fecha_inscripcion DESC
+                LIMIT 50
+            """, estudiante_id)]
+
+            pagos = [dict(row) for row in await conn.fetch("""
+                SELECT id, monto, fecha_pago, metodo_pago, estado, referencia, concepto
+                FROM public.pagos
+                WHERE estudiante_id = $1
+                ORDER BY fecha_pago DESC
+                LIMIT 50
+            """, estudiante_id)]
+
+            deuda_row = dict(await conn.fetchrow("""
+                SELECT
+                    COUNT(i.id) as pendientes,
+                    COALESCE(SUM(
+                        m.creditos * c.precio_credito
+                        * (1.0 - COALESCE($1::numeric, 0) / 100.0)
+                    ), 0) AS deuda_total
+                FROM public.inscripciones i
+                JOIN public.secciones s ON i.seccion_id = s.id
+                JOIN public.materias  m ON s.materia_id = m.id
+                JOIN public.carreras  c ON c.id = $2
+                WHERE i.estudiante_id = $3 AND i.pago_id IS NULL
+            """, est_dict.get('porcentaje_beca', 0), est_dict.get('carrera_id'), estudiante_id))
+            deuda_total = float(deuda_row['deuda_total'] or 0)
+            inscripciones_pendientes_count = int(deuda_row['pendientes'] or 0)
+
+            total_inscripciones = len(inscripciones_detalle)
+            inscripciones_pagadas_count = total_inscripciones - inscripciones_pendientes_count
+
+            # Mora simplificada: si tiene deuda > 0 y no tiene convenio vigente
+            from datetime import date
+            en_mora = False
+            if deuda_total > 0:
+                if est_dict.get('convenio_activo'):
+                    fecha_lim = est_dict.get('fecha_limite_convenio')
+                    if fecha_lim and hasattr(fecha_lim, 'date'):
+                        en_mora = fecha_lim.date() < date.today()
+                    else:
+                        en_mora = False
+                else:
+                    en_mora = True
+
             return {
-                "estudiante_id": estudiante_id,
-                "username": est_dict['cedula'],
-                "nombre": f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip(),
-                "en_mora": en_mora,
-                "deuda_total": float(deuda_total),
-                "deuda_vencida": float(deuda_vencida),
-                "convenio_activo": est_dict.get('convenio_activo', False),
-                "es_becado": est_dict.get('es_becado', False),
-                "porcentaje_beca": est_dict.get('porcentaje_beca', 0),
-                "inscripciones_pendientes": len([i for i in inscripciones if not i.get('pago_id')]),
-                "inscripciones_pagadas": len([i for i in inscripciones if i.get('pago_id')])
+                "estudiante_id":          estudiante_id,
+                "cedula":                 est_dict['cedula'],
+                "nombre":                 f"{est_dict.get('first_name', '')} {est_dict.get('last_name', '')}".strip(),
+                "en_mora":                en_mora,
+                "deuda_total":            round(deuda_total, 2),
+                "deuda_vencida":          round(deuda_total, 2),  # simplificado
+                "convenio_activo":        est_dict.get('convenio_activo', False),
+                "es_becado":              est_dict.get('es_becado', False),
+                "porcentaje_beca":        est_dict.get('porcentaje_beca', 0),
+                "inscripciones_pendientes": inscripciones_pendientes_count,
+                "inscripciones_pagadas":  inscripciones_pagadas_count,
+                "inscripciones":          inscripciones_detalle,
+                "pagos":                  pagos
             }
-            
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Error obteniendo estado de cuenta: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error obteniendo estado: {str(e)}"
-        )
+        logger.error(f"Error en estado de cuenta: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/{estudiante_id}/convenio", summary="Actualizar convenio de pago")
+async def actualizar_convenio(
+    estudiante_id: int,
+    data: dict,
+    current_user: Dict[str, Any] = Depends(require_roles(['tesorero', 'director', 'admin']))
+) -> Dict[str, Any]:
+    try:
+        async with get_db() as conn:
+            if not await conn.fetchrow("SELECT id FROM public.usuarios WHERE id = $1 AND rol = 'estudiante'", estudiante_id):
+                raise HTTPException(status_code=404, detail="Estudiante no encontrado")
+
+            await conn.execute("""
+                UPDATE public.usuarios
+                SET convenio_activo = $1, fecha_limite_convenio = $2
+                WHERE id = $3
+            """, data.get('convenio_activo', False), data.get('fecha_limite_convenio'), estudiante_id)
+
+        return {"message": "Convenio actualizado correctamente"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error actualizando convenio: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

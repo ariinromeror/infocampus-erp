@@ -1,4 +1,5 @@
 # 🎓 InfoCampus ERP v2.0
+
 ## Sistema de Gestión Universitaria Moderno
 
 <div align="center">
@@ -8,9 +9,9 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
-**A modern, high-performance University ERP System**
+**Sistema integral de gestión académica y financiera para instituciones educativas**
 
-[🚀 Demo](https://your-url.com) | [📚 API Docs](https://your-url.com/docs) | [💼 Portfolio](https://your-portfolio.com)
+[📚 API Docs](http://localhost:8000/docs) | [📖 ReDoc](http://localhost:8000/redoc)
 
 </div>
 
@@ -18,221 +19,278 @@
 
 ## 📋 Descripción General
 
-InfoCampus ERP es un sistema integral de gestión académica y financiera diseñado para instituciones educativas. Este proyecto representa una **migración exitosa de Django REST Framework a FastAPI**, demostrando arquitectura moderna, rendimiento optimizado y código mantenible.
+**InfoCampus ERP** es un sistema ERP (Enterprise Resource Planning) diseñado para instituciones educativas. Gestiona:
 
-### 🎯 Características Principales
+- **Académico:** Inscripciones, calificaciones, períodos lectivos, materias, secciones, horarios
+- **Financiero:** Pagos, mora, becas, convenios, tarifas, ingresos
+- **Administrativo:** Usuarios, estudiantes, profesores, reportes PDF
 
-- **⚡ Alto Rendimiento:** FastAPI con operaciones asíncronas y agregaciones SQL optimizadas
-- **🔐 Seguridad Avanzada:** JWT Authentication + RBAC con 6 niveles de roles
-- **💰 Lógica Financiera Compleja:** Sistema de mora con 3 reglas, becas, convenios y cálculo preciso con Decimal
-- **📊 Dashboards Inteligentes:** Métricas en tiempo real para Director, Tesorero y Profesores
-- **📄 Reportes PDF Profesionales:** Generación de certificados y estados de cuenta
-- **🎨 Frontend Moderno:** React 19 + Tailwind CSS + Vite
+El sistema implementa **6 roles** con control de acceso (RBAC): Director, Coordinador, Profesor, Estudiante, Tesorero y Secretaria (administrativo).
+
+### Características principales
+
+- **⚡ Alto rendimiento:** FastAPI con operaciones asíncronas y agregaciones SQL optimizadas
+- **🔐 Seguridad:** JWT + bcrypt + RBAC con 6 niveles de roles
+- **💰 Lógica financiera:** Mora con 3 reglas, becas, convenios, cálculo con Decimal
+- **📊 Dashboards:** Métricas en tiempo real por rol
+- **📄 Reportes PDF:** Certificados, estados de cuenta, reportes de tesorería
+- **🤖 Chat IA:** Asistente virtual Eva (Groq) con contexto por rol
+- **📱 Responsive:** UI adaptada a móvil, tablet y desktop
 
 ---
 
-## 🏗️ Arquitectura del Sistema
+## 🏗️ Arquitectura
 
-### Stack Tecnológico
+### Stack tecnológico
 
 | Capa | Tecnología |
-|------|-----------|
-| **Backend** | FastAPI + Python 3.11 |
-| **Frontend** | React 19 + Vite + Tailwind CSS |
-| **Base de Datos** | PostgreSQL (Supabase) |
-| **Autenticación** | JWT + bcrypt |
+|------|------------|
+| **Backend** | FastAPI 0.115 + Python 3.11+ |
+| **Frontend** | React 19 + Vite 7 + Tailwind CSS 4 |
+| **Base de datos** | PostgreSQL (Supabase) |
+| **Autenticación** | JWT (python-jose) + bcrypt |
 | **PDFs** | ReportLab |
-| **Deployment** | Render (Backend) + Vercel (Frontend) |
+| **IA** | Groq API (chatbot Eva) |
 
-### Estructura del Proyecto
+### Estructura del proyecto
 
 ```
 infocampus-erp/
 ├── backend/                    # API FastAPI
-│   ├── auth/                   # JWT + RBAC
-│   ├── services/              # Lógica de negocio
-│   ├── routers/               # Endpoints API
-│   └── main.py                # Punto de entrada
+│   ├── auth/                   # JWT, RBAC, dependencias
+│   ├── routers/                # 14 routers API
+│   ├── services/               # Lógica de negocio (PDF, cálculos)
+│   ├── migrations/             # SQL (revoked_tokens)
+│   ├── config.py
+│   ├── database.py
+│   ├── main.py
+│   ├── .env.example
+│   └── requirements.txt
 │
-├── frontend/                   # React App
+├── frontend/                   # React + Vite
 │   ├── src/
-│   │   ├── components/        # Componentes React
-│   │   ├── pages/            # Páginas
-│   │   └── services/         # API integration
+│   │   ├── components/         # ChatIA, ErrorBoundary, ProtectedRoute, shared/
+│   │   ├── config/             # sidebarNav.js
+│   │   ├── context/            # AuthContext
+│   │   ├── layouts/            # MainLayout, Header, UniversalSidebar
+│   │   ├── pages/
+│   │   │   ├── auth/           # Login
+│   │   │   ├── director/       # Dashboard, estadísticas, etc.
+│   │   │   ├── coordinador/    # Carreras, materias, secciones, etc.
+│   │   │   ├── tesorero/       # Cobrar, mora, becas, etc.
+│   │   │   ├── profesor/       # Secciones, evaluaciones, asistencia
+│   │   │   ├── estudiante/     # Horario, notas, pagos
+│   │   │   └── secretaria/    # Inscripciones, estudiantes, secciones
+│   │   └── services/           # api, academicoService, etc.
+│   ├── .env.example
 │   └── package.json
 │
-├── legacy_archive/            # Código Django (archivado)
+├── scripts_db/                 # Scripts de población y utilidades
+│   ├── populate.py
+│   ├── regenerar_hashes.py
+│   └── qa_validation.py
+│
+├── docs/                       # Documentación y planes
 └── README.md
 ```
 
 ---
 
-## 🎓 Módulos del Sistema
+## 🎓 Módulos por rol
 
-### 1. Gestión Académica
-- **Inscripciones:** Registro de estudiantes en materias
-- **Calificaciones:** Sistema de notas con validación (≥7.0 aprueba)
-- **Períodos Lectivos:** Cierre de ciclo académico automatizado
-- **Materias y Secciones:** Gestión de oferta académica
+### Director
+- Dashboard institucional, estadísticas, períodos
+- Gestión de carreras, materias, secciones, horarios
+- Estudiantes, profesores, usuarios
+- Finanzas, becas, convenios, tarifas
+- Reportes, auditoría de notas, configuración
 
-### 2. Gestión Financiera
-- **Sistema de Mora Inteligente:** 3 reglas de negocio
-  - Convenios de pago protegen al estudiante
-  - Deuda de períodos anteriores = mora inmediata
-  - Días de gracia por carrera
-- **Becas:** Descuentos automáticos por porcentaje
-- **Pagos:** Registro con múltiples métodos (efectivo, transferencia, tarjeta)
-- **Estados de Cuenta:** PDFs detallados con cálculos precisos
+### Coordinador
+- Dashboard académico
+- Carreras, materias, secciones, periodos, horarios
+- Estudiantes, profesores, inscripciones
+- Becas, reportes, usuarios
 
-### 3. Dashboards por Rol
+### Profesor
+- Dashboard, secciones asignadas
+- Libro de notas, evaluaciones
+- Asistencia, analíticas
+- Perfil de alumnos
 
-#### 📊 Director/Coordinador
-- Total de estudiantes y profesores
-- Estudiantes por carrera (gráficas)
-- Promedio institucional
-- Ingresos totales
-- Lista de alumnos en mora
+### Estudiante
+- Dashboard personal
+- Horario, notas, materias
+- Evaluaciones, asistencia
+- Pagos, estado de cuenta, documentos
 
-#### 💰 Tesorero
-- Ingreso proyectado vs real
-- Tasa de cobranza (%)
-- Listado de cobranza con estados
+### Tesorero
+- Dashboard financiero
+- Buscar estudiante, cobrar
+- Mora, pagos, convenios
+- Becas, tarifas, ingresos
+- Reportes, estados de cuenta, certificados
 
-#### 👨‍🏫 Profesor
-- Secciones asignadas
-- Total de alumnos
-- Promedio de rendimiento
-- Gestión de notas
-
-### 4. Reportes PDF
-- **Certificados de Inscripción:** Documentos oficiales
-- **Estados de Cuenta:** Reportes financieros completos
-- **Reportes de Tesorería:** Análisis de ingresos por período
+### Secretaria (administrativo)
+- Dashboard
+- Inscripciones, primera matrícula, reinscripción
+- Estudiantes, secciones, mallas
+- Usuarios
 
 ---
 
-## 🔐 Sistema de Roles (RBAC)
+## 🚀 Instalación y desarrollo
 
-El sistema implementa **6 roles** con herencia de permisos:
+### Requisitos
 
-| Rol | Permisos |
-|-----|----------|
-| **Director** | Acceso total al sistema |
-| **Coordinador** | Dashboard institucional, gestión académica |
-| **Tesorero** | Gestión financiera, pagos, reportes |
-| **Profesor** | Gestión de notas (solo sus secciones) |
-| **Estudiante** | Ver información personal y académica |
-| **Administrativo** | Soporte administrativo |
+- Python 3.11+
+- Node.js 18+
+- PostgreSQL (o Supabase)
 
----
+### Backend
 
-## 💡 Destacados Técnicos
-
-### Migración Django → FastAPI
-
-Esta migración demuestra:
-
-1. **Arquitectura Modular:** Código organizado en 19 archivos especializados
-2. **Performance:** Agregaciones SQL directas vs ORM de Django
-3. **Type Safety:** Uso extensivo de Pydantic para validación
-4. **Documentación Automática:** OpenAPI/Swagger generado automáticamente
-5. **Mantenibilidad:** 4,426 líneas de código bien documentadas
-
-### Precisión Financiera
-
-```python
-# Cálculo con precisión de centavos
-from decimal import Decimal
-
-costo = Decimal(str(creditos)) * Decimal(str(precio_credito))
-if es_becado:
-    descuento = costo * (Decimal(str(porcentaje_beca)) / Decimal('100'))
-    costo -= descuento
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env       # Editar con tus credenciales
+uvicorn main:app --reload
 ```
 
-### Seguridad
+API en `http://127.0.0.1:8000`
 
-- JWT tokens con expiración de 24 horas
-- Validación de permisos en cada endpoint
-- CORS configurado restrictivamente
-- Sanitización de queries SQL (parametrizadas)
+### Frontend
+
+```bash
+cd frontend
+npm install
+cp .env.example .env       # Editar VITE_API_URL si es necesario
+npm run dev
+```
+
+App en `http://localhost:5173`
+
+### Variables de entorno
+
+**Backend** (`backend/.env`):
+
+| Variable | Descripción |
+|----------|-------------|
+| DATABASE_URL | URL de conexión PostgreSQL |
+| SECRET_KEY_AUTH | Clave secreta para JWT |
+| ALLOWED_ORIGINS | Orígenes CORS (separados por coma) |
+| GROQ_API_KEY | (Opcional) Clave Groq para chatbot Eva |
+
+**Frontend** (`frontend/.env`):
+
+| Variable | Descripción |
+|----------|-------------|
+| VITE_API_URL | URL del backend (ej: http://127.0.0.1:8000) |
 
 ---
 
-## 📊 Métricas del Proyecto
+## 📊 Auditoría de producción
 
-- **Líneas de Código:** 4,426
-- **Endpoints API:** 19
-- **Tiempo de Desarrollo:** 5 fases completadas
-- **Cobertura de Funcionalidad:** 100% de Django migrado
-- **Documentación:** Completa con ejemplos
+### Porcentaje de avance estimado: **~62%**
+
+| Criterio | Peso | Estado | Puntos |
+|----------|------|--------|--------|
+| Funcionalidad core | 25% | Completa (6 roles, CRUD, reportes) | 23 |
+| UI/UX | 20% | Buena (Tailwind, dashboards, responsive) | 17 |
+| Tests | 15% | Inexistente | 0 |
+| Documentación | 10% | README y OpenAPI | 7 |
+| Seguridad | 15% | JWT/RBAC OK; credenciales a revisar | 8 |
+| Deploy config | 15% | Parcial (slowapi añadido, CORS) | 7 |
+
+### Pendiente para producción
+
+| Prioridad | Tarea |
+|-----------|-------|
+| **Crítica** | Eliminar archivos `credenciales*.txt` del repo (si existen) y rotar contraseñas |
+| **Crítica** | Definir `ALLOWED_ORIGINS` en producción (no usar `*`) |
+| **Alta** | Unificar componentes duplicados (ModalForm, ConfirmModal, SelectModal) |
+| **Alta** | Documentar schema de BD (DDL o migraciones) |
+| **Media** | Añadir tests básicos (login, health, endpoints críticos) |
+| **Media** | Añadir integración con APM (Sentry, etc.) |
+| **Baja** | Tests E2E |
+
+---
+
+## 📁 Archivos y organización
+
+### Componentes duplicados (consolidar)
+
+| Componente | Ubicaciones | Acción recomendada |
+|------------|-------------|--------------------|
+| ModalForm | `director/components/`, `coordinador/components/` | Unificar en `components/shared/ModalForm.jsx` |
+| ConfirmModal | `director/`, `tesorero/`, `secretaria/components/` | Unificar en `components/shared/ConfirmModal.jsx` |
+| SelectModal | `secretaria/`, `tesorero/`, `coordinador/components/` | Unificar en `components/shared/SelectModal.jsx` |
+
+### Archivos a excluir del repositorio
+
+- `backend/.env`
+- `frontend/.env`
+- `scripts_db/.env`
+- `credenciales*.txt` (añadido a .gitignore)
+
+### Archivos que no deben existir en repo
+
+- Cualquier archivo con credenciales reales
+- Contraseñas o API keys en texto plano
 
 ---
 
 ## 🚀 Deployment
 
-### Backend (Render)
+### Backend (Render / Railway / similar)
+
 ```bash
-Build Command: pip install -r backend/requirements.txt
-Start Command: cd backend && gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+Build: pip install -r backend/requirements.txt
+Start: cd backend && gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
 ```
 
-### Frontend (Vercel)
+### Frontend (Vercel / Netlify)
+
 ```bash
 Framework: Vite
-Build Command: npm run build
-Output Directory: dist
+Build: npm run build
+Output: dist
 ```
 
-### Base de Datos (Supabase)
-- PostgreSQL 15
-- Connection pooling
-- Row Level Security (RLS) habilitado
+### Base de datos
+
+- PostgreSQL 15 (Supabase recomendado)
+- Ejecutar migración `backend/migrations/001_revoked_tokens.sql`
 
 ---
 
-## 🛠️ Tecnologías Clave
+## 🔐 Seguridad
 
-### Backend
-- **FastAPI 0.115** - Framework web moderno
-- **psycopg2-binary** - PostgreSQL adapter
-- **python-jose** - JWT tokens
-- **passlib** - Password hashing
-- **reportlab** - PDF generation
-- **pydantic-settings** - Environment configuration
-
-### Frontend
-- **React 19** - UI library
-- **Vite** - Build tool
-- **Tailwind CSS** - Styling
-- **Axios** - HTTP client
-- **React Router** - Navigation
-
-### DevOps
-- **Render** - Backend hosting
-- **Vercel** - Frontend hosting
-- **Supabase** - Database
-- **GitHub** - Version control
+- **JWT:** Tokens con expiración de 60 minutos
+- **RBAC:** Validación de permisos en cada endpoint
+- **CORS:** Configurar `ALLOWED_ORIGINS` en producción
+- **Rate limiting:** 5 intentos/min en login (SlowAPI)
+- **Revoked tokens:** Tabla para tokens invalidados
 
 ---
 
 ## 📈 Resultados
 
-Este proyecto demuestra:
-
-✅ **Arquitectura de Software:** Diseño modular y mantenible  
-✅ **Migración de Legacy:** Transformación de Django a FastAPI  
-✅ **Lógica de Negocio Compleja:** Sistema financiero robusto  
-✅ **Seguridad:** Implementación de RBAC y JWT  
-✅ **Performance:** Optimizaciones SQL y connection pooling  
-✅ **Documentación:** Código bien documentado y estructurado  
+✅ Arquitectura modular y mantenible  
+✅ 6 roles con RBAC  
+✅ Lógica financiera completa (mora, becas, convenios)  
+✅ Dashboards por rol  
+✅ Reportes PDF  
+✅ Chat IA (Eva)  
+✅ UI responsive  
+✅ Documentación OpenAPI (Swagger/ReDoc)  
 
 ---
 
 ## 👨‍💻 Desarrollador
 
 **Arin Romero**  
-Full-Stack Developer | Python Specialist | AI-Driven Development
+Full-Stack Developer | Python Specialist
 
 📧 ariin.romeror@gmail.com  
 💼 [LinkedIn](https://linkedin.com/in/yourprofile)  
@@ -244,6 +302,6 @@ Full-Stack Developer | Python Specialist | AI-Driven Development
 
 **⭐ Star this repository if you found it helpful!**
 
-Built with ❤️ and ☕ using FastAPI + React
+Built with ❤️ using FastAPI + React
 
 </div>

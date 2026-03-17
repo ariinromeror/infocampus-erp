@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, X, MessageCircle, Sparkles, User, Loader2, ChevronDown } from 'lucide-react';
-import { supabase } from '../supabase/client'; 
+import { createPortal } from 'react-dom';
+import { Send, Bot, MessageCircle, Minus } from 'lucide-react';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+const CHAT_URL = `${API_BASE}/api/ia/chat`;
 
 const ChatIA = () => {
     const [messages, setMessages] = useState([
         {
             role: 'assistant',
-            content: '¡Hola! Soy Eva, tu asistente personal de Info Campus. 💎\n\nPuedo ver tus notas, horarios y estado de cuenta en tiempo real. ¿En qué te ayudo hoy?'
+            content: 'Hola, soy Eva. Tengo acceso a tu información en tiempo real: notas, pagos, horarios y asistencia. ¿Qué necesitas?'
         }
     ]);
     const [input, setInput] = useState('');
@@ -15,67 +18,72 @@ const ChatIA = () => {
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
     useEffect(() => {
         if (isOpen) {
-            scrollToBottom();
-            setTimeout(() => inputRef.current?.focus(), 300);
+            setTimeout(() => {
+                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                inputRef.current?.focus();
+            }, 350);
         }
-    }, [messages, isOpen]);
+    }, [isOpen]);
 
-    // ==========================================
-    // LÓGICA DE ENVÍO CONECTADA A SUPABASE
-    // ==========================================
+    useEffect(() => {
+        if (isOpen) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
     const sendMessage = async () => {
         if (!input.trim() || loading) return;
 
         const userText = input.trim();
-        const userMessage = { role: 'user', content: userText };
-        
-        setMessages(prev => [...prev, userMessage]);
+        setMessages(prev => [...prev, { role: 'user', content: userText }]);
         setInput('');
         setLoading(true);
 
         try {
-            
-            const historyPayload = messages.slice(1).slice(-10).map(m => ({
+            const savedUser = localStorage.getItem('campus_user');
+            const userData = savedUser ? JSON.parse(savedUser) : null;
+            const token = userData?.token;
+
+            if (!token) {
+                setMessages(prev => [...prev, {
+                    role: 'assistant',
+                    content: 'Sesión no encontrada. Por favor, inicia sesión nuevamente.'
+                }]);
+                setLoading(false);
+                return;
+            }
+
+            const historyPayload = messages.slice(1).slice(-8).map(m => ({
                 role: m.role,
                 content: m.content
             }));
 
-            
-            const { data, error } = await supabase.functions.invoke('chat', {
-                body: { 
+            const response = await fetch(CHAT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
                     message: userText,
-                    history: historyPayload
-                }
+                    history: historyPayload,
+                })
             });
 
-            if (error) throw error;
-
-            
-            const botResponse = { 
-                role: 'assistant', 
-                content: data.response || data.reply || "He recibido tu mensaje, pero no tengo una respuesta clara."
-            };
-            
-            setMessages(prev => [...prev, botResponse]);
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || data.error || 'Error del servidor');
+            setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
 
         } catch (error) {
-            console.error("Error en Eva:", error);
-            let errorMsg = 'Lo siento, tuve un problema de conexión. 😅';
-            
-            if (error.message?.includes('401')) {
-                errorMsg = 'Tu sesión ha expirado. Por favor, recarga la página.';
-            }
-
-            setMessages(prev => [...prev, { 
-                role: 'assistant', 
-                content: errorMsg
-            }]);
+            const msg = error.message || '';
+            const content = msg.includes('sesión')
+                ? msg
+                : msg.includes('no configurada') || msg.includes('configuración')
+                    ? 'El servicio de IA no está disponible en este momento. Contacta al administrador.'
+                    : msg && msg !== 'Error del servidor'
+                        ? msg
+                        : 'En este momento no puedo procesar tu solicitud. Intenta de nuevo.';
+            setMessages(prev => [...prev, { role: 'assistant', content }]);
         } finally {
             setLoading(false);
         }
@@ -88,112 +96,225 @@ const ChatIA = () => {
         }
     };
 
-    // ==========================================
-    // TU DISEÑO ESTÉTICO (SIN CAMBIOS)
-    // ==========================================
-    return (
-        <div className="fixed bottom-6 right-6 z-[9999] font-sans">
-            <div className={`transition-all duration-500 transform ${isOpen ? 'scale-0 opacity-0 translate-y-10' : 'scale-100 opacity-100 translate-y-0'}`}>
-                <button
-                    onClick={() => setIsOpen(true)}
-                    className="group relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 shadow-[0_8px_30px_rgb(79,70,229,0.4)] hover:shadow-[0_8px_40px_rgb(79,70,229,0.6)] transition-all duration-300 hover:scale-110 active:scale-95"
-                >
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-20 animate-ping"></span>
-                    <MessageCircle className="text-white w-8 h-8 drop-shadow-md group-hover:rotate-12 transition-transform duration-300" />
-                    <span className="absolute top-0 right-0 flex h-4 w-4">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border-2 border-white"></span>
-                    </span>
-                </button>
-            </div>
+    return createPortal(
+        <>
+            <style>{`
+                @keyframes chatSlideUp {
+                    from { opacity: 0; transform: translateY(16px) scale(0.96); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+                @keyframes btnPulse {
+                    0%, 100% { box-shadow: 0 0 0 0 rgba(79,70,229,0.45); }
+                    50% { box-shadow: 0 0 0 14px rgba(79,70,229,0); }
+                }
+                @keyframes typingDot {
+                    0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
+                    30% { transform: translateY(-5px); opacity: 1; }
+                }
+                .eva-chat-open { animation: chatSlideUp 0.35s cubic-bezier(0.16,1,0.3,1) forwards; display: flex !important; }
+                .eva-chat-closed { display: none !important; }
+                .eva-btn-pulse { animation: btnPulse 2.5s ease infinite; }
+                .eva-dot:nth-child(1) { animation: typingDot 1.2s ease infinite; }
+                .eva-dot:nth-child(2) { animation: typingDot 1.2s ease 0.2s infinite; }
+                .eva-dot:nth-child(3) { animation: typingDot 1.2s ease 0.4s infinite; }
+                .eva-scroll::-webkit-scrollbar { width: 3px; }
+                .eva-scroll::-webkit-scrollbar-track { background: transparent; }
+                .eva-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+                .eva-textarea { outline: none !important; box-shadow: none !important; border: none !important; background: transparent; }
+                .eva-textarea:focus { outline: none !important; box-shadow: none !important; }
+                .eva-window {
+                    position: fixed;
+                    flex-direction: column;
+                    overflow: hidden;
+                    background: #ffffff;
+                }
+                .eva-trigger-btn {
+                    position: fixed;
+                    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+                    right: 20px;
+                    z-index: 9999;
+                    width: 56px;
+                    height: 56px;
+                    border-radius: 18px;
+                    background: #4f46e5;
+                    border: none;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: background 0.15s, transform 0.1s;
+                    flex-shrink: 0;
+                    touch-action: manipulation;
+                    -webkit-tap-highlight-color: transparent;
+                }
+                .eva-trigger-btn:hover { background: #4338ca; }
+                .eva-trigger-btn:active { transform: scale(0.93); background: #4338ca; }
+                .eva-backdrop {
+                    display: none;
+                }
+                .eva-close-btn {
+                    position: relative; width: 32px; height: 32px; border-radius: 10px;
+                    background: rgba(255,255,255,0.06); border: none; cursor: pointer;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: background 0.15s; touch-action: manipulation;
+                    -webkit-tap-highlight-color: transparent;
+                }
+                .eva-close-btn:hover, .eva-close-btn:active { background: rgba(255,255,255,0.16); }
+                @media (max-width: 767px) {
+                    .eva-trigger-btn { bottom: calc(20px + env(safe-area-inset-bottom, 0px)); right: 16px; }
+                    .eva-backdrop {
+                        display: block; position: fixed; inset: 0;
+                        background: rgba(0,0,0,0.45); z-index: 9998;
+                        -webkit-tap-highlight-color: transparent;
+                    }
+                    .eva-window {
+                        position: fixed !important;
+                        top: 0 !important; left: 0 !important;
+                        right: 0 !important; bottom: 0 !important;
+                        width: 100% !important; height: 100% !important;
+                        max-height: none !important; border-radius: 0 !important;
+                        z-index: 9999 !important;
+                    }
+                    .eva-close-btn { width: 44px; height: 44px; border-radius: 14px; }
+                }
+                @media (min-width: 768px) {
+                    .eva-window { bottom: 88px; right: 20px; z-index: 9999; width: 380px; height: 580px; max-height: calc(100dvh - 110px); border-radius: 24px; box-shadow: 0 24px 64px -8px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.06); }
+                }
+            `}</style>
 
-            <div className={`
-                fixed bottom-6 right-6 w-[90vw] sm:w-[400px] h-[600px] max-h-[85vh] 
-                bg-white/95 backdrop-blur-xl border border-white/20 
-                rounded-[2rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] 
-                flex flex-col overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom-right
-                ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-20 pointer-events-none'}
-            `}>
-                
-                <div className="relative bg-gradient-to-r from-indigo-700 via-violet-700 to-fuchsia-700 p-6 flex items-center justify-between shrink-0 overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10"></div>
-                    <div className="flex items-center gap-4 relative z-10">
-                        <div className="relative">
-                            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-inner">
-                                <Bot className="text-white w-7 h-7" />
+            {!isOpen && (
+                <button
+                    className="eva-trigger-btn eva-btn-pulse"
+                    onClick={() => setIsOpen(true)}
+                    aria-label="Abrir chat con Eva"
+                >
+                    <MessageCircle style={{ width: 24, height: 24, color: '#fff' }} />
+                    <span style={{
+                        position: 'absolute', top: -3, right: -3,
+                        width: 12, height: 12, borderRadius: '50%',
+                        background: '#34d399', border: '2px solid #fff', display: 'block'
+                    }} />
+                </button>
+            )}
+
+            {isOpen && (
+                <div
+                    className="eva-backdrop"
+                    onClick={() => setIsOpen(false)}
+                    aria-hidden="true"
+                />
+            )}
+
+            <div className={`eva-window ${isOpen ? 'eva-chat-open' : 'eva-chat-closed'}`}>
+
+                <div style={{
+                    position: 'relative', background: '#020617',
+                    padding: '18px 20px', display: 'flex', alignItems: 'center',
+                    justifyContent: 'space-between', flexShrink: 0, overflow: 'hidden'
+                }}>
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(67,56,202,0.5) 0%, #020617 60%)' }} />
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: 160, height: 160, background: 'rgba(99,102,241,0.18)', borderRadius: '50%', filter: 'blur(40px)', transform: 'translate(-50%,-50%)' }} />
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 14 }}>
+                        <div style={{ position: 'relative' }}>
+                            <div style={{ width: 40, height: 40, borderRadius: 12, background: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(79,70,229,0.4)' }}>
+                                <Bot style={{ width: 20, height: 20, color: '#fff' }} />
                             </div>
-                            <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-400 border-2 border-indigo-700 rounded-full animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]"></div>
+                            <span style={{ position: 'absolute', bottom: -2, right: -2, width: 10, height: 10, borderRadius: '50%', background: '#34d399', border: '2px solid #020617', display: 'block' }} />
                         </div>
                         <div>
-                            <h3 className="text-white font-bold text-lg tracking-tight leading-tight flex items-center gap-1">
-                                Eva <Sparkles className="w-3 h-3 text-yellow-300" />
-                            </h3>
-                            <p className="text-indigo-100 text-xs font-medium opacity-90">IA Académica • En línea</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <span style={{ color: '#fff', fontWeight: 900, fontSize: 13, fontStyle: 'italic', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Eva</span>
+                                <span style={{ fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#818cf8', background: 'rgba(79,70,229,0.25)', padding: '2px 8px', borderRadius: 99 }}>IA</span>
+                            </div>
+                            <p style={{ color: '#475569', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', marginTop: 2 }}>Asistente Académica</p>
                         </div>
                     </div>
-                    <button onClick={() => setIsOpen(false)} className="relative z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors backdrop-blur-sm">
-                        <ChevronDown className="w-5 h-5" />
+                    <button
+                        onClick={() => setIsOpen(false)}
+                        className="eva-close-btn"
+                        aria-label="Cerrar chat"
+                    >
+                        <Minus style={{ width: 18, height: 18, color: '#94a3b8' }} />
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-slate-50 scroll-smooth">
+                <div className="eva-scroll" style={{ flex: 1, overflowY: 'auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 14, background: '#f8fafc' }}>
                     {messages.map((msg, idx) => (
-                        <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 fade-in duration-300`}>
-                            <div className={`flex gap-3 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${msg.role === 'user' ? 'bg-indigo-100' : 'bg-gradient-to-br from-indigo-500 to-violet-500'}`}>
-                                    {msg.role === 'user' ? <User className="w-4 h-4 text-indigo-600" /> : <Bot className="w-4 h-4 text-white" />}
+                        <div key={idx} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                            {msg.role === 'assistant' && (
+                                <div style={{ width: 26, height: 26, borderRadius: 8, background: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 8, marginTop: 2, flexShrink: 0, boxShadow: '0 2px 8px rgba(79,70,229,0.25)' }}>
+                                    <Bot style={{ width: 14, height: 14, color: '#fff' }} />
                                 </div>
-                                <div className={`relative p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'}`}>
-                                    <p className="whitespace-pre-wrap">{msg.content}</p>
-                                </div>
+                            )}
+                            <div style={{
+                                maxWidth: '75%', padding: '10px 14px',
+                                borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                                background: msg.role === 'user' ? '#020617' : '#ffffff',
+                                color: msg.role === 'user' ? '#ffffff' : '#334155',
+                                fontSize: 13.5, lineHeight: 1.55, fontWeight: 500,
+                                boxShadow: msg.role === 'user' ? '0 2px 8px rgba(2,6,23,0.18)' : '0 1px 4px rgba(0,0,0,0.07)',
+                                border: msg.role === 'assistant' ? '1px solid #e2e8f0' : 'none'
+                            }}>
+                                <p style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{msg.content}</p>
                             </div>
                         </div>
                     ))}
+
                     {loading && (
-                        <div className="flex justify-start animate-in fade-in duration-300">
-                            <div className="flex gap-3 items-end">
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-sm">
-                                    <Loader2 className="w-4 h-4 text-white animate-spin" />
-                                </div>
-                                <div className="bg-white border border-slate-100 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm flex gap-1.5 items-center">
-                                    <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                                    <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                                    <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></span>
-                                </div>
+                        <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                            <div style={{ width: 26, height: 26, borderRadius: 8, background: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 8, marginTop: 2, flexShrink: 0 }}>
+                                <Bot style={{ width: 14, height: 14, color: '#fff' }} />
+                            </div>
+                            <div style={{ background: '#fff', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', borderRadius: '18px 18px 18px 4px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 5 }}>
+                                <span className="eva-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: '#818cf8', display: 'inline-block' }} />
+                                <span className="eva-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: '#818cf8', display: 'inline-block' }} />
+                                <span className="eva-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: '#818cf8', display: 'inline-block' }} />
                             </div>
                         </div>
                     )}
                     <div ref={messagesEndRef} />
                 </div>
 
-                <div className="p-4 bg-white border-t border-slate-100/80 backdrop-blur-sm relative z-20">
-                    <div className="relative flex items-end gap-2 bg-slate-50 border border-slate-200 rounded-[1.5rem] p-1.5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all duration-300">
+                <div style={{ flexShrink: 0, background: '#fff', borderTop: '1px solid #f1f5f9', padding: '12px 14px calc(14px + env(safe-area-inset-bottom, 0px))' }}>
+                    <div
+                        style={{ display: 'flex', alignItems: 'flex-end', gap: 8, background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 16, padding: '10px 12px', transition: 'border-color 0.2s, box-shadow 0.2s' }}
+                        onFocusCapture={e => { e.currentTarget.style.borderColor = '#a5b4fc'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(165,180,252,0.25)'; }}
+                        onBlurCapture={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.boxShadow = 'none'; }}
+                    >
                         <textarea
                             ref={inputRef}
                             value={input}
-                            onChange={(e) => setInput(e.target.value)}
+                            onChange={(e) => {
+                                setInput(e.target.value);
+                                e.target.style.height = 'auto';
+                                e.target.style.height = Math.min(e.target.scrollHeight, 110) + 'px';
+                            }}
                             onKeyDown={handleKeyDown}
-                            placeholder="Escribe tu consulta aquí..."
-                            className="w-full bg-transparent border-none focus:ring-0 text-slate-700 text-sm px-4 py-3 max-h-32 resize-none placeholder:text-slate-400"
+                            placeholder="Escribe tu consulta..."
+                            className="eva-textarea"
                             rows={1}
                             disabled={loading}
+                            style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', resize: 'none', fontSize: 13.5, color: '#1e293b', fontWeight: 500, lineHeight: 1.5, maxHeight: 110, minHeight: 22, fontFamily: 'inherit' }}
                         />
                         <button
                             onClick={sendMessage}
                             disabled={loading || !input.trim()}
-                            className="p-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white rounded-full transition-all duration-200 hover:scale-105 active:scale-95 shadow-md disabled:shadow-none shrink-0"
+                            style={{ width: 32, height: 32, borderRadius: 10, border: 'none', background: loading || !input.trim() ? '#e2e8f0' : '#4f46e5', cursor: loading || !input.trim() ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background 0.15s, transform 0.1s' }}
+                            onMouseEnter={e => { if (input.trim() && !loading) e.currentTarget.style.background = '#4338ca'; }}
+                            onMouseLeave={e => { if (input.trim() && !loading) e.currentTarget.style.background = '#4f46e5'; }}
+                            onMouseDown={e => { if (input.trim() && !loading) e.currentTarget.style.transform = 'scale(0.92)'; }}
+                            onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
                         >
-                            <Send className="w-4 h-4" />
+                            <Send style={{ width: 14, height: 14, color: loading || !input.trim() ? '#94a3b8' : '#fff' }} />
                         </button>
                     </div>
-                    <div className="text-center mt-2">
-                        <p className="text-[10px] text-slate-400 font-medium">
-                            Powered by <span className="text-indigo-500 font-bold">Groq AI</span> • Info Campus
-                        </p>
-                    </div>
+                    <p style={{ textAlign: 'center', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#cbd5e1', marginTop: 8 }}>
+                        Powered by Groq · Info Campus
+                    </p>
                 </div>
             </div>
-        </div>
+        </>,
+        document.body
     );
 };
 

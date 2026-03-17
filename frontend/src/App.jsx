@@ -1,165 +1,154 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Login from "./pages/auth/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
-import MainLayout from "./layout/MainLayout";
-import ChatIA from "./components/ChatIA";  
+import ChatIA from "./components/ChatIA";
+import ToastContainer from "./components/shared/ToastContainer";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { Loader2 } from "lucide-react";
 
-// Dashboards por rol
-import EstudianteDashboard from "./pages/dashboards/EstudianteDashboard";
-import ProfesorDashboard from "./pages/dashboards/ProfesorDashboard";
-import TesoreroDashboard from "./pages/dashboards/TesoreroDashboard";
-import DirectorDashboard from "./pages/dashboards/DirectorDashboard";
-import CoordinadorDashboard from "./pages/dashboards/CoordinadorDashboard";
 
-// Vistas del Profesor
-import ProfesorSecciones from "./pages/dashboards/ProfesorSecciones";
-import GestionNotas from "./pages/dashboards/GestionNotas";
 
-// Vistas del Tesorero
-import ValidarPagos from "./pages/dashboards/ValidarPagos";
-import ListaMora from "./pages/dashboards/ListaMora";
+// ==========================================
+// LAZY LOADING DE SUB-APPS POR ROL
+// ==========================================
 
-// Vistas específicas del estudiante
-import MisNotas from "./pages/dashboards/MisNotas";
-import Horarios from "./pages/dashboards/Horarios";
-import EstadoCuenta from "./pages/dashboards/EstadoCuenta";
+const EstudianteApp = lazy(() => import("./pages/estudiante/EstudianteApp"));
+const ProfesorApp = lazy(() => import("./pages/profesor/ProfesorApp"));
+const TesoreroApp = lazy(() => import("./pages/tesorero/TesoreroApp"));
+const DirectorApp = lazy(() => import("./pages/director/DirectorApp"));
+const CoordinadorApp = lazy(() => import("./pages/coordinador/CoordinadorApp"));
+const SecretariaApp = lazy(() => import("./pages/secretaria/SecretariaApp"));
 
-// Vistas adicionales
-import EstudianteDetalle from "./pages/estudiante/EstudianteDetalle";
-import MallaCurricular from "./pages/admin/MallaCurricular";
+// ==========================================
+// LOADING FALLBACK
+// ==========================================
+const LoadingFallback = () => (
+  <div className="flex h-screen items-center justify-center">
+    <Loader2 className="animate-spin text-indigo-600" size={48} />
+  </div>
+);
 
-const DashboardRouter = () => {
-  const { user, loading } = useAuth();
-
-  // FIX: Prevenir rebote al login esperando a que termine el loading de AuthContext
-  if (loading) return null;
-
-  switch (user?.rol) {
-    case 'estudiante':
-      return <EstudianteDashboard />;
-    case 'profesor':
-      return <ProfesorDashboard />;
-    case 'tesorero':
-      return <TesoreroDashboard />;
-    case 'director':
-      return <DirectorDashboard />;
-    case 'coordinador':
-      return <CoordinadorDashboard />;
-    case 'administrativo':
-      return <DirectorDashboard />;
-    default:
-      return <Navigate to="/login" replace />;
-  }
-};
-
+// ==========================================
+// COMPONENTE PRINCIPAL
+// ==========================================
 function App() {
+  const auth = useAuth(); 
+
+  
+  if (!auth || auth.loading) {
+    return <LoadingFallback />;
+  }
+
+  const { user } = auth;
+
   return (
+    <ErrorBoundary>
     <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
+      <Suspense fallback={<LoadingFallback />}>
+        <Routes>
+          {/* LOGIN */}
+          <Route path="/login" element={<Login />} />
 
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <MainLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="dashboard" element={<DashboardRouter />} />
-
-          {/* Rutas de Profesor */}
-          <Route 
-            path="secciones" 
+          {/* ESTUDIANTE - Sub-App completa */}
+          <Route
+            path="/estudiante/*"
             element={
-              <ProtectedRoute allowedRoles={['profesor', 'director', 'coordinador']}>
-                <ProfesorSecciones />
+              <ProtectedRoute allowedRoles={['estudiante']}>
+                <EstudianteApp />
               </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="gestion-notas/:seccionId" 
-            element={
-              <ProtectedRoute allowedRoles={['profesor', 'director', 'coordinador']}>
-                <GestionNotas />
-              </ProtectedRoute>
-            } 
+            }
           />
 
-          {/* Rutas de Tesorería */}
-          <Route 
-            path="validar-pagos" 
+          {/* PROFESOR - Sub-App completa */}
+          <Route
+            path="/profesor/*"
+            element={
+              <ProtectedRoute allowedRoles={['profesor', 'director', 'coordinador']}>
+                <ProfesorApp />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* TESORERO - Sub-App completa */}
+          <Route
+            path="/tesorero/*"
             element={
               <ProtectedRoute allowedRoles={['tesorero', 'director']}>
-                <ValidarPagos />
+                <TesoreroApp />
               </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="lista-mora" 
-            element={
-              <ProtectedRoute allowedRoles={['tesorero', 'director', 'coordinador']}>
-                <ListaMora />
-              </ProtectedRoute>
-            } 
+            }
           />
 
-          {/* Rutas de Estudiante */}
-          <Route 
-            path="notas" 
+          {/* DIRECTOR - Sub-App completa */}
+          <Route
+            path="/director/*"
             element={
-              <ProtectedRoute allowedRoles={['estudiante']}>
-                <MisNotas />
+              <ProtectedRoute allowedRoles={['director', 'admin']}>
+                <DirectorApp />
               </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="horarios" 
-            element={
-              <ProtectedRoute allowedRoles={['estudiante']}>
-                <Horarios />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="estado-cuenta" 
-            element={
-              <ProtectedRoute allowedRoles={['estudiante']}>
-                <EstadoCuenta />
-              </ProtectedRoute>
-            } 
+            }
           />
 
-          {/* Rutas de Admin/Gestión */}
-          <Route 
-            path="estudiante/:id" 
+          {/* COORDINADOR - Sub-App completa */}
+          <Route
+            path="/coordinador/*"
             element={
-              <ProtectedRoute allowedRoles={['director', 'coordinador', 'tesorero', 'administrativo']}>
-                <EstudianteDetalle />
+              <ProtectedRoute allowedRoles={['coordinador', 'director']}>
+                <CoordinadorApp />
               </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="malla-curricular" 
-            element={
-              <ProtectedRoute allowedRoles={['director', 'coordinador', 'administrativo']}>
-                <MallaCurricular />
-              </ProtectedRoute>
-            } 
+            }
           />
 
-          <Route index element={<Navigate to="/dashboard" replace />} />
-        </Route>
+          <Route
+            path="/secretaria/*"
+            element={
+              <ProtectedRoute allowedRoles={['administrativo', 'director']}>
+                <SecretariaApp />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
+          {/* REDIRECT RAÍZ → DASHBOARD DEL ROL */}
+          <Route 
+            path="/" 
+            element={<RoleDashboardRedirect user={user} />} 
+          />
+
+          {/* CATCH ALL → LOGIN */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Suspense>
       
-      {/* ✅ CHATIA - BOTÓN FLOTANTE GLOBAL */}
+      {/* Toast notifications - fuera de Suspense para que funcione incluso si hay errores de carga */}
+      <ToastContainer />
+      
+      {/* CHAT IA - BOTÓN FLOTANTE GLOBAL */}
       <ChatIA />
     </Router>
+    </ErrorBoundary>
   );
 }
+
+/**
+ * Componente helper: Redirige al dashboard según el rol del usuario
+ */
+const RoleDashboardRedirect = ({ user }) => {
+  if (!user?.rol) return <Navigate to="/login" replace />;
+  
+  const dashboardPaths = {
+    estudiante: '/estudiante/dashboard',
+    profesor: '/profesor/dashboard',
+    tesorero: '/tesorero/dashboard',
+    director: '/director/dashboard',
+    coordinador: '/coordinador/dashboard',
+    admin: '/director/dashboard',
+    administrativo: '/secretaria/dashboard'
+  };
+  
+  const path = dashboardPaths[user.rol] || '/login';
+  return <Navigate to={path} replace />;
+};
 
 export default App;

@@ -1,88 +1,93 @@
 """
-Conexión a base de datos PostgreSQL
-Usando psycopg2 con connection pooling
-CORREGIDO para Render deployment
+Database access layer.
+
+- Async pool (asyncpg) for FastAPI API. Use `async with get_db() as conn` and
+  conn.fetch/fetchrow/execute with $1, $2 placeholders. Do NOT use cursor().
+- Sync connection (psycopg2) via get_db_direct() for scripts_db/ only.
 """
+import logging
+from contextlib import contextmanager, asynccontextmanager
+from urllib.parse import urlparse
+
+import asyncpg
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from psycopg2.pool import ThreadedConnectionPool
-from contextlib import contextmanager
-from urllib.parse import urlparse
+
 from config import settings
-import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-connection_pool = None
+_async_pool: asyncpg.Pool | None = None
+
 
 def parse_database_url(url: str) -> dict:
-    """
-    Parsea DATABASE_URL en componentes individuales
-    Render/PostgreSQL usan formato: postgresql://user:pass@host:port/dbname
-    """
     result = urlparse(url)
     return {
-        'dbname': result.path[1:],
-        'user': result.username,
-        'password': result.password,
-        'host': result.hostname,
-        'port': result.port or 5432
+        "dbname": result.path[1:],
+        "user": result.username,
+        "password": result.password,
+        "host": result.hostname,
+        "port": result.port or 5432,
     }
 
-def init_connection_pool(min_conn=1, max_conn=10):
+
+async def init_connection_pool(min_conn: int = 1, max_conn: int = 20):
     """
-    Inicializa el pool de conexiones a PostgreSQL
+    Inicializa el pool asíncrono de conexiones con asyncpg.
+
+    Se usa para la API FastAPI. Los scripts síncronos usan `get_db_direct()`.
     """
-    global connection_pool
+    global _async_pool
+    if _async_pool is not None:
+        return
+
     try:
-        # Parsear la URL en componentes
-        db_params = parse_database_url(settings.DATABASE_URL)
-        
-        # Crear pool con parámetros individuales
-        connection_pool = ThreadedConnectionPool(
-            minconn=min_conn,
-            maxconn=max_conn,
-            **db_params
+        _async_pool = await asyncpg.create_pool(
+            dsn=settings.DATABASE_URL,
+            min_size=min_conn,
+            max_size=max_conn,
+            timeout=10,
         )
-        logger.info("✅ Pool de conexiones PostgreSQL inicializado")
-        logger.info(f"   Host: {db_params['host']}:{db_params['port']}")
-        logger.info(f"   Database: {db_params['dbname']}")
+        logger.info(
+            "✅ Pool PostgreSQL (asyncpg) inicializado (min=%d, max=%d)",
+            min_conn,
+            max_conn,
+        )
     except Exception as e:
-        logger.error(f"❌ Error inicializando pool de conexiones: {e}")
+        logger.error("❌ Error inicializando pool asyncpg: %s", e)
         raise
 
-@contextmanager
-def get_db():
+
+@asynccontextmanager
+async def get_db():
     """
-    Context manager para obtener conexión a la base de datos
+    Async context manager for pool connection. Use asyncpg API:
+    conn.fetch(sql, *args), conn.fetchrow(sql, *args), conn.execute(sql, *args).
+    Placeholders: $1, $2. No cursor().
     """
-    global connection_pool
-    
-    if connection_pool is None:
-        init_connection_pool()
-    
-    conn = None
+    global _async_pool
+
+    if _async_pool is None:
+        await init_connection_pool()
+
+    conn: asyncpg.Connection | None = None
     try:
-        conn = connection_pool.getconn()
-        conn.cursor_factory = RealDictCursor
-        yield conn
-        conn.commit()
+        conn = await _async_pool.acquire()
+        async with conn.transaction():
+            yield conn
     except Exception as e:
-        if conn:
-            conn.rollback()
-        logger.error(f"❌ Error en transacción de base de datos: {e}")
+        logger.error("❌ Error en transacción asyncpg: %s", e)
         raise
     finally:
-        if conn:
-            connection_pool.putconn(conn)
+        if conn is not None:
+            try:
+                await _async_pool.release(conn)
+            except Exception:
+                pass
+
 
 def get_db_direct():
-    """
-    Obtiene una conexión directa (sin pool)
-    """
+    """Conexión directa sin pool (para scripts externos)."""
     db_params = parse_database_url(settings.DATABASE_URL)
-    return psycopg2.connect(
-        **db_params,
-        cursor_factory=RealDictCursor
-    )
+    return psycopg2.connect(**db_params, cursor_factory=RealDictCursor)

@@ -1,13 +1,15 @@
 """
-Dependencies de autenticación y autorización
-Implementa RBAC (Role-Based Access Control) con 6 roles
+Auth dependencies — RBAC (Role-Based Access Control).
+Roles: estudiante, profesor, coordinador, director, tesorero, administrativo, admin.
+admin is treated as director for dashboard/API access.
 """
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import List, Dict, Any, Optional
+import logging
+
 from auth.jwt_handler import decode_access_token
 from database import get_db
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +50,7 @@ async def get_current_user(
     token = credentials.credentials
     
     # Decodificar token
-    payload = decode_access_token(token)
+    payload = await decode_access_token(token)
     
     if payload is None:
         raise HTTPException(
@@ -67,15 +69,26 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Buscar usuario en la base de datos
-    with get_db() as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT * FROM public.usuarios WHERE id = %s",
-            (user_id,)
+    # Buscar usuario en la base de datos sin exponer password_hash
+    async with get_db() as conn:
+        user = await conn.fetchrow(
+            """
+            SELECT
+                id,
+                cedula,
+                email,
+                rol,
+                first_name,
+                last_name,
+                carrera_id,
+                es_becado,
+                porcentaje_beca,
+                activo
+            FROM public.usuarios
+            WHERE id = $1 AND activo = true
+            """,
+            user_id,
         )
-        user = cur.fetchone()
-        cur.close()
     
     if not user:
         logger.warning(f"⚠️ Usuario {user_id} no encontrado en BD")
@@ -85,13 +98,7 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Convertir a dict si es necesario
-    if hasattr(user, 'dict'):
-        user_dict = user.dict()
-    elif hasattr(user, '_mapping'):
-        user_dict = dict(user._mapping)
-    else:
-        user_dict = dict(user)
+    user_dict = dict(user)
     
     logger.info(f"✅ Usuario autenticado: {user_dict.get('cedula')} (rol: {user_dict.get('rol')})")
     
@@ -148,10 +155,10 @@ def require_roles(allowed_roles: List[str]):
 
 
 # Shorthand dependencies para roles comunes
-require_admin = require_roles(['director', 'coordinador', 'administrativo'])
-require_tesorero = require_roles(['tesorero', 'director'])
-require_profesor = require_roles(['profesor', 'director', 'coordinador'])
-require_estudiante = require_roles(['estudiante', 'director', 'coordinador', 'tesorero'])
+require_admin = require_roles(['director', 'admin', 'coordinador', 'administrativo'])
+require_tesorero = require_roles(['tesorero', 'director', 'admin'])
+require_profesor = require_roles(['profesor', 'director', 'admin', 'coordinador'])
+require_estudiante = require_roles(['estudiante', 'director', 'admin', 'coordinador', 'tesorero'])
 
 
 async def get_optional_user(
