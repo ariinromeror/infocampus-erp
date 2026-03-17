@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Users, AlertTriangle, Award, X, FileDown } from 'lucide-react';
+import { useMediaQuery } from '../../../hooks/useMediaQuery';
 import useEstudiantes from '../hooks/useEstudiantes';
 import EstudianteRow from '../components/EstudianteRow';
 import SearchInput from '../../../components/shared/SearchInput';
@@ -34,6 +35,7 @@ const exportarCSV = (lista) => {
 const EstudiantesPage = () => {
   const location = useLocation();
   const navigate  = useNavigate();
+  const isMobile  = useMediaQuery('(max-width: 767px)');
   const { estudiantes, loading, error, fetchEstudiantes } = useEstudiantes();
 
   const [carreras,       setCarreras]       = useState([]);
@@ -166,11 +168,32 @@ const EstudiantesPage = () => {
       {loading ? (
         <SkeletonTable rows={8} />
       ) : filtrados.length > 0 ? (
-        <div className="bg-white border border-slate-100 rounded-xl overflow-hidden">
-          {filtrados.map(est => (
-            <EstudianteRow key={est.id} estudiante={est} onClick={handleVerDetalle} />
-          ))}
-        </div>
+        isMobile ? (
+          <div className="grid grid-cols-1 gap-3">
+            {filtrados.map(est => (
+              <EstudianteRow key={est.id} estudiante={est} onClick={handleVerDetalle} isMobile />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th className="text-left text-[11px] font-black uppercase tracking-widest text-slate-500 px-6 py-4">Estudiante</th>
+                  <th className="text-left text-[11px] font-black uppercase tracking-widest text-slate-500 px-6 py-4">Carrera</th>
+                  <th className="text-center text-[11px] font-black uppercase tracking-widest text-slate-500 px-6 py-4">Sem.</th>
+                  <th className="text-center text-[11px] font-black uppercase tracking-widest text-slate-500 px-6 py-4">Estado</th>
+                  <th className="w-10" />
+                </tr>
+              </thead>
+              <tbody>
+                {filtrados.map(est => (
+                  <EstudianteRow key={est.id} estudiante={est} onClick={handleVerDetalle} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
       ) : (
         <div className="bg-white border border-slate-100 rounded-xl">
           <EmptyState icon={Users} titulo="Sin estudiantes" descripcion="No hay estudiantes que coincidan con los filtros aplicados" />

@@ -1,19 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { motion } from 'framer-motion';
 import {
   GraduationCap, AlertCircle, AlertTriangle, Clock,
   TrendingUp, BookOpen, DollarSign, CheckCircle2,
-  ChevronRight, Wifi, ClipboardList
+  ChevronRight, RefreshCw,
 } from 'lucide-react';
-
-const TIPO_LABEL = {
-  parcial_1: 'Parcial 1',
-  parcial_2: 'Parcial 2',
-  talleres: 'Talleres',
-  examen_final: 'Examen Final',
-};
+import DashboardHero from '../../components/DashboardHero';
+import StatCard from '../../components/shared/StatCard';
+import { SkeletonGrid } from '../../components/shared/Loader';
+import { motionVariants, UI } from '../../constants/uiTokens';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -22,27 +20,27 @@ const Dashboard = () => {
   const [summary, setSummary] = useState(null);
   const [pagos, setPagos] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!user?.id) return;
-    const load = async () => {
-      try {
-        setLoading(true);
-        const [resSummary, resPagos] = await Promise.all([
-          api.get(`/estudiante/${user.id}/dashboard-summary`),
-          api.get(`/estudiante/${user.id}/pagos`),
-        ]);
-        setSummary(resSummary.data?.data || null);
-        setPagos(resPagos.data?.data?.resumen || null);
-      } catch {
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+    try {
+      setError(null);
+      setLoading(true);
+      const [resSummary, resPagos] = await Promise.all([
+        api.get(`/estudiante/${user.id}/dashboard-summary`),
+        api.get(`/estudiante/${user.id}/pagos`),
+      ]);
+      setSummary(resSummary.data?.data || null);
+      setPagos(resPagos.data?.data?.resumen || null);
+    } catch (err) {
+      setError(err?.message || 'Error al cargar');
+    } finally {
+      setLoading(false);
+    }
   }, [user?.id]);
+
+  useEffect(() => { load(); }, [load]);
 
   const nombre = user?.nombre?.split(' ')[0] || 'Estudiante';
 
@@ -66,33 +64,42 @@ const Dashboard = () => {
   ];
 
   if (error) return (
-    <div className="p-10 bg-red-50 border border-red-100 rounded-2xl text-red-600 flex items-center gap-6">
-      <AlertCircle size={36} />
-      <p className="text-[10px] font-black uppercase tracking-widest">Error al cargar tus datos</p>
+    <div className={UI.errorContainer}>
+      <AlertTriangle size={36} className="flex-shrink-0" />
+      <div className="flex-1">
+        <p className={UI.errorTitle}>Error al cargar datos</p>
+        <p className={UI.errorSubtitle}>En móvil la conexión puede ser lenta. Intenta de nuevo.</p>
+      </div>
+      <button onClick={load} className={UI.btnRetry}>
+        <RefreshCw size={16} /> Reintentar
+      </button>
     </div>
   );
 
   return (
-    <div className="space-y-8 overflow-x-hidden">
-
-      {/* Header */}
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl sm:text-4xl font-black italic uppercase tracking-tighter leading-tight text-slate-900">
-          Hola, <span className="text-indigo-600">{nombre}</span>
-        </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Resumen académico del período activo
-        </p>
-      </div>
+    <motion.div
+      variants={motionVariants.container}
+      initial="hidden"
+      animate="show"
+      className={UI.spaceContainer}
+    >
+      <motion.div variants={motionVariants.item}>
+        <DashboardHero
+          badge="Panel Estudiantil"
+          greeting={`Hola, ${nombre}`}
+          subtitle="Resumen académico del período activo"
+        />
+      </motion.div>
 
       {/* Alertas activas */}
       {!loading && alertas.length > 0 && (
-        <div className="flex flex-col gap-3">
+        <motion.div variants={motionVariants.item} className="flex flex-col gap-3">
           {alertas.map((a, i) => (
-            <button
+            <motion.button
               key={i}
+              variants={motionVariants.item}
               onClick={a.action}
-              className={`w-full flex items-start sm:items-center justify-between gap-4 px-6 py-4 rounded-2xl text-left transition-all hover:scale-[1.01] active:scale-[0.99] ${
+              className={`w-full flex items-start sm:items-center justify-between gap-4 px-6 py-4 rounded-xl text-left shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-95 ${
                 a.type === 'danger'  ? 'bg-red-50 border border-red-200 text-red-700' :
                 a.type === 'warning'? 'bg-amber-50 border border-amber-200 text-amber-700' :
                                       'bg-indigo-50 border border-indigo-200 text-indigo-700'
@@ -105,40 +112,39 @@ const Dashboard = () => {
                 <p className="text-[11px] font-black uppercase tracking-wider">{a.msg}</p>
               </div>
               <ChevronRight size={16} className="flex-shrink-0 opacity-60" />
-            </button>
+            </motion.button>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpis.map(({ label, value, sub, warn }) => (
-          <div
-            key={label}
-            className={`rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-sm border ${
-              loading ? 'animate-pulse bg-slate-50 border-slate-100' :
-              warn ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-100'
-            }`}
-          >
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">{label}</p>
-            <p className={`text-3xl sm:text-5xl font-black italic leading-tight ${warn ? 'text-amber-600' : 'text-slate-900'}`}>
-              {loading ? '—' : value}
-            </p>
-            <p className="text-[11px] font-medium text-slate-500 uppercase tracking-widest mt-2">{sub}</p>
+      <motion.div variants={motionVariants.item}>
+        {loading ? (
+          <SkeletonGrid count={4} />
+        ) : (
+          <div className={UI.gridKpis}>
+            {kpis.map(({ label, value, sub, warn }, i) => (
+              <StatCard
+                key={label}
+                title={label}
+                value={value}
+                sub={sub}
+                icon={label === 'Promedio' ? TrendingUp : label === 'Asistencia' ? CheckCircle2 : label === 'Semestre' ? BookOpen : GraduationCap}
+                warn={warn}
+                delay={i * 0.05}
+              />
+            ))}
           </div>
-        ))}
-      </div>
+        )}
+      </motion.div>
 
       {/* Fila central: Evaluaciones pendientes + Widget financiero */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      <motion.div variants={motionVariants.item} className="grid grid-cols-1 lg:grid-cols-5 gap-4">
 
         {/* Evaluaciones pendientes (3 cols) */}
-        <div className="lg:col-span-3 bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
-          <div className="flex items-center justify-between px-8 py-5 border-b border-slate-50">
-            <div className="flex items-center gap-3">
-              <ClipboardIcon />
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-900">Próximas Evaluaciones</p>
-            </div>
+        <div className={`lg:col-span-3 ${UI.card} overflow-hidden`}>
+          <div className="flex items-center justify-between mb-4">
+            <p className={UI.sectionTitle}>Próximas Evaluaciones</p>
             <button
               onClick={() => navigate('/estudiante/evaluaciones')}
               className="text-[10px] font-black uppercase tracking-widest text-indigo-500 hover:text-indigo-700 flex items-center gap-1 transition-colors"
@@ -146,16 +152,19 @@ const Dashboard = () => {
               Ver todas <ChevronRight size={13} />
             </button>
           </div>
-
-          <div className="p-8 text-center">
-            <ClipboardList size={40} className="mx-auto text-slate-200 mb-3" />
-            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic mb-3">Consulta tus evaluaciones</p>
-            <button
-              onClick={() => navigate('/estudiante/evaluaciones')}
-              className="text-[10px] font-black uppercase tracking-widest text-indigo-500 hover:text-indigo-700 flex items-center gap-1 transition-colors"
-            >
-              Ir a Evaluaciones <ChevronRight size={13} />
-            </button>
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100">
+            <div className="flex-shrink-0 w-10 h-10 bg-indigo-600/10 rounded-xl flex items-center justify-center">
+              <Clock size={18} className="text-indigo-600" />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-[11px] font-bold text-slate-500 mb-1">Consulta tus evaluaciones</p>
+              <button
+                onClick={() => navigate('/estudiante/evaluaciones')}
+                className="text-[10px] font-black uppercase tracking-wider text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors"
+              >
+                Ir a Evaluaciones <ChevronRight size={13} />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -163,9 +172,10 @@ const Dashboard = () => {
         <div className="lg:col-span-2 flex flex-col gap-4">
 
           {/* Estado financiero rápido */}
-          <button
+          <motion.button
+            variants={motionVariants.item}
             onClick={() => navigate('/estudiante/pagos')}
-            className="flex-1 bg-slate-900 rounded-2xl p-7 text-white shadow-2xl relative overflow-hidden text-left hover:bg-indigo-900 transition-colors group"
+            className="flex-1 bg-slate-900 rounded-xl p-6 sm:p-7 text-white shadow-sm relative overflow-hidden text-left hover:bg-indigo-900 hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-200 group"
           >
             <DollarSign className="absolute right-[-16px] top-[-16px] size-36 opacity-10 -rotate-12" />
             <div className="relative z-10">
@@ -194,11 +204,11 @@ const Dashboard = () => {
               )}
               <ChevronRight size={16} className="mt-4 opacity-40 group-hover:opacity-80 transition-opacity" />
             </div>
-          </button>
+          </motion.button>
 
           {/* Beca (si aplica) */}
           {!loading && summary?.porcentaje_beca > 0 && (
-            <div className="bg-indigo-600 rounded-2xl p-7 text-white shadow-xl relative overflow-hidden">
+            <motion.div variants={motionVariants.item} className="bg-indigo-600 rounded-xl p-6 sm:p-7 text-white shadow-sm relative overflow-hidden">
               <GraduationCap className="absolute right-[-16px] top-[-16px] size-36 opacity-10 -rotate-12" />
               <div className="relative z-10">
                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-200 mb-3">
@@ -211,56 +221,61 @@ const Dashboard = () => {
                   </span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Accesos rápidos móvil */}
           {!loading && !summary?.porcentaje_beca && (
-            <button
+            <motion.button
+              variants={motionVariants.item}
               onClick={() => navigate('/estudiante/materias')}
-              className="flex items-center justify-between px-7 py-5 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-shadow group"
+              className={`${UI.card} flex items-center justify-between text-left hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-200 group`}
             >
               <div className="flex items-center gap-4">
-                <BookOpen size={20} className="text-indigo-500" />
+                <div className="w-9 h-9 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <BookOpen size={18} className="text-indigo-600" />
+                </div>
                 <div className="text-left">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-900">Mis Materias</p>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase">Ver inscripciones</p>
+                  <p className="text-sm font-black uppercase tracking-wider text-slate-900">Mis Materias</p>
+                  <p className="text-[10px] font-medium text-slate-500 mt-0.5">Ver inscripciones</p>
                 </div>
               </div>
-              <ChevronRight size={16} className="text-slate-300 group-hover:text-slate-600 transition-colors" />
-            </button>
+              <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-500 transition-colors flex-shrink-0" />
+            </motion.button>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Accesos rápidos — solo visible en mobile como shortcuts */}
-      <div className="grid grid-cols-2 gap-3 sm:hidden">
-        {[
-          { label: 'Mis Notas',    icon: TrendingUp,   path: '/estudiante/notas' },
-          { label: 'Asistencia',   icon: CheckCircle2, path: '/estudiante/asistencia' },
-          { label: 'Pagos',        icon: DollarSign,   path: '/estudiante/pagos' },
-          { label: 'Documentos',   icon: BookOpen,     path: '/estudiante/documentos' },
-        ].map(({ label, icon: Icon, path }) => (
-          <button
-            key={path}
-            onClick={() => navigate(path)}
-            className="flex items-center gap-3 px-5 py-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-95"
-          >
-            <Icon size={18} className="text-indigo-500 flex-shrink-0" />
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-900">{label}</span>
-          </button>
-        ))}
-      </div>
+      <motion.div variants={motionVariants.item} className="sm:hidden">
+        <p className={UI.sectionTitle}>Accesos Rápidos</p>
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
+          {[
+            { label: 'Mis Notas',    sub: 'Ver calificaciones', icon: TrendingUp,   path: '/estudiante/notas' },
+            { label: 'Asistencia',   sub: 'Ver registro',      icon: CheckCircle2, path: '/estudiante/asistencia' },
+            { label: 'Pagos',        sub: 'Estado financiero', icon: DollarSign,   path: '/estudiante/pagos' },
+            { label: 'Documentos',  sub: 'Descargar',         icon: BookOpen,     path: '/estudiante/documentos' },
+          ].map(({ label, sub, icon: Icon, path }) => (
+            <motion.button
+              key={path}
+              variants={motionVariants.item}
+              onClick={() => navigate(path)}
+              className={`${UI.card} flex items-center gap-3 text-left hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-200`}
+            >
+              <div className="w-9 h-9 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Icon size={16} className="text-indigo-600" strokeWidth={1.5} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-black uppercase tracking-wider text-slate-900 leading-tight">{label}</p>
+                <p className="text-[10px] font-medium text-slate-500 truncate">{sub}</p>
+              </div>
+            </motion.button>
+          ))}
+        </div>
+      </motion.div>
 
-    </div>
+    </motion.div>
   );
 };
-
-// Inline icon helper para no importar extra
-const ClipboardIcon = () => (
-  <div className="p-2 bg-slate-900 text-white rounded-xl">
-    <Clock size={14} />
-  </div>
-);
 
 export default Dashboard;

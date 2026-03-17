@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { BookOpen, Loader2, GraduationCap, Users, Clock, MapPin, X, UserCog } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { BookOpen, Loader2, GraduationCap, Users, Clock, MapPin, X, UserCog, AlertTriangle, RefreshCw } from 'lucide-react';
 import { academicoService } from '../../../services/academicoService';
 
 const MateriasPage = () => {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [materias, setMaterias] = useState([]);
   const [carreras, setCarreras] = useState([]);
   const [carreraId, setCarreraId] = useState(null);
@@ -11,24 +12,29 @@ const MateriasPage = () => {
   const [detalle, setDetalle] = useState(null);
   const [loadingDetalle, setLoadingDetalle] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    setError(null);
+    setLoading(true);
     try {
       const [carrerasRes, materiasRes] = await Promise.all([
         academicoService.getCarreras(),
         academicoService.getMaterias()
       ]);
-      setCarreras(carrerasRes.data?.data?.carreras || carrerasRes.data?.carreras || []);
-      setMaterias(materiasRes.data?.data?.materias || materiasRes.data?.materias || []);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+      const carrerasData = carrerasRes.data?.data?.carreras || carrerasRes.data?.carreras || carrerasRes.data || [];
+      const materiasData = materiasRes.data?.data?.materias || materiasRes.data?.materias || materiasRes.data || [];
+      setCarreras(Array.isArray(carrerasData) ? carrerasData : []);
+      setMaterias(Array.isArray(materiasData) ? materiasData : []);
+    } catch (err) {
+      console.error('Error fetching materias/carreras:', err);
+      setError(err?.response?.data?.detail || err?.message || 'Error al cargar materias. Verifica la conexión con el servidor.');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const verDetalle = async (materia) => {
     setMateriaSeleccionada(materia);
@@ -61,8 +67,24 @@ const MateriasPage = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex min-h-[40vh] items-center justify-center">
         <Loader2 className="animate-spin text-indigo-600" size={48} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-10 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 flex flex-col sm:flex-row items-center gap-6">
+        <AlertTriangle size={36} className="flex-shrink-0" />
+        <div className="flex-1">
+          <p className="text-[10px] font-black uppercase tracking-widest">Error al cargar materias</p>
+          <p className="text-sm mt-2 text-amber-700">{error}</p>
+          <p className="text-xs mt-1 text-amber-600">Si estás en producción, verifica que el backend en Render esté activo y que VITE_API_URL apunte correctamente.</p>
+        </div>
+        <button onClick={fetchData} className="flex items-center gap-2 px-5 py-2.5 bg-amber-600 text-white rounded-xl text-sm font-semibold hover:bg-amber-700">
+          <RefreshCw size={16} /> Reintentar
+        </button>
       </div>
     );
   }
@@ -120,10 +142,15 @@ const MateriasPage = () => {
         ))}
       </div>
 
-      {filteredMaterias.length === 0 && (
-        <div className="text-center py-20 bg-slate-50 rounded-2xl">
+      {(materias.length === 0 || filteredMaterias.length === 0) && (
+        <div className="text-center py-20 bg-slate-50 rounded-xl border border-slate-200">
           <BookOpen size={48} className="mx-auto mb-4 text-slate-300" />
-          <p className="text-sm font-medium text-slate-500">No hay materias disponibles</p>
+          <p className="text-sm font-bold text-slate-600">No hay materias disponibles</p>
+          <p className="text-xs text-slate-500 mt-1">
+            {materias.length === 0
+              ? 'La base de datos no tiene materias cargadas. Configura las carreras y materias desde el panel de Coordinación.'
+              : 'No hay materias para la carrera seleccionada.'}
+          </p>
         </div>
       )}
 

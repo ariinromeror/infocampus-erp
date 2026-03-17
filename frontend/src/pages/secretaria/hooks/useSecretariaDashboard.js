@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../../../services/api';
+import { withRetry } from '../../../utils/retryFetch';
 
 const useSecretariaDashboard = () => {
   const [resumen, setResumen] = useState(null);
@@ -7,32 +8,34 @@ const useSecretariaDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [resInst, resPer] = await Promise.allSettled([
+  const fetchData = useCallback(async () => {
+    try {
+      setError(null);
+      setLoading(true);
+      const [resInst, resPer] = await withRetry(() =>
+        Promise.allSettled([
           api.get('/dashboards/institucional'),
           api.get('/periodos/activo'),
-        ]);
-        if (resInst.status === 'fulfilled') {
-          const d = resInst.value.data;
-          setResumen(d?.data || d);
-        }
-        if (resPer.status === 'fulfilled') {
-          const d = resPer.value.data;
-          setPeriodo(d?.data || d);
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        ])
+      );
+      if (resInst.status === 'fulfilled') {
+        const d = resInst.value.data;
+        setResumen(d?.data || d);
       }
-    };
-    fetchData();
+      if (resPer.status === 'fulfilled') {
+        const d = resPer.value.data;
+        setPeriodo(d?.data || d);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  return { resumen, periodo, loading, error };
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  return { resumen, periodo, loading, error, refetch: fetchData };
 };
 
 export default useSecretariaDashboard;

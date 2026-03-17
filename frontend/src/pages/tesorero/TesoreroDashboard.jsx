@@ -2,10 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import {
-  TrendingUp, AlertTriangle, Users, Percent,
-  Search, ArrowRight, RefreshCw, DollarSign,
-  ShieldCheck, GraduationCap, Settings, FileText,
-  BookOpen,
+  TrendingUp, AlertTriangle, Search, RefreshCw, DollarSign,
+  ShieldCheck, GraduationCap, FileText, BookOpen,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -13,7 +11,9 @@ import {
 } from 'recharts';
 import useTesoreroDashboard from './hooks/useTesoreroDashboard';
 import { SkeletonGrid } from '../../components/shared/Loader';
+import StatCard from '../../components/shared/StatCard';
 import DashboardHero from '../../components/DashboardHero';
+import { motionVariants, UI } from '../../constants/uiTokens';
 
 const fmt = n => new Intl.NumberFormat('es-EC', {
   style: 'currency', currency: 'USD', maximumFractionDigits: 0,
@@ -28,27 +28,12 @@ const MESES = {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl">
+    <div className="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl">
       <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">{label}</p>
       <p className="font-black italic text-lg text-indigo-400">{fmt(payload[0]?.value)}</p>
     </div>
   );
 };
-
-const StatCard = ({ label, value, icon: Icon, color, bg, onClick }) => (
-  <button
-    onClick={onClick}
-    disabled={!onClick}
-    className={`bg-white border border-slate-200 rounded-2xl p-5 text-left shadow-sm transition-all duration-200 ${onClick ? 'hover:shadow-xl hover:-translate-y-1 cursor-pointer' : 'cursor-default'}`}
-  >
-    <div className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center mb-3`}>
-      <Icon size={18} className={color} />
-    </div>
-    <p className="text-3xl font-black italic tracking-tighter text-slate-900">{value}</p>
-    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mt-1">{label}</p>
-    {onClick && <p className="text-[11px] font-black uppercase tracking-widest text-indigo-500 mt-2">Ver detalle →</p>}
-  </button>
-);
 
 const TesoreroDashboard = () => {
   const { user } = useAuth();
@@ -77,9 +62,9 @@ const TesoreroDashboard = () => {
   const maxMonto = Math.max(...chartData.map(d => d.monto), 1);
 
   const stats = [
-    { label: 'Total Recaudado', value: loading ? '—' : fmt(recaudadoTotal), icon: DollarSign, color: 'text-indigo-600', bg: 'bg-indigo-50', onClick: () => navigate('/tesorero/pagos') },
-    { label: 'Pendiente Cobro', value: loading ? '—' : fmt(pendienteCobro), icon: DollarSign, color: 'text-amber-600', bg: 'bg-amber-50', onClick: () => navigate('/tesorero/pagos') },
-    { label: 'En Mora', value: loading ? '—' : estudiantesMora, icon: AlertTriangle, color: 'text-rose-600', bg: 'bg-rose-50', onClick: () => navigate('/tesorero/mora') },
+    { label: 'Total Recaudado', value: loading ? '—' : fmt(recaudadoTotal), icon: DollarSign, sub: 'Período', onClick: () => navigate('/tesorero/pagos'), warn: false },
+    { label: 'Pendiente Cobro', value: loading ? '—' : fmt(pendienteCobro), icon: DollarSign, sub: 'Por cobrar', onClick: () => navigate('/tesorero/pagos'), warn: false },
+    { label: 'En Mora', value: loading ? '—' : estudiantesMora, icon: AlertTriangle, sub: 'Estudiantes', onClick: () => navigate('/tesorero/mora'), warn: !!estudiantesMora },
   ];
 
   const acciones = [
@@ -92,45 +77,56 @@ const TesoreroDashboard = () => {
   ];
 
   if (error) return (
-    <div className="p-6 bg-red-50 border border-red-200 rounded-2xl text-red-600 flex items-center gap-4">
-      <AlertTriangle size={24} />
-      <p className="text-sm font-semibold">Error al cargar el dashboard</p>
+    <div className={UI.errorContainer}>
+      <AlertTriangle size={36} className="flex-shrink-0" />
+      <div className="flex-1">
+        <p className={UI.errorTitle}>Error al cargar datos</p>
+        <p className={UI.errorSubtitle}>En móvil la conexión puede ser lenta. Intenta de nuevo.</p>
+      </div>
+      <button onClick={refetch} className={UI.btnRetry}>
+        <RefreshCw size={16} /> Reintentar
+      </button>
     </div>
   );
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <motion.div
+      variants={motionVariants.container}
+      initial="hidden"
+      animate="show"
+      className={UI.spaceContainer}
+    >
+      <motion.div variants={motionVariants.item}>
+        <DashboardHero
+          badge="Panel Financiero"
+          greeting={`Hola, ${nombre}`}
+          subtitle="Panel del período activo"
+        />
+      </motion.div>
 
-      {/* Header */}
-      <DashboardHero
-        badge="Panel Financiero"
-        greeting={`Hola, ${nombre}`}
-        subtitle="Panel del período activo"
-      />
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        {stats.map(({ label, value, icon: Icon, color, bg, onClick }) => (
-          <div key={label} className={`bg-white border border-slate-200 rounded-2xl p-5 shadow-sm ${loading ? 'animate-pulse' : ''}`}>
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-medium text-slate-500">{label}</p>
-              <div className={`p-2 ${bg} rounded-xl`}>
-                <Icon size={18} className={color} />
-              </div>
-            </div>
-            <p className={`text-4xl font-bold ${color}`}>{value}</p>
-            {onClick && !loading && (
-              <button onClick={onClick} className="text-xs font-semibold text-indigo-600 mt-2 hover:underline">
-                Ver detalle →
-              </button>
-            )}
+      <motion.div variants={motionVariants.item}>
+        {loading ? (
+          <SkeletonGrid count={3} />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            {stats.map(({ label, value, icon, sub, onClick, warn }, i) => (
+              <StatCard
+                key={label}
+                title={label}
+                value={value}
+                sub={sub}
+                icon={icon}
+                onClick={onClick}
+                warn={warn}
+                delay={i * 0.05}
+              />
+            ))}
           </div>
-        ))}
-      </div>
+        )}
+      </motion.div>
 
-      {/* Quick actions */}
-      <div>
-        <p className="text-sm font-semibold text-slate-700 mb-4">Acciones Rápidas</p>
+      <motion.div variants={motionVariants.item}>
+        <p className={UI.sectionTitle}>Acciones Rápidas</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
           {acciones.map(({ label, sub, icon: Icon, path, color }) => (
             <button
@@ -140,13 +136,12 @@ const TesoreroDashboard = () => {
             >
               <Icon size={20} className="mb-2 opacity-80" strokeWidth={1.5} />
               <p className="text-[10px] font-black uppercase tracking-wider text-center leading-tight">{label}</p>
-            </button>
-          ))}
+          </button>
+        ))}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Main content grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <motion.div variants={motionVariants.item} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* Bar chart - 2 cols */}
         <motion.div
@@ -286,8 +281,8 @@ const TesoreroDashboard = () => {
             </motion.div>
           )}
         </motion.div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

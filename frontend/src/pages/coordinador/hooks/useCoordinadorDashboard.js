@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { academicoService } from '../../../services/academicoService';
+import { withRetry } from '../../../utils/retryFetch';
 
 const useCoordinadorDashboard = () => {
   const [resumen, setResumen] = useState(null);
@@ -9,12 +10,14 @@ const useCoordinadorDashboard = () => {
 
   const fetchData = useCallback(async () => {
     try {
+      setError(null);
       setLoading(true);
-      const [resInst, resIA] = await Promise.allSettled([
-        academicoService.getStatsInstitucional(),
-        academicoService.getIAContexto(),
-      ]);
-      
+      const [resInst, resIA] = await withRetry(() =>
+        Promise.allSettled([
+          academicoService.getStatsInstitucional(),
+          academicoService.getIAContexto(),
+        ])
+      );
       if (resInst.status === 'fulfilled') {
         setResumen(resInst.value.data?.data || resInst.value.data);
       }

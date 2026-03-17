@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../../../services/api';
+import { withRetry } from '../../../utils/retryFetch';
 
 const useTesoreroDashboard = () => {
   const [kpis, setKpis] = useState(null);
@@ -9,11 +10,14 @@ const useTesoreroDashboard = () => {
 
   const fetchData = useCallback(async () => {
     try {
+      setError(null);
       setLoading(true);
-      const [resKpis, resFinanzas] = await Promise.allSettled([
-        api.get('/tesorero/resumen-kpis'),
-        api.get('/dashboards/finanzas'),
-      ]);
+      const [resKpis, resFinanzas] = await withRetry(() =>
+        Promise.allSettled([
+          api.get('/tesorero/resumen-kpis'),
+          api.get('/dashboards/finanzas'),
+        ])
+      );
       if (resKpis.status === 'fulfilled') {
         setKpis(resKpis.value.data?.data || resKpis.value.data);
       }

@@ -4,24 +4,22 @@ import { useAuth } from '../../context/AuthContext';
 import {
   Users, BookOpen, Calendar, Award,
   FolderKanban, UserCog, GraduationCap, Clock,
-  TrendingUp, AlertTriangle, BarChart3,
+  TrendingUp, AlertTriangle, BarChart3, RefreshCw,
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import useCoordinadorDashboard from './hooks/useCoordinadorDashboard';
 import StatCard from '../../components/shared/StatCard';
 import { SkeletonGrid } from '../../components/shared/Loader';
 import DashboardHero from '../../components/DashboardHero';
+import { motionVariants, UI } from '../../constants/uiTokens';
 
 const CHART_COLORS = ['#6366f1', '#14b8a6', '#f59e0b', '#8b5cf6', '#06b6d4'];
-
-const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
-const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } };
 
 const CoordinadorDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const nombre = user?.nombre?.split(' ')[0] || 'Coordinador';
-  const { resumen, loading, error } = useCoordinadorDashboard();
+  const { resumen, loading, error, refetch } = useCoordinadorDashboard();
   const carreras = resumen?.estudiantes_por_carrera ?? [];
 
   const kpis = [
@@ -46,20 +44,26 @@ const CoordinadorDashboard = () => {
   ];
 
   if (error) return (
-    <div className="p-10 bg-red-50 border border-red-100 rounded-2xl text-red-600 flex items-center gap-6">
-      <AlertTriangle size={36} />
-      <p className="text-[10px] font-black uppercase tracking-widest">Error al cargar datos institucionales</p>
+    <div className={UI.errorContainer}>
+      <AlertTriangle size={36} className="flex-shrink-0" />
+      <div className="flex-1">
+        <p className={UI.errorTitle}>Error al cargar datos</p>
+        <p className={UI.errorSubtitle}>En móvil la conexión puede ser lenta. Intenta de nuevo.</p>
+      </div>
+      <button onClick={refetch} className={UI.btnRetry}>
+        <RefreshCw size={16} /> Reintentar
+      </button>
     </div>
   );
 
   return (
     <motion.div
-      variants={container}
+      variants={motionVariants.container}
       initial="hidden"
       animate="show"
-      className="space-y-6 sm:space-y-8 overflow-x-hidden"
+      className={UI.spaceContainer}
     >
-      <motion.div variants={item}>
+      <motion.div variants={motionVariants.item}>
         <DashboardHero
           badge="Panel Académico"
           greeting={`Hola, ${nombre}`}
@@ -67,7 +71,7 @@ const CoordinadorDashboard = () => {
         />
       </motion.div>
 
-      <motion.div variants={item}>
+      <motion.div variants={motionVariants.item}>
         {loading ? (
           <SkeletonGrid count={4} />
         ) : (
@@ -80,7 +84,7 @@ const CoordinadorDashboard = () => {
       </motion.div>
 
       {carreras.length > 0 && (
-        <motion.div variants={item} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <motion.div variants={motionVariants.item} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-bold text-slate-900">Distribución de Estudiantes por Carrera</h2>
             <BarChart3 size={18} className="text-slate-400" strokeWidth={1.5} />
@@ -99,13 +103,13 @@ const CoordinadorDashboard = () => {
         </motion.div>
       )}
 
-      <motion.div variants={item}>
+      <motion.div variants={motionVariants.item}>
         <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 sm:mb-4">Acciones Principales</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {acciones.map(({ label, sub, icon: Icon, path, color }) => (
             <motion.button
               key={path}
-              variants={item}
+              variants={motionVariants.item}
               onClick={() => navigate(path)}
               className={`${color} rounded-xl p-6 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-200`}
             >
@@ -117,13 +121,13 @@ const CoordinadorDashboard = () => {
         </div>
       </motion.div>
 
-      <motion.div variants={item}>
+      <motion.div variants={motionVariants.item}>
         <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 sm:mb-4">Gestión Académica</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
           {directorio.map(({ label, sub, icon: Icon, path, color }) => (
             <motion.button
               key={path}
-              variants={item}
+              variants={motionVariants.item}
               onClick={() => navigate(path)}
               className={`${color} rounded-xl p-5 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-200`}
             >

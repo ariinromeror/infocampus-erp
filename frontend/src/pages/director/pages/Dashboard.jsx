@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../../../context/AuthContext';
 import {
   Users, DollarSign, TrendingUp, AlertTriangle, BookOpen,
-  RefreshCw, ArrowRight, Calendar, ChevronRight,
-  AlertCircle, CheckCircle2, BarChart3, GraduationCap, Award,
+  RefreshCw, ArrowRight, ChevronRight,
+  AlertCircle, BarChart3, GraduationCap, Award,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -13,38 +13,20 @@ import {
 } from 'recharts';
 import useDirectorDashboard from '../hooks/useDirectorDashboard';
 import { SkeletonGrid } from '../../../components/shared/Loader';
+import StatCard from '../../../components/shared/StatCard';
+import DashboardHero from '../../../components/DashboardHero';
 import ConfirmModal from '../components/ConfirmModal';
 import NotifModal   from '../components/NotifModal';
 import FichaEstudianteModal from '../components/FichaEstudianteModal';
 import { academicoService } from '../../../services/academicoService';
+import { motionVariants, UI } from '../../../constants/uiTokens';
 
 const COLORS = ['#6366f1', '#14b8a6', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4'];
-const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } };
-const item = { hidden: { opacity: 0, y: 12, pointerEvents: 'none' }, show: { opacity: 1, y: 0, pointerEvents: 'auto' } };
-
-const KPICard = ({ label, value, sub, icon: Icon, color, bg, onClick, pulse }) => (
-  <motion.button
-    initial={{ opacity: 0, y: 12 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.3, ease: 'easeOut' }}
-    onClick={onClick}
-    disabled={!onClick}
-    className={`bg-white border border-slate-100 rounded-xl p-5 text-left shadow-sm transition-all duration-200 ${onClick ? 'hover:shadow-xl hover:-translate-y-1 cursor-pointer' : 'cursor-default'} ${pulse ? 'animate-pulse' : ''}`}
-  >
-    <div className={`w-9 h-9 ${bg} rounded-lg flex items-center justify-center mb-3`}>
-      <Icon size={16} className={color} strokeWidth={1.5} />
-    </div>
-    <p className="text-2xl font-black italic tracking-tighter text-slate-900">{value}</p>
-    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">{label}</p>
-    {sub && <p className="text-[11px] text-slate-500 mt-0.5">{sub}</p>}
-    {onClick && <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-600 mt-2">Ver →</p>}
-  </motion.button>
-);
 
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate  = useNavigate();
-  const { institucional, finanzas, morosos, loading, refetch } = useDirectorDashboard();
+  const { institucional, finanzas, morosos, loading, error, refetch } = useDirectorDashboard();
 
   const [confirmCerrar, setConfirmCerrar] = useState(false);
   const [closing,       setClosing]       = useState(false);
@@ -148,54 +130,76 @@ const Dashboard = () => {
   ];
 
   const carreras = institucional?.estudiantes_por_carrera || [];
+  const nombre = user?.nombre?.split(' ')[0] || 'Director';
+
+  const heroActions = (
+    <>
+      <button
+        onClick={() => setConfirmCerrar(true)}
+        className="flex items-center gap-2 px-4 py-2.5 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors border border-rose-500/20"
+      >
+        <AlertCircle size={13} /> Cerrar Ciclo
+      </button>
+      <button onClick={refetch} className="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl transition-colors">
+        <RefreshCw size={15} className="text-white" />
+      </button>
+    </>
+  );
+
+  if (error) return (
+    <div className={`${UI.errorContainer}`}>
+      <AlertCircle size={36} className="flex-shrink-0" />
+      <div className="flex-1">
+        <p className={UI.errorTitle}>Error al cargar datos</p>
+        <p className={UI.errorSubtitle}>En móvil la conexión puede ser lenta. Intenta de nuevo.</p>
+      </div>
+      <button onClick={refetch} className={UI.btnRetry}>
+        <RefreshCw size={16} /> Reintentar
+      </button>
+    </div>
+  );
 
   return (
     <motion.div
-      variants={container}
+      variants={motionVariants.container}
       initial="hidden"
       animate="show"
-      className="space-y-5 pb-12"
+      className={`${UI.spaceContainer} pb-12`}
     >
-      {/* Hero */}
-      <motion.div variants={item} className="bg-slate-900 rounded-2xl p-8 sm:p-10 text-white relative overflow-hidden">
-        <div className="absolute -right-8 -top-8 w-48 h-48 bg-indigo-600/10 rounded-full pointer-events-none" />
-        <div className="absolute right-24 bottom-0 w-24 h-24 bg-indigo-500/5 rounded-full pointer-events-none" />
-        <div className="relative z-10 flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-2">Panel Institucional</p>
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black italic uppercase tracking-tighter leading-tight mb-3">
-              VISTA <span className="text-indigo-400">GLOBAL</span>
-            </h1>
-            <p className="text-slate-400 text-sm">Hola, {user?.nombre?.split(' ')[0] || 'Director'} — datos en tiempo real</p>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <button
-              onClick={() => setConfirmCerrar(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors border border-rose-500/20"
-            >
-              <AlertCircle size={13} /> Cerrar Ciclo
-            </button>
-            <button onClick={refetch} className="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl transition-colors">
-              <RefreshCw size={15} className="text-white" />
-            </button>
-          </div>
-        </div>
+      <motion.div variants={motionVariants.item}>
+        <DashboardHero
+          badge="Panel Institucional"
+          greeting={`Hola, ${nombre}`}
+          subtitle="Vista global — datos en tiempo real"
+          actions={heroActions}
+        />
       </motion.div>
 
       {/* KPI Grid */}
-      <motion.div variants={item}>
+      <motion.div variants={motionVariants.item}>
         {loading ? (
           <SkeletonGrid count={8} />
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {kpis.map(kpi => <KPICard key={kpi.label} {...kpi} />)}
+          <div className={UI.gridKpis}>
+            {kpis.map((kpi, i) => (
+              <StatCard
+                key={kpi.label}
+                title={kpi.label}
+                value={kpi.value}
+                sub={kpi.sub}
+                icon={kpi.icon}
+                onClick={kpi.onClick}
+                warn={kpi.label === 'En Mora'}
+                delay={i * 0.05}
+              />
+            ))}
           </div>
         )}
       </motion.div>
 
       {/* Chart + Acciones */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <motion.div variants={item} className="lg:col-span-2 bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
+        <motion.div variants={motionVariants.item} className="lg:col-span-2 bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="text-base font-black italic uppercase tracking-tighter text-slate-900">Distribución por Carrera</h2>
@@ -233,7 +237,7 @@ const Dashboard = () => {
           )}
         </motion.div>
 
-        <motion.div variants={item} className="space-y-3">
+        <motion.div variants={motionVariants.item} className="space-y-3">
           <p className="text-[11px] font-black uppercase tracking-[0.35em] text-slate-400 px-1">Acceso Rápido</p>
           {[
             { label: 'Estudiantes',   sub: `${institucional?.total_estudiantes || 0} registrados`, path: '/director/estudiantes', color: 'bg-indigo-50 text-indigo-600' },

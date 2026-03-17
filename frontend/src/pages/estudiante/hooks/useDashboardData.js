@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
+import { withRetry } from '../../../utils/retryFetch';
 
 const useDashboardData = () => {
   const { user } = useAuth();
@@ -8,23 +9,23 @@ const useDashboardData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!user?.id) return;
-      try {
-        setLoading(true);
-        const response = await api.get(`/estudiante/${user.id}/dashboard-summary`);
-        setData(response.data.data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+  const fetchData = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      setError(null);
+      setLoading(true);
+      const response = await withRetry(() => api.get(`/estudiante/${user.id}/dashboard-summary`));
+      setData(response.data.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }, [user?.id]);
 
-  return { data, loading, error };
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  return { data, loading, error, refetch: fetchData };
 };
 
 export default useDashboardData;

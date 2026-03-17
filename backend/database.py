@@ -43,11 +43,14 @@ async def init_connection_pool(min_conn: int = 1, max_conn: int = 20):
         return
 
     try:
+        # statement_cache_size=0: Supabase/Render usa pgbouncer en modo transaction,
+        # que NO soporta prepared statements. Sin esto: "prepared statement does not exist"
         _async_pool = await asyncpg.create_pool(
             dsn=settings.DATABASE_URL,
             min_size=min_conn,
             max_size=max_conn,
             timeout=10,
+            statement_cache_size=0,
         )
         logger.info(
             "✅ Pool PostgreSQL (asyncpg) inicializado (min=%d, max=%d)",

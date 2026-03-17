@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { academicoService } from '../../../services/academicoService';
+import { withRetry } from '../../../utils/retryFetch';
 
 const useDirectorDashboard = () => {
   const [institucional, setInstitucional] = useState(null);
@@ -10,12 +11,15 @@ const useDirectorDashboard = () => {
 
   const fetchData = useCallback(async () => {
     try {
+      setError(null);
       setLoading(true);
-      const [resInst, resFin, resMora] = await Promise.allSettled([
-        academicoService.getStatsInstitucional(),
-        academicoService.getStatsFinanzas(),
-        academicoService.getTesoreroMora(),
-      ]);
+      const [resInst, resFin, resMora] = await withRetry(() =>
+        Promise.allSettled([
+          academicoService.getStatsInstitucional(),
+          academicoService.getStatsFinanzas(),
+          academicoService.getTesoreroMora(),
+        ])
+      );
       if (resInst.status === 'fulfilled') setInstitucional(resInst.value.data?.data || resInst.value.data);
       if (resFin.status  === 'fulfilled') setFinanzas(resFin.value.data?.data || resFin.value.data);
       if (resMora.status === 'fulfilled') setMorosos(resMora.value.data?.data?.estudiantes || resMora.value.data?.estudiantes || []);

@@ -2,8 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Send, Bot, MessageCircle, Minus } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
-const CHAT_URL = `${API_BASE}/api/ia/chat`;
+// VITE_API_URL ya incluye /api (ej: https://xxx.onrender.com/api)
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
+const CHAT_URL = `${API_BASE}/ia/chat`;
 
 const ChatIA = () => {
     const [messages, setMessages] = useState([

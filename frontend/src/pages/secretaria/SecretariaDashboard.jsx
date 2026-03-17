@@ -1,22 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
-import { Users, BookOpen, AlertTriangle, CheckCircle2, TrendingUp, AlertCircle, ClipboardList, BarChart3 } from 'lucide-react';
+import { Users, BookOpen, AlertTriangle, CheckCircle2, TrendingUp, AlertCircle, ClipboardList, BarChart3, RefreshCw } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import useSecretariaDashboard from './hooks/useSecretariaDashboard';
 import StatCard from '../../components/shared/StatCard';
 import DashboardHero from '../../components/DashboardHero';
+import { motionVariants, UI } from '../../constants/uiTokens';
 
 const CHART_COLORS = ['#6366f1', '#14b8a6', '#f59e0b', '#8b5cf6', '#06b6d4'];
-
-const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0 } } };
-const item = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } };
 
 const SecretariaDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const nombre = user?.nombre?.split(' ')[0] || 'Secretaría';
-  const { resumen, periodo, loading, error } = useSecretariaDashboard();
+  const { resumen, periodo, loading, error, refetch } = useSecretariaDashboard();
 
   const carreras = resumen?.estudiantes_por_carrera || [];
 
@@ -37,20 +35,26 @@ const SecretariaDashboard = () => {
   ];
 
   if (error) return (
-    <div className="p-10 bg-red-50 border border-red-100 rounded-2xl text-red-600 flex items-center gap-6">
-      <AlertCircle size={36} />
-      <p className="text-[10px] font-black uppercase tracking-widest">Error al cargar datos institucionales</p>
+    <div className={UI.errorContainer}>
+      <AlertTriangle size={36} className="flex-shrink-0" />
+      <div className="flex-1">
+        <p className={UI.errorTitle}>Error al cargar datos</p>
+        <p className={UI.errorSubtitle}>En móvil la conexión puede ser lenta. Intenta de nuevo.</p>
+      </div>
+      <button onClick={refetch} className={UI.btnRetry}>
+        <RefreshCw size={16} /> Reintentar
+      </button>
     </div>
   );
 
   return (
     <motion.div
-      variants={container}
+      variants={motionVariants.container}
       initial="hidden"
       animate="show"
-      className="space-y-4 sm:space-y-6 lg:space-y-8 overflow-x-hidden"
+      className={UI.spaceContainer}
     >
-      <motion.div variants={item}>
+      <motion.div variants={motionVariants.item}>
         <DashboardHero
           badge="Panel de Secretaría"
           greeting={`Hola, ${nombre}`}
@@ -58,14 +62,14 @@ const SecretariaDashboard = () => {
         />
       </motion.div>
 
-      <motion.div variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <motion.div variants={motionVariants.item} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {kpis.map(({ label, value, icon, warn }, i) => (
           <StatCard key={label} titulo={label} valor={value} icon={icon} warn={warn} loading={loading} delay={i * 0.05} />
         ))}
       </motion.div>
 
       {carreras.length > 0 && (
-        <motion.div variants={item} className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-sm">
+        <motion.div variants={motionVariants.item} className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-bold text-slate-900">Distribución de Estudiantes por Carrera</h2>
             <BarChart3 size={18} className="text-slate-400" strokeWidth={1.5} />
@@ -84,13 +88,13 @@ const SecretariaDashboard = () => {
         </motion.div>
       )}
 
-      <motion.div variants={item}>
+      <motion.div variants={motionVariants.item}>
         <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 sm:mb-4">Acciones Principales</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {acciones.map(({ label, sub, icon: Icon, path, color }) => (
             <motion.button
               key={path}
-              variants={item}
+              variants={motionVariants.item}
               onClick={() => navigate(path)}
               className={`${color} rounded-xl p-4 sm:p-6 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-200`}
             >
@@ -102,13 +106,13 @@ const SecretariaDashboard = () => {
         </div>
       </motion.div>
 
-      <motion.div variants={item}>
+      <motion.div variants={motionVariants.item}>
         <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 sm:mb-4">Directorio</p>
         <div className="grid grid-cols-2 gap-2 sm:gap-3">
           {directorio.map(({ label, sub, icon: Icon, path, color }) => (
             <motion.button
               key={path}
-              variants={item}
+              variants={motionVariants.item}
               onClick={() => navigate(path)}
               className={`${color} rounded-xl p-4 sm:p-5 text-left shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-200`}
             >
@@ -121,7 +125,7 @@ const SecretariaDashboard = () => {
       </motion.div>
 
       {!loading && !error && resumen && (
-        <motion.div variants={item} className="flex items-center gap-3 sm:gap-4 px-4 sm:px-8 py-4 sm:py-5 bg-emerald-50 border border-emerald-100 rounded-xl">
+        <motion.div variants={motionVariants.item} className="flex items-center gap-3 sm:gap-4 px-4 sm:px-8 py-4 sm:py-5 bg-emerald-50 border border-emerald-100 rounded-xl">
           <CheckCircle2 size={20} className="text-emerald-600 flex-shrink-0" />
           <p className="text-sm font-semibold text-emerald-700">
             Sistema operativo — {resumen?.total_estudiantes || 0} estudiantes activos
