@@ -57,15 +57,21 @@ async def lifespan(app: FastAPI):
         logger.error(f"Error inicializando base de datos: {e}")
         raise
 
-    # Aplica migraciones SQL idempotentes al arrancar
+    # Aplica migraciones SQL idempotentes al arrancar.
+    # Usa advisory lock para evitar deadlock cuando varios workers (gunicorn) arrancan a la vez.
+    MIGRATION_LOCK_ID = 0x494346455250  # "ICERP" en hex
     migration_file = os.path.join(os.path.dirname(__file__), "migrations", "001_revoked_tokens.sql")
     if os.path.exists(migration_file):
         with open(migration_file, "r") as f:
             sql = f.read()
         try:
             async with get_db() as conn:
-                await conn.execute(sql)
-            logger.info("✅ Migración 001_revoked_tokens aplicada")
+                await conn.execute(f"SELECT pg_advisory_lock({MIGRATION_LOCK_ID})")
+                try:
+                    await conn.execute(sql)
+                    logger.info("✅ Migración 001_revoked_tokens aplicada")
+                finally:
+                    await conn.execute(f"SELECT pg_advisory_unlock({MIGRATION_LOCK_ID})")
         except Exception as e:
             logger.error(f"❌ Error en migración: {e}")
 
