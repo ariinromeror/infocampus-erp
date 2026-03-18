@@ -7,7 +7,7 @@ export const SOBRE_INFOCAMPUS = {
     '6 roles con dashboards y permisos distintos (Director, Coordinador, Profesor, Estudiante, Tesorero, Secretaría)',
     'Stack moderno: FastAPI, React 19, PostgreSQL, JWT, RBAC',
     'Informes PDF, chatbot IA, lógica financiera (mora, becas)',
-    'Desarrollado de punta a punta por un solo desarrollador',
+    'Desarrollado por un solo desarrollador',
   ],
   tech: ['Python', 'FastAPI', 'React', 'PostgreSQL', 'JWT', 'Tailwind', 'Vite', 'Framer Motion'],
   modulosPorRol: [
@@ -20,9 +20,9 @@ export const SOBRE_INFOCAMPUS = {
   ],
   desarrollador: {
     nombre: 'Arin Romero',
-    rol: 'Full-Stack Developer · Python Specialist',
+    rol: 'Desarrollador',
     email: 'ariin.romeror@gmail.com',
-    linkedin: 'https://linkedin.com/in/yourprofile',
+    linkedin: 'https://www.linkedin.com/in/arin-romero-606661129',
     github: 'https://github.com/ariinromeror',
   },
 };
