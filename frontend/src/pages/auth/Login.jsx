@@ -456,49 +456,41 @@ const Login = () => {
 
             {/* Demo (mobile) - hidden on desktop, demo is on left panel */}
             <div className="lg:hidden mb-6">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-3">Acceso Demo</p>
-              <div className="flex flex-wrap gap-2">
-                {DEMO_ROLES.map((role) => {
-                  const Icon = role.Icon;
-                  return (
-                  <motion.button
-                    key={role.label}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => handleDemoLogin(role)}
-                    disabled={loading}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-50 transition-colors"
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Credenciales demo — clic para usar</p>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 overflow-x-auto max-h-48 overflow-y-auto">
+                {DEMO_CREDENCIALES.map((c) => (
+                  <div
+                    key={c.rol}
+                    onClick={() => usarCredencial(c)}
+                    className="flex items-center gap-2 p-2.5 rounded-lg hover:bg-indigo-50 cursor-pointer transition-colors"
                   >
-                    <Icon size={14} strokeWidth={1.5} />
-                    {activeDemo === role.label ? <Loader2 size={14} className="animate-spin" /> : role.label}
-                  </motion.button>
-                );})}
-              </div>
-              <p className="text-slate-500 text-[10px] mt-2">Contraseña: <span className="font-mono">{DEMO_PASSWORD}</span></p>
-              <button
-                onClick={() => setVerCredenciales(!verCredenciales)}
-                className="flex items-center gap-2 mt-3 px-4 py-2.5 rounded-xl bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-xs font-semibold transition-colors"
-              >
-                {verCredenciales ? <EyeOff size={16} /> : <Eye size={16} />}
-                {verCredenciales ? 'Ocultar credenciales' : 'Ver todas las credenciales'}
-              </button>
-              {verCredenciales && (
-                <div className="mt-3 p-4 rounded-xl bg-slate-50 border-2 border-slate-200 overflow-x-auto">
-                  <div className="min-w-[280px] space-y-2 text-[11px] font-mono">
-                    <div className="grid grid-cols-[70px_1fr_auto] gap-x-3 gap-y-1 text-slate-500 font-semibold border-b border-slate-200 pb-2">
-                      <span>Rol</span>
-                      <span>Email</span>
-                      <span>Contraseña</span>
+                    <div className="flex-1 min-w-0 flex items-center gap-2">
+                      <span className="text-xs font-semibold text-slate-800 w-20 flex-shrink-0">{c.rol}</span>
+                      <span className="text-[11px] text-slate-600 truncate font-mono">{c.email}</span>
+                      <span className="text-[11px] text-indigo-600 font-mono flex-shrink-0">{c.password}</span>
                     </div>
-                    {DEMO_CREDENCIALES.map((c) => (
-                      <div key={c.rol} className="grid grid-cols-[70px_1fr_auto] gap-x-3 gap-y-1 text-slate-700">
-                        <span className="font-medium">{c.rol}</span>
-                        <span className="truncate">{c.email}</span>
-                        <span className="text-indigo-600">{c.password}</span>
-                      </div>
-                    ))}
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); copiarCredencial(c); }}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 transition-colors"
+                        title="Copiar"
+                      >
+                        {copiedRol === c.rol ? <span className="text-[10px] text-emerald-600 font-bold">OK</span> : <Copy size={14} strokeWidth={2} />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); entrarConCredencial(c); }}
+                        disabled={loading}
+                        className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-100 disabled:opacity-50 transition-colors"
+                        title="Entrar"
+                      >
+                        {activeDemo === c.rol ? <Loader2 size={14} className="animate-spin" /> : <LogIn size={14} strokeWidth={2} />}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
