@@ -84,22 +84,24 @@ const CoordinadorDashboard = () => {
       </motion.div>
 
       {carreras.length > 0 && (
-        <motion.div variants={motionVariants.item} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <motion.div variants={motionVariants.item} className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-sm min-w-0 overflow-hidden">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-bold text-slate-900">Distribución de Estudiantes por Carrera</h2>
-            <BarChart3 size={18} className="text-slate-400" strokeWidth={1.5} />
+            <h2 className="text-sm sm:text-base font-bold text-slate-900">Distribución por Carrera</h2>
+            <BarChart3 size={18} className="text-slate-400 flex-shrink-0" strokeWidth={1.5} />
           </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={carreras}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="nombre" tick={{ fontSize: 10 }} angle={-25} textAnchor="end" height={50} interval={0} />
-              <YAxis tick={{ fontSize: 10 }} width={28} />
+          <div className="min-w-0" style={{ width: '100%', height: 220 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={carreras} margin={{ left: 0, right: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="nombre" tick={{ fontSize: 11 }} angle={-35} textAnchor="end" height={60} interval={0} />
+                <YAxis tick={{ fontSize: 11 }} width={32} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} formatter={(v) => [v, 'Estudiantes']} />
-              <Bar dataKey="num_alumnos" radius={[4, 4, 0, 0]}>
-                {carreras.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+                <Bar dataKey="num_alumnos" radius={[4, 4, 0, 0]}>
+                  {carreras.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </motion.div>
       )}
 

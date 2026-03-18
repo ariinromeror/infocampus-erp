@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Users, Loader2, GraduationCap, Mail, Calendar, Award, FileText, DollarSign, Edit3, X, TrendingUp, TrendingDown, Clock } from 'lucide-react';
 import { academicoService } from '../../../services/academicoService';
+import { formatMoney } from '../../../constants/currency';
 
 const EstudianteCard = ({ estudiante, onClick }) => {
   const iniciales = (estudiante.nombre || 'E')
@@ -102,9 +103,10 @@ const DetalleEstudianteModal = ({ estudiante, onClose, onCorregirNota }) => {
       <div className="relative bg-white rounded-2xl p-6 max-w-4xl w-full shadow-2xl my-4 min-h-0">
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full bg-slate-100"
+          className="absolute top-4 right-4 z-20 p-2 sm:p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full bg-slate-100 min-w-[40px] min-h-[40px] flex items-center justify-center"
+          aria-label="Cerrar"
         >
-          <X size={24} />
+          <X size={20} className="sm:w-6 sm:h-6" />
         </button>
 
         {loading ? (
@@ -114,17 +116,17 @@ const DetalleEstudianteModal = ({ estudiante, onClose, onCorregirNota }) => {
         ) : (
           <>
             {/* Header del estudiante */}
-            <div className="flex items-start gap-4 mb-6 pb-6 border-b border-slate-100">
-              <div className="h-16 w-16 bg-indigo-50 rounded-2xl flex items-center justify-center">
+            <div className="flex items-start gap-4 mb-6 pb-6 border-b border-slate-100 pr-12 sm:pr-0">
+              <div className="h-16 w-16 bg-indigo-50 rounded-2xl flex items-center justify-center flex-shrink-0">
                 <span className="text-xl font-black text-indigo-600">{iniciales}</span>
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <h2 className="text-xl font-black italic uppercase text-slate-900 truncate">
                   {detalle?.nombre_completo}
                 </h2>
-                <div className="flex items-center gap-4 mt-1 text-xs text-slate-500">
-                  <span className="flex items-center gap-1">
-                    <Mail size={12} /> {detalle?.email}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-slate-500 break-all">
+                  <span className="flex items-center gap-1 min-w-0">
+                    <Mail size={12} className="flex-shrink-0" /> <span className="truncate">{detalle?.email}</span>
                   </span>
                   <span>{detalle?.cedula}</span>
                 </div>
@@ -141,14 +143,14 @@ const DetalleEstudianteModal = ({ estudiante, onClose, onCorregirNota }) => {
               </div>
               <div className="text-right">
                 <div className={`text-2xl font-black ${parseFloat(detalle?.deuda_total || 0) > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
-                  ${detalle?.deuda_total || '0.00'}
+                  {formatMoney(detalle?.deuda_total || 0)}
                 </div>
                 <p className="text-[10px] text-slate-400 uppercase tracking-wider">Deuda total</p>
               </div>
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+            <div className="flex gap-2 mb-4 overflow-x-auto pb-2 -mx-1 min-w-0">
               {[
                 { id: 'notas', label: 'Notas', icon: FileText },
                 { id: 'historial', label: 'Historial', icon: TrendingUp },
@@ -170,7 +172,7 @@ const DetalleEstudianteModal = ({ estudiante, onClose, onCorregirNota }) => {
             </div>
 
             {/* Contenido del tab */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto min-h-[200px] max-h-[50vh]">
               {tabActivo === 'notas' && (
                 <div className="space-y-3">
                   {detalle?.inscripciones?.length > 0 ? (

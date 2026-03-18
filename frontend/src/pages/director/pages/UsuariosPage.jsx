@@ -88,17 +88,24 @@ const UsuariosPage = () => {
 
   const handleSubmit = async () => {
     if (!form.first_name || !form.last_name || !form.email || !form.rol) return;
-    if (!editando && !form.password) return;
+    if (!editando && !form.cedula) return;
     setSaving(true);
     try {
-      const payload = { ...form };
-      if (!payload.password) delete payload.password;
       if (editando) {
+        const payload = { first_name: form.first_name, last_name: form.last_name, email: form.email, rol: form.rol, activo: form.activo };
+        if (form.password) payload.password = form.password;
         await actualizarUsuario(editando.id, payload);
         setNotif({ open: true, titulo: 'Usuario Actualizado', mensaje: `${form.first_name} ${form.last_name} fue actualizado correctamente.`, tipo: 'success' });
       } else {
-        await crearUsuario(payload);
-        setNotif({ open: true, titulo: 'Usuario Creado', mensaje: `${form.first_name} ${form.last_name} fue creado con rol ${form.rol}.`, tipo: 'success' });
+        await crearUsuario({
+          cedula: form.cedula,
+          first_name: form.first_name,
+          last_name: form.last_name,
+          email: form.email,
+          password: form.password || 'campus2026',
+          rol: form.rol,
+        });
+        setNotif({ open: true, titulo: 'Usuario Creado', mensaje: `${form.first_name} ${form.last_name} creado. Contraseña: campus2026`, tipo: 'success' });
       }
       setModalOpen(false);
     } catch (err) {

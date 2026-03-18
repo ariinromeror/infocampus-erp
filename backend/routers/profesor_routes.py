@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
+from datetime import datetime
 import logging
 import json
 
@@ -179,6 +180,7 @@ async def registrar_asistencia(
             if not seccion or seccion['docente_id'] != current_user['id']:
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Sin permiso sobre esta sección")
 
+            fecha_date = datetime.strptime(data.fecha, "%Y-%m-%d").date()
             guardados = 0
             for registro in data.registros:
                 await conn.execute("""
@@ -186,7 +188,7 @@ async def registrar_asistencia(
                     VALUES ($1, $2, $3, $4)
                     ON CONFLICT (inscripcion_id, fecha) DO UPDATE
                     SET estado = EXCLUDED.estado, observaciones = EXCLUDED.observaciones
-                """, registro.inscripcion_id, data.fecha, registro.estado, registro.observaciones)
+                """, registro.inscripcion_id, fecha_date, registro.estado, registro.observaciones)
                 guardados += 1
 
             return {"data": {"registros_guardados": guardados, "fecha": data.fecha}}

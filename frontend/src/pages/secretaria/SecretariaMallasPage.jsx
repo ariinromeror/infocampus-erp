@@ -111,7 +111,7 @@ const SecretariaMallasPage = () => {
               </div>
               <div className="flex items-center justify-between text-[10px] sm:text-xs">
                 <span className="text-slate-500 font-bold">Precio/cr:</span>
-                <span className="text-indigo-600 font-black">${carrera.precio_credito}</span>
+                <span className="text-indigo-600 font-black">{carrera.precio_credito} €</span>
               </div>
             </div>
           </button>
@@ -128,7 +128,7 @@ const SecretariaMallasPage = () => {
               <div className="flex-1">
                 <h2 className="text-xl font-black uppercase">{carreraSeleccionada.nombre}</h2>
                 <p className="text-indigo-200 text-sm font-bold">
-                  {carreraSeleccionada.duracion_semestres} semestres • {carreraSeleccionada.creditos_totales} créditos • ${carreraSeleccionada.precio_credito}/crédito
+                  {carreraSeleccionada.duracion_semestres} semestres • {carreraSeleccionada.creditos_totales} créditos • {carreraSeleccionada.precio_credito} €/crédito
                 </p>
               </div>
               <div className="flex gap-2">
@@ -167,7 +167,7 @@ const SecretariaMallasPage = () => {
                     </div>
                     <div className="bg-slate-50 rounded-2xl p-4 text-center">
                       <p className="text-xs font-bold text-slate-500 uppercase">Precio/cr</p>
-                      <p className="text-2xl font-black text-indigo-600">${mallaData.carrera?.precio_credito || 0}</p>
+                      <p className="text-2xl font-black text-indigo-600">{mallaData.carrera?.precio_credito || 0} €</p>
                     </div>
                   </div>
 

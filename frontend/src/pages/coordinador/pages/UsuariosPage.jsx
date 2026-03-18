@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Users, Plus, Pencil } from 'lucide-react';
 import useUsuarios from '../hooks/useUsuarios';
+import ModalForm from '../components/ModalForm';
 import SearchInput from '../../../components/shared/SearchInput';
 import EmptyState from '../../../components/shared/EmptyState';
 import { SkeletonTable } from '../../../components/shared/Loader';
@@ -61,6 +62,8 @@ const UsuarioRow = ({ usuario, onEdit }) => {
   );
 };
 
+const DEMO_PASSWORD = 'campus2026';
+
 const UsuariosPage = () => {
   const { usuarios, loading, crearUsuario, actualizarUsuario } = useUsuarios();
   const [busqueda, setBusqueda] = useState('');
@@ -68,26 +71,28 @@ const UsuariosPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editando, setEditando] = useState(null);
   const [form, setForm] = useState({
-    nombre: '',
+    cedula: '',
+    first_name: '',
+    last_name: '',
     email: '',
-    username: '',
-    password: '',
     rol: 'estudiante',
     carrera_id: '',
-    semestre: '',
     activo: true,
   });
 
   const handleEdit = (usuario) => {
     setEditando(usuario);
+    const nombreCompleto = usuario.nombre || usuario.nombre_completo || '';
+    const parts = nombreCompleto.trim().split(/\s+/);
+    const first = parts[0] || '';
+    const last = parts.slice(1).join(' ') || '';
     setForm({
-      nombre: usuario.nombre || usuario.nombre_completo || '',
+      cedula: usuario.cedula || '',
+      first_name: first,
+      last_name: last,
       email: usuario.email || '',
-      username: usuario.username || '',
-      password: '',
       rol: usuario.rol || 'estudiante',
       carrera_id: usuario.carrera_id || '',
-      semestre: usuario.semestre || '',
       activo: usuario.activo !== false,
     });
     setModalOpen(true);
@@ -96,7 +101,7 @@ const UsuariosPage = () => {
   const handleCloseModal = () => {
     setModalOpen(false);
     setEditando(null);
-    setForm({ nombre: '', email: '', username: '', password: '', rol: 'estudiante', carrera_id: '', semestre: '', activo: true });
+    setForm({ cedula: '', first_name: '', last_name: '', email: '', rol: 'estudiante', carrera_id: '', activo: true });
   };
 
   const filtrados = useMemo(() => {
@@ -108,7 +113,8 @@ const UsuariosPage = () => {
       const q = busqueda.toLowerCase();
       lista = lista.filter(u =>
         (u.nombre || u.nombre_completo || '').toLowerCase().includes(q) ||
-        (u.email || '').toLowerCase().includes(q)
+        (u.email || '').toLowerCase().includes(q) ||
+        (u.cedula || '').includes(q)
       );
     }
     return lista;
@@ -117,12 +123,24 @@ const UsuariosPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = { ...form };
-      if (!data.password) delete data.password; // no enviar password vacío al editar
       if (editando) {
-        await actualizarUsuario(editando.id, data);
+        await actualizarUsuario(editando.id, {
+          first_name: form.first_name,
+          last_name: form.last_name,
+          email: form.email,
+          carrera_id: form.carrera_id ? parseInt(form.carrera_id) : null,
+          activo: form.activo,
+        });
       } else {
-        await crearUsuario(data);
+        await crearUsuario({
+          cedula: form.cedula,
+          first_name: form.first_name,
+          last_name: form.last_name,
+          email: form.email,
+          password: DEMO_PASSWORD,
+          rol: form.rol,
+          carrera_id: form.carrera_id ? parseInt(form.carrera_id) : null,
+        });
       }
       handleCloseModal();
     } catch (err) {
@@ -183,22 +201,36 @@ const UsuariosPage = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
+              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-2">Cédula</label>
+              <input
+                type="text"
+                value={form.cedula}
+                onChange={(e) => setForm({ ...form, cedula: e.target.value })}
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="DNI/NIE/Pasaporte"
+                required={!editando}
+                disabled={!!editando}
+              />
+            </div>
+            <div>
               <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-2">Nombre</label>
               <input
                 type="text"
-                value={form.nombre}
-                onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+                value={form.first_name}
+                onChange={(e) => setForm({ ...form, first_name: e.target.value })}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Nombre"
                 required
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-2">Username</label>
+              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-2">Apellidos</label>
               <input
                 type="text"
-                value={form.username}
-                onChange={(e) => setForm({ ...form, username: e.target.value })}
+                value={form.last_name}
+                onChange={(e) => setForm({ ...form, last_name: e.target.value })}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Apellidos"
                 required
               />
             </div>
@@ -208,16 +240,6 @@ const UsuariosPage = () => {
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-2">Password</label>
-              <input
-                type="password"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 required
               />
@@ -234,6 +256,13 @@ const UsuariosPage = () => {
                 ))}
               </select>
             </div>
+            {!editando && (
+              <div className="sm:col-span-2">
+                <p className="text-xs text-slate-500">
+                  Contraseña: <span className="font-mono font-semibold">{DEMO_PASSWORD}</span> (portafolio demo)
+                </p>
+              </div>
+            )}
           </div>
           <div className="flex gap-3 pt-4">
             <button

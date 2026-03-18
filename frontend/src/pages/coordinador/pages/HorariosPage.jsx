@@ -44,7 +44,15 @@ const HorariosPage = () => {
       if (filtroPeriodo) params.periodo_id = filtroPeriodo;
       if (filtroCarrera) params.carrera_id = filtroCarrera;
       const res = await academicoService.getHorarios(params);
-      setSecciones(res.data?.data?.secciones || res.data?.data?.horarios || res.data?.secciones || res.data?.horarios || (Array.isArray(res.data?.data) ? res.data.data : null) || (Array.isArray(res.data) ? res.data : []));
+      const raw = res.data?.data?.secciones || res.data?.data?.horarios || res.data?.secciones || res.data?.horarios || (Array.isArray(res.data?.data) ? res.data.data : null) || (Array.isArray(res.data) ? res.data : []);
+      const normalized = (raw || []).map(s => ({
+        ...s,
+        id: s.id || s.seccion_id,
+        materia_nombre: s.materia_nombre || s.materia,
+        codigo: s.codigo || s.seccion_codigo,
+        docente: s.docente || s.profesor,
+      }));
+      setSecciones(normalized);
     } catch (error) {
       console.error('Error fetching horarios:', error);
       setSecciones([]);
@@ -63,7 +71,9 @@ const HorariosPage = () => {
         const h = s.horario;
         if (!h) return false;
         if (typeof h === 'string') return h.toLowerCase().includes(dia.toLowerCase());
-        if (Array.isArray(h.dias)) return h.dias.includes(diaIndex);
+        if (Array.isArray(h.dias)) {
+          return h.dias.includes(dia) || h.dias.includes(diaIndex);
+        }
         if (typeof h.dias === 'string') return h.dias.toLowerCase().includes(dia.toLowerCase());
         return false;
       })

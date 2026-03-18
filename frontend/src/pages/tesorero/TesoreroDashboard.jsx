@@ -127,7 +127,7 @@ const TesoreroDashboard = () => {
 
       <motion.div variants={motionVariants.item}>
         <p className={UI.sectionTitle}>Acciones Rápidas</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {acciones.map(({ label, sub, icon: Icon, path, color }) => (
             <button
               key={path}
@@ -182,7 +182,7 @@ const TesoreroDashboard = () => {
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={v => v > 0 ? `$${(v / 1000).toFixed(0)}k` : '$0'}
+                  tickFormatter={v => v > 0 ? `${(v / 1000).toFixed(0)}k €` : '0 €'}
                   tick={{ fill: '#475569', fontSize: 10, fontWeight: 600 }}
                   width={40}
                 />

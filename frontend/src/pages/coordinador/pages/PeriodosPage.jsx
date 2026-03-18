@@ -137,7 +137,7 @@ const PeriodosPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4 sm:gap-6 pl-16 sm:pl-0">
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 sm:pl-0">
                 <div className="text-right">
                   <p className="text-xl font-black text-slate-900">{periodo.total_secciones}</p>
                   <p className="text-[10px] text-slate-400 uppercase tracking-wider">secciones</p>

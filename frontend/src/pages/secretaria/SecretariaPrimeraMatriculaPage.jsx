@@ -35,6 +35,7 @@ const SecretariaPrimeraMatriculaPage = () => {
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
+    tipo_documento: 'dni',
     cedula: '',
     email: '',
     carrera_id: '',
@@ -162,6 +163,7 @@ const SecretariaPrimeraMatriculaPage = () => {
       setFormData({
         first_name: '',
         last_name: '',
+        tipo_documento: 'dni',
         cedula: '',
         email: '',
         carrera_id: '',
@@ -215,7 +217,7 @@ const SecretariaPrimeraMatriculaPage = () => {
               {success.estudiante?.nombre} - Cédula: {success.estudiante?.cedula}
             </p>
             <p className="text-xs text-emerald-500">
-              Total pagado: ${success.pago?.total_pagado?.toFixed(2)}
+              Total pagado: {success.pago?.total_pagado?.toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
             </p>
           </div>
         </div>
@@ -259,15 +261,26 @@ const SecretariaPrimeraMatriculaPage = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold text-slate-500 mb-1 block">Cédula *</label>
-              <input
-                type="text"
-                value={formData.cedula}
-                onChange={e => handleInputChange('cedula', e.target.value)}
-                placeholder="0912345678"
-                maxLength={10}
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700"
-              />
+              <label className="text-xs font-semibold text-slate-500 mb-1 block">Documento de identidad *</label>
+              <div className="flex gap-2">
+                <select
+                  value={formData.tipo_documento || 'dni'}
+                  onChange={e => handleInputChange('tipo_documento', e.target.value)}
+                  className="w-28 px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700"
+                >
+                  <option value="dni">DNI</option>
+                  <option value="nie">NIE</option>
+                  <option value="pasaporte">Pasaporte</option>
+                </select>
+                <input
+                  type="text"
+                  value={formData.cedula}
+                  onChange={e => handleInputChange('cedula', e.target.value)}
+                  placeholder={formData.tipo_documento === 'pasaporte' ? 'AB123456' : '12345678'}
+                  maxLength={formData.tipo_documento === 'pasaporte' ? 15 : 12}
+                  className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700"
+                />
+              </div>
             </div>
             <div>
               <label className="text-xs font-semibold text-slate-500 mb-1 block">Email</label>
@@ -356,7 +369,7 @@ const SecretariaPrimeraMatriculaPage = () => {
               <div className="flex items-center justify-between p-4 bg-indigo-50 rounded-2xl">
                 <div>
                   <p className="text-xs font-bold text-indigo-500 uppercase">Precio por Crédito</p>
-                  <p className="text-xl font-black text-indigo-600">${precioCredito}</p>
+                  <p className="text-xl font-black text-indigo-600">{precioCredito} €</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-bold text-indigo-500 uppercase">Total Créditos</p>
@@ -383,7 +396,7 @@ const SecretariaPrimeraMatriculaPage = () => {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-500 mb-1 block">Valor Inscripción ($)</label>
+              <label className="text-xs font-semibold text-slate-500 mb-1 block">Valor Inscripción (€)</label>
               <input
                 type="number"
                 value={valorInscripcion}
@@ -398,6 +411,7 @@ const SecretariaPrimeraMatriculaPage = () => {
                 {[
                   { value: 'efectivo', label: 'Efectivo' },
                   { value: 'transferencia', label: 'Transferencia' },
+                  { value: 'bizum', label: 'Bizum' },
                   { value: 'tarjeta_debito', label: 'Tarjeta Débito' },
                   { value: 'tarjeta_credito', label: 'Tarjeta Crédito' },
                 ].map(m => (
@@ -416,7 +430,7 @@ const SecretariaPrimeraMatriculaPage = () => {
               </div>
             </div>
 
-            {(metodoPago === 'transferencia' || metodoPago.includes('tarjeta')) && (
+            {(metodoPago === 'transferencia' || metodoPago === 'bizum' || metodoPago.includes('tarjeta')) && (
               <div>
                 <label className="text-xs font-semibold text-slate-500 mb-1 block">Referencia</label>
                 <input
@@ -433,7 +447,7 @@ const SecretariaPrimeraMatriculaPage = () => {
             <div className="p-4 bg-indigo-50 rounded-2xl space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Valor Inscripción:</span>
-                <span className="font-bold text-slate-700">${valorInscripcion.toFixed(2)}</span>
+                <span className="font-bold text-slate-700">{valorInscripcion.toFixed(2)} €</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Créditos ({creditos} × ${precioCredito}):</span>
@@ -442,13 +456,13 @@ const SecretariaPrimeraMatriculaPage = () => {
               {formData.es_becado && formData.porcentaje_beca > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-amber-600">Descuento ({formData.porcentaje_beca}%):</span>
-                  <span className="font-bold text-amber-600">-${montoDescuento.toFixed(2)}</span>
+                  <span className="font-bold text-amber-600">-{montoDescuento.toFixed(2)} €</span>
                 </div>
               )}
               <div className="border-t border-indigo-200 pt-2 mt-2">
                 <div className="flex justify-between">
                   <span className="font-bold text-indigo-700">TOTAL:</span>
-                  <span className="font-black text-xl text-indigo-600">${totalPagar.toFixed(2)}</span>
+                  <span className="font-black text-xl text-indigo-600">{totalPagar.toFixed(2)} €</span>
                 </div>
               </div>
             </div>

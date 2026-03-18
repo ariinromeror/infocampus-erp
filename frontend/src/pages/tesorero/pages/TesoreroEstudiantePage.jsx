@@ -250,7 +250,8 @@ const TesoreroEstudiantePage = () => {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {[
                   {
-                    label: 'Inscripciones pendientes',
+                    label: 'Pendientes',
+                    labelFull: 'Inscripciones pendientes',
                     value: estadoCuenta?.inscripciones_pendientes || 0,
                     cls: (estadoCuenta?.inscripciones_pendientes || 0) > 0
                       ? 'border-rose-100 bg-rose-50'
@@ -258,14 +259,15 @@ const TesoreroEstudiantePage = () => {
                     vCls: (estadoCuenta?.inscripciones_pendientes || 0) > 0 ? 'text-indigo-600' : 'text-slate-900',
                   },
                   {
-                    label: 'Inscripciones pagadas',
+                    label: 'Pagadas',
+                    labelFull: 'Inscripciones pagadas',
                     value: estadoCuenta?.inscripciones_pagadas || 0,
                     cls: 'border-teal-100 bg-indigo-50',
                     vCls: 'text-indigo-600',
                   },
-                ].map(({ label, value, cls, vCls }) => (
-                  <div key={label} className={`border rounded-2xl p-5 ${cls}`}>
-                    <p className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400 mb-2">{label}</p>
+                ].map(({ label, labelFull, value, cls, vCls }) => (
+                  <div key={label} className={`border rounded-2xl p-5 min-w-0 ${cls}`}>
+                    <p className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400 mb-2" title={labelFull}>{label}</p>
                     <p className={`font-black text-3xl ${vCls}`}>{value}</p>
                   </div>
                 ))}

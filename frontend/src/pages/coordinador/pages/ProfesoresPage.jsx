@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { UserCog, Loader2, BookOpen, TrendingUp, Calendar, X, Clock, MapPin, Users, Plus, Trash2, Award, GripVertical } from 'lucide-react';
+import { UserCog, Loader2, BookOpen, X, Clock, Users, Plus, Trash2, GripVertical } from 'lucide-react';
 import { academicoService } from '../../../services/academicoService';
 import {
   DndContext,
@@ -78,6 +78,67 @@ const ProfessorCard = ({ profesor, onClick, isSelected }) => {
         </div>
       </div>
     </button>
+  );
+};
+
+const ProfesorPerfilModal = ({ profesor, detalle, loadingDetalle, onClose }) => {
+  if (!profesor) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 lg:hidden">
+      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-t-2xl sm:rounded-2xl w-full max-h-[85vh] overflow-hidden shadow-2xl">
+        <div className="sticky top-0 bg-indigo-600 p-6 text-white z-10">
+          <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/20">
+            <X size={20} />
+          </button>
+          <div className="flex items-center gap-4">
+            <div className="h-14 w-14 bg-white/20 rounded-xl flex items-center justify-center">
+              <UserCog size={28} />
+            </div>
+            <div>
+              <h2 className="text-lg font-black uppercase">{profesor.nombre}</h2>
+              <p className="text-indigo-200 text-xs truncate">{profesor.email}</p>
+              <div className="flex gap-2 mt-2">
+                <span className="bg-white/20 px-2 py-0.5 rounded text-[10px]">
+                  {detalle?.seccionesActuales?.length || 0} secciones
+                </span>
+                <span className="bg-white/20 px-2 py-0.5 rounded text-[10px]">
+                  {detalle?.horasTotales || 0} hrs/sem
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="p-4 overflow-y-auto max-h-[60vh]">
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3">Materias y horarios</h3>
+          {loadingDetalle ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="animate-spin text-indigo-600" size={32} />
+            </div>
+          ) : detalle?.seccionesActuales?.length > 0 ? (
+            <div className="space-y-2">
+              {detalle.seccionesActuales.map((s) => (
+                <div key={s.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-slate-800 text-sm truncate">{s.materia}</p>
+                    <p className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                      <Clock size={10} />
+                      {s.horario || 'Sin horario'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                    <Users size={14} className="text-slate-400" />
+                    <span className="text-xs font-bold text-slate-600">{s.inscritos ?? s.cupo_actual ?? 0}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-slate-400 py-8 text-sm">Sin secciones asignadas</p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -392,6 +453,18 @@ const ProfesoresPage = () => {
           )}
         </div>
       </div>
+
+      {/* Modal perfil profesor (móvil) */}
+      {profesorSeleccionado && (
+        <div className="lg:hidden">
+          <ProfesorPerfilModal
+            profesor={profesorSeleccionado}
+            detalle={detalle}
+            loadingDetalle={loadingDetalle}
+            onClose={() => setProfesorSeleccionado(null)}
+          />
+        </div>
+      )}
 
       {notif.show && (
         <div className={`fixed bottom-6 right-6 px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-wider z-50 ${

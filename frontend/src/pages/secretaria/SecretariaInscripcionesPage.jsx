@@ -390,7 +390,7 @@ const SecretariaInscripcionesPage = () => {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-slate-500 uppercase">Precio por Crédito</p>
-                      <p className="text-2xl font-black text-indigo-600">${mallaData.carrera.precio_credito}</p>
+                      <p className="text-2xl font-black text-indigo-600">{mallaData.carrera.precio_credito} €</p>
                     </div>
                     <div>
                       <p className="text-xs font-bold text-slate-500 uppercase">Duración</p>

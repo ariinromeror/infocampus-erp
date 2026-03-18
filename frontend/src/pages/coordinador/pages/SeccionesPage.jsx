@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Plus, Calendar, GraduationCap } from 'lucide-react';
 import useSecciones from '../hooks/useSecciones';
+import ModalForm from '../components/ModalForm';
 import SeccionRow from '../components/SeccionRow';
 import SearchInput from '../../../components/shared/SearchInput';
 import EmptyState from '../../../components/shared/EmptyState';

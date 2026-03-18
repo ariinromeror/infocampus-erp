@@ -21,6 +21,20 @@
   --radius-2xl: 1.5rem;
 }
 
+/* Ken Burns: zoom + pan suave para fondos */
+@keyframes kenburns {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.1) translate(-2%, -2%); }
+}
+.animate-kenburns {
+  animation: kenburns 25s ease-in-out infinite alternate;
+}
+
+/* Login: fondo difuminado (híbrido foto + overlay) */
+.login-bg-blur {
+  filter: blur(6px);
+}
+
 /* Scrollbar personalizada */
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
