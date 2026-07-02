@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import Dict, Any, List, Optional
 from decimal import Decimal
 from datetime import date, datetime, timedelta
@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from auth.dependencies import get_current_user
 from config import settings
 from database import get_db
+from routers.auth import limiter
 from services.calculos_financieros import (
     calcular_deuda_total,
     calcular_en_mora,
@@ -669,7 +670,9 @@ DATOS EN TIEMPO REAL ({hoy}):
 # ─── Chat endpoint ────────────────────────────────────────────────────────────
 
 @router.post("/chat")
+@limiter.limit("15/minute")
 async def chat_ia(
+    request: Request,
     body: _ChatRequest,
     current_user: Dict[str, Any] = Depends(get_current_user),
 ) -> Dict[str, Any]:

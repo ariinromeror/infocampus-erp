@@ -21,7 +21,9 @@ services:
       - key: SECRET_KEY_AUTH
         sync: false
       - key: ALLOWED_ORIGINS
-        sync: false
+        sync: false           # OBLIGATORIO: sin esto, CORS no permite ningun origen (fail-closed)
+      - key: ENVIRONMENT
+        value: production
       - key: ALGORITHM
         value: HS256
       - key: ACCESS_TOKEN_EXPIRE_MINUTES

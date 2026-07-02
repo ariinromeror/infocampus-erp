@@ -60,7 +60,13 @@ def create_access_token(
 async def is_token_revoked(jti: Optional[str]) -> bool:
     """
     Verifica si un token ha sido revocado consultando la tabla revoked_tokens.
-    Si hay cualquier error de base de datos, falla en modo permisivo (no bloquea).
+
+    Falla en modo "cerrado" (fail-closed): si la consulta a la base de datos
+    falla por cualquier motivo, el token se trata como revocado. Un usuario
+    ya autenticado ya depende de la DB para el resto del request (get_current_user
+    también la consulta), así que no hay ganancia real en permitir el token
+    aquí y sí hay riesgo de aceptar un token ya revocado durante un incidente
+    de base de datos.
     """
     if not jti:
         return False
@@ -73,8 +79,8 @@ async def is_token_revoked(jti: Optional[str]) -> bool:
             )
         return row is not None
     except Exception as e:
-        logger.error(f"❌ Error comprobando revocación de token: {e}")
-        return False
+        logger.error(f"❌ Error comprobando revocación de token, tratando como revocado (fail-closed): {e}")
+        return True
 
 
 async def revoke_token(jti: str) -> None:

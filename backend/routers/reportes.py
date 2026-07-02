@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 from typing import Dict, Any
 from datetime import datetime, timedelta
@@ -7,6 +7,7 @@ import logging
 
 from auth.dependencies import require_roles, get_current_user
 from database import get_db
+from routers.auth import limiter
 from services.pdf_generator import (
     generar_estado_cuenta,
     generar_certificado_inscripcion
@@ -27,7 +28,9 @@ router = APIRouter(
 
 
 @router.get("/inscripcion/{inscripcion_id}", summary="Descargar certificado de inscripción")
+@limiter.limit("20/minute")
 async def certificado_inscripcion(
+    request: Request,
     inscripcion_id: int,
     current_user: Dict[str, Any] = Depends(get_current_user)
 ):
@@ -118,7 +121,9 @@ async def certificado_inscripcion(
 
 
 @router.get("/estado-cuenta/{estudiante_id}", summary="Descargar estado de cuenta en PDF")
+@limiter.limit("20/minute")
 async def estado_cuenta_pdf(
+    request: Request,
     estudiante_id: int,
     current_user: Dict[str, Any] = Depends(get_current_user)
 ):
@@ -248,7 +253,9 @@ async def estado_cuenta_pdf(
 
 
 @router.get("/tesoreria", summary="Reporte de tesorería en PDF")
+@limiter.limit("20/minute")
 async def reporte_tesoreria(
+    request: Request,
     dias: int = 30,
     current_user: Dict[str, Any] = Depends(require_roles(['director', 'admin', 'tesorero', 'coordinador']))
 ):
@@ -454,7 +461,9 @@ async def reporte_tesoreria(
 
 
 @router.get("/notas/{estudiante_id}", summary="Boletín de notas del estudiante")
+@limiter.limit("20/minute")
 async def boletin_notas(
+    request: Request,
     estudiante_id: int,
     current_user: Dict[str, Any] = Depends(get_current_user)
 ):

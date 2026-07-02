@@ -107,19 +107,30 @@ app = FastAPI(
 # CORS — producción Render + Vercel
 # ---------------------------------------------------------------------------
 # Prioridad:
-#   1. Variable de entorno ALLOWED_ORIGINS (lista CSV) — úsala en producción real.
-#   2. Si no está definida o es vacía → wildcard "*" para demo pública.
+#   1. Variable de entorno ALLOWED_ORIGINS (lista CSV) — obligatoria en producción.
+#   2. Fuera de producción (ENVIRONMENT != "production"), si no está definida
+#      cae a wildcard "*" para facilitar el desarrollo local.
+#
+# En producción, si ALLOWED_ORIGINS no está configurado, NO se abre el
+# wildcard: se falla "cerrado" (sin orígenes permitidos) y se loguea un
+# error crítico, para evitar exponer la API a cualquier origen por un
+# despliegue mal configurado.
 #
 # Ejemplo de variable en Render:
 #   ALLOWED_ORIGINS=https://ariinromeror-infocampus-erp.vercel.app,https://infocampus-erp.vercel.app
 # ---------------------------------------------------------------------------
 _raw_origins = getattr(settings, "ALLOWED_ORIGINS", "") or os.getenv("ALLOWED_ORIGINS", "")
 allowed_origins: list[str] = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+is_production = getattr(settings, "ENVIRONMENT", "production").lower() == "production"
 
-# Si no se configuró ningún origen explícito, abrimos wildcard para la demo.
-# En modo wildcard FastAPI no puede usar allow_credentials=True, así que lo
-# desactivamos automáticamente.
-use_wildcard = not allowed_origins or allowed_origins == ["*"]
+use_wildcard = (not allowed_origins or allowed_origins == ["*"]) and not is_production
+
+if not allowed_origins and is_production:
+    logger.error(
+        "❌ ALLOWED_ORIGINS no está configurado en producción (ENVIRONMENT=production). "
+        "La API no aceptará peticiones cross-origin hasta que se configure. "
+        "Define ALLOWED_ORIGINS en las variables de entorno de Render."
+    )
 
 app.add_middleware(
     CORSMiddleware,
@@ -133,11 +144,31 @@ app.add_middleware(
 
 if use_wildcard:
     logger.warning(
-        "⚠️  CORS en modo wildcard '*'. "
+        "⚠️  CORS en modo wildcard '*' (solo permitido fuera de producción). "
         "Define ALLOWED_ORIGINS en .env para restringir en producción real."
     )
 else:
     logger.info(f"✅ CORS configurado para: {allowed_origins}")
+
+# ---------------------------------------------------------------------------
+# Security headers — mitigación básica de clickjacking, MIME sniffing y
+# leakage de referrer. No sustituye una revisión de seguridad completa.
+# ---------------------------------------------------------------------------
+@app.middleware("http")
+async def security_headers_middleware(request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault(
+        "Permissions-Policy", "geolocation=(), camera=(), microphone=()"
+    )
+    if is_production:
+        response.headers.setdefault(
+            "Strict-Transport-Security", "max-age=63072000; includeSubDomains"
+        )
+    return response
+
 
 # ---------------------------------------------------------------------------
 # Rate limiting (SlowAPI)

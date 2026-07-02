@@ -18,7 +18,16 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60  # 60 minutos (antes: 1440 = 24 horas)
     
     # CORS
-    ALLOWED_ORIGINS: str = "https://ariinromeror-infocampus-erp.vercel.app"
+    # Sin valor por defecto: en producción es obligatorio configurar los
+    # orígenes permitidos explícitamente vía variable de entorno.
+    ALLOWED_ORIGINS: str = ""
+
+    # Entorno de ejecución: "production" | "development" | "test"
+    # Controla comportamientos de seguridad (p.ej. fallback de CORS a wildcard
+    # solo se permite fuera de "production"). Por defecto "production" para
+    # que un despliegue mal configurado falle de forma segura (cerrado) en
+    # vez de abrirse accidentalmente.
+    ENVIRONMENT: str = "production"
 
     # AI / Groq
     GROQ_API_KEY: str = ""
