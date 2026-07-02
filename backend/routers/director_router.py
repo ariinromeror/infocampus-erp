@@ -11,6 +11,7 @@ import logging
 
 from auth.dependencies import require_roles
 from database import get_db
+from services.configuracion_cache import invalidate_configuracion_ia
 
 logger = logging.getLogger(__name__)
 
@@ -122,6 +123,7 @@ async def actualizar_configuracion(
                 SET valor = EXCLUDED.valor, actualizado_en = NOW()
             """, clave, data.valor)
 
+        await invalidate_configuracion_ia()
         logger.info(f"Director {current_user['cedula']} actualizó config: {clave} = {data.valor}")
 
         return {

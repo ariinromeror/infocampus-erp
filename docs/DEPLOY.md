@@ -30,12 +30,93 @@
 | `ALGORITHM` | `HS256` |
 | `ALLOWED_ORIGINS` | `https://your-app.vercel.app` (**obligatorio en producción**, no hay fallback a wildcard) |
 | `GROQ_API_KEY` | (Optional) For chatbot Eva |
+| `REDIS_URL` | (Optional) Habilita cache y cola de background jobs — ver sección "Escalabilidad" |
+| `DB_POOL_MIN_SIZE` / `DB_POOL_MAX_SIZE` | (Optional) Por defecto `1`/`20` — ver sección "Escalabilidad" |
+| `WEB_CONCURRENCY` | (Optional) Workers de Gunicorn, por defecto `2` — ver sección "Escalabilidad" |
 
 4. **Verify:** `https://your-api.onrender.com/api/health` → `{"status":"ok"}`
 
 ### Despliegue alternativo con Docker
 
 `backend/Dockerfile` permite desplegar el backend como contenedor (Render Settings → Build → Docker) en vez del buildpack nativo de Python, útil para paridad exacta entre CI, staging y producción. El `CMD` por defecto usa 2 workers Gunicorn; ajustar `-w` según CPU disponible en el plan contratado (regla general: `2 × núcleos + 1`), recordando que el total de conexiones a Postgres es `workers × DB_POOL_MAX_SIZE`.
+
+---
+
+## Escalabilidad (Redis, background jobs, dimensionamiento)
+
+### Pool de conexiones y workers de Gunicorn
+
+- `DB_POOL_MIN_SIZE` / `DB_POOL_MAX_SIZE` (backend/database.py, por defecto 1/20)
+  controlan el pool `asyncpg` de cada proceso worker.
+- `WEB_CONCURRENCY` (Procfile/render.yaml/Dockerfile, por defecto 2) controla
+  los workers de Gunicorn.
+- **Regla crítica**: el total de conexiones a Postgres es
+  `WEB_CONCURRENCY × DB_POOL_MAX_SIZE`. Con pgbouncer en modo *transaction
+  pooling* (el que usa Supabase), esto no debe exceder el límite de
+  conexiones del plan contratado. Ejemplo: plan con límite de 60 conexiones →
+  con `WEB_CONCURRENCY=3`, `DB_POOL_MAX_SIZE` no debería superar ~15-18 para
+  dejar margen a migraciones/scripts puntuales.
+- Regla general para `WEB_CONCURRENCY`: `2 × núcleos_CPU + 1`, ajustar según
+  el plan de Render contratado.
+
+### Cache (Redis)
+
+`REDIS_URL` es **opcional**: si no está configurado, todo el sistema
+funciona igual, solo sin estas optimizaciones (se lee siempre de Postgres).
+Ver `backend/cache.py` (cliente) — degrada de forma segura ante cualquier
+error de Redis, nunca rompe un request.
+
+Qué se cachea hoy:
+
+| Qué | Dónde | TTL | Invalidación |
+|---|---|---|---|
+| Revocación de tokens | `backend/auth/jwt_handler.py` | corto (30s) para "no revocado", vida del access token para "revocado" | `revoke_token()` escribe el cache de inmediato al hacer logout |
+| Configuración institucional (`configuracion_ia`) | `backend/services/configuracion_cache.py`, usado en `routers/ia_context.py` | 300s | `routers/director_router.py::actualizar_configuracion` invalida al escribir |
+| Dashboard institucional (`/api/dashboards/institucional`) | `backend/routers/dashboards.py` | 60s | ninguna (TTL corto, dato agregado que cambia constantemente) |
+
+El caso de la revocación de tokens es el de mayor impacto: mitiga el costo
+del fail-closed de Fase 0 (antes, cada request autenticado hacía una query a
+Postgres solo para comprobar revocación; ahora resuelve desde Redis en la
+gran mayoría de los casos, liberando conexiones del pool para el resto de
+queries de negocio).
+
+### Background jobs (arq sobre Redis)
+
+`backend/services/task_queue.py` implementa una cola ligera con
+[arq](https://arq-docs.helpmanual.io/) para trabajos que no deben bloquear
+el ciclo request/response: hoy, la **generación masiva de boletines de
+notas** al cierre de un período (potencialmente cientos de PDFs para ~800
+estudiantes a la vez).
+
+- `POST /api/reportes/boletines/lote?periodo_id=<id>` (director/admin/coordinador)
+  encola el trabajo y devuelve `{"job_id": "..."}` de inmediato.
+- `GET /api/reportes/boletines/lote/{job_id}` consulta el estado
+  (`deferred`/`queued`/`in_progress`/`complete`/`not_found`).
+- `GET /api/reportes/boletines/lote/{job_id}/descargar` descarga el `.zip`
+  una vez que el estado es `complete`.
+- Los reportes individuales (certificado, estado de cuenta, boletín
+  individual, tesorería) **siguen siendo síncronos a propósito**: ahí el
+  usuario espera una descarga inmediata, así que no tiene sentido encolarlos.
+
+**Requiere un proceso worker separado** del proceso web, corriendo:
+
+```bash
+cd backend && arq services.task_queue.WorkerSettings
+```
+
+En Render, esto es el servicio `infocampus-backend-worker` (`type: worker`)
+definido en `render.yaml` — requiere un plan de pago (los *background
+workers* no están disponibles en el plan free) y el mismo `REDIS_URL` que el
+servicio web. Sin el worker corriendo, los trabajos quedan en estado
+`queued` indefinidamente (no fallan, simplemente nadie los procesa).
+
+Los `.zip` generados se guardan en `backend/generated_reports/` (filesystem
+local del proceso worker). En Render el filesystem es efímero entre
+deploys/reinicios: esto es intencional para un job de vida corta que se
+descarga poco después de generarse, no para archivado a largo plazo. Si se
+necesita persistencia duradera, cambiar el almacenamiento en
+`services/task_queue.py` a un bucket (S3/Supabase Storage) sin tocar los
+endpoints que lo consumen.
 
 ---
 

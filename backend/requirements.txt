@@ -8,6 +8,10 @@ python-multipart==0.0.9
 psycopg2-binary==2.9.10
 asyncpg==0.30.0
 
+# Cache / cola de tareas (opcional, activado solo si REDIS_URL está configurado)
+redis==5.3.1
+arq==0.28.0
+
 # Web Server (NEW)
 gunicorn==23.0.0
 

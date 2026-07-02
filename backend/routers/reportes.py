@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.responses import FileResponse, StreamingResponse
 from typing import Dict, Any
 from datetime import datetime, timedelta
 from decimal import Decimal
 import logging
+import os
+
+from arq.jobs import Job as ArqJob
 
 from auth.dependencies import require_roles, get_current_user
 from database import get_db
@@ -13,6 +16,7 @@ from services.pdf_generator import (
     generar_certificado_inscripcion
 )
 from services.calculos_financieros import calcular_deuda_total, calcular_deuda_vencida
+from services.task_queue import get_arq_pool, REPORTS_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -686,3 +690,85 @@ async def boletin_notas(
     except Exception as e:
         logger.error(f"Error generando boletín de notas: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error generando boletín: {str(e)}")
+
+
+# ─── Generación masiva de boletines (background job, ver services/task_queue.py) ──
+#
+# A diferencia de los endpoints anteriores (descarga síncrona e inmediata),
+# generar boletines para todo un período con ~800 estudiantes es un trabajo
+# potencialmente largo: se encola en Redis/arq y se ejecuta en un proceso
+# worker aparte, sin bloquear el backend web ni consumir una conexión del
+# pool de Postgres por cada request HTTP concurrente.
+
+@router.post("/boletines/lote", summary="Encolar generación masiva de boletines de un período")
+@limiter.limit("5/minute")
+async def encolar_boletines_lote(
+    request: Request,
+    response: Response,
+    periodo_id: int,
+    current_user: Dict[str, Any] = Depends(require_roles(['director', 'admin', 'coordinador'])),
+):
+    pool = await get_arq_pool()
+    if pool is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Cola de tareas no configurada (REDIS_URL). Contacta al administrador.",
+        )
+    try:
+        job = await pool.enqueue_job("generar_boletines_lote", periodo_id)
+    finally:
+        await pool.aclose()
+
+    if job is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="No se pudo encolar el trabajo. Intenta nuevamente.",
+        )
+
+    logger.info(
+        f"Boletines en lote encolados (job {job.job_id}) por {current_user['cedula']} "
+        f"para período {periodo_id}"
+    )
+    return {"job_id": job.job_id, "status": "encolado"}
+
+
+@router.get("/boletines/lote/{job_id}", summary="Consultar estado de una generación masiva de boletines")
+async def estado_boletines_lote(
+    job_id: str,
+    current_user: Dict[str, Any] = Depends(require_roles(['director', 'admin', 'coordinador'])),
+):
+    pool = await get_arq_pool()
+    if pool is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Cola de tareas no configurada (REDIS_URL).",
+        )
+    try:
+        job = ArqJob(job_id, pool)
+        job_status = await job.status()
+        resultado = None
+        if job_status.value == "complete":
+            info = await job.result_info()
+            resultado = info.result if info else None
+    finally:
+        await pool.aclose()
+
+    return {"job_id": job_id, "status": job_status.value, "result": resultado}
+
+
+@router.get("/boletines/lote/{job_id}/descargar", summary="Descargar el ZIP de una generación masiva de boletines")
+async def descargar_boletines_lote(
+    job_id: str,
+    current_user: Dict[str, Any] = Depends(require_roles(['director', 'admin', 'coordinador'])),
+):
+    zip_path = os.path.join(REPORTS_DIR, f"boletines_{job_id}.zip")
+    if not os.path.exists(zip_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El archivo no existe todavía (el trabajo puede seguir en curso o haber expirado).",
+        )
+    return FileResponse(
+        zip_path,
+        media_type="application/zip",
+        filename=f"boletines_periodo_{job_id}.zip",
+    )

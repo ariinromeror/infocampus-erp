@@ -5,6 +5,13 @@
 #   DATABASE_URL     → postgresql://...@pooler.supabase.com:5432/postgres  (puerto 5432, NO 6543)
 #   SECRET_KEY_AUTH  → valor fuerte: python -c "import secrets; print(secrets.token_hex(32))"
 #   ALLOWED_ORIGINS  → https://tu-proyecto.vercel.app
+#   REDIS_URL        → opcional (Render Key Value / Upstash). Sin esto, cache y
+#                      cola de background jobs quedan deshabilitados; el resto
+#                      del sistema funciona igual, solo sin esas optimizaciones.
+#
+# Dimensionamiento (ver docs/DEPLOY.md "Migraciones..." y sección de escalabilidad):
+#   WEB_CONCURRENCY × DB_POOL_MAX_SIZE no debe exceder el límite de conexiones
+#   del plan de Supabase contratado.
 
 services:
   - type: web
@@ -13,7 +20,7 @@ services:
     region: frankfurt    # Más cercano a Supabase eu-west-1 (Irlanda) que oregon
     plan: free
     buildCommand: cd backend && pip install -r requirements.txt
-    startCommand: cd backend && gunicorn main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120
+    startCommand: cd backend && gunicorn main:app -w ${WEB_CONCURRENCY:-2} -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120
     healthCheckPath: /api/health
     envVars:
       - key: DATABASE_URL
@@ -22,9 +29,38 @@ services:
         sync: false
       - key: ALLOWED_ORIGINS
         sync: false           # OBLIGATORIO: sin esto, CORS no permite ningun origen (fail-closed)
+      - key: REDIS_URL
+        sync: false           # Opcional: cache + cola de background jobs (ver worker abajo)
       - key: ENVIRONMENT
         value: production
       - key: ALGORITHM
         value: HS256
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: "1440"
+      - key: WEB_CONCURRENCY
+        value: "2"            # Subir según CPU del plan pagado (regla: 2×núcleos+1)
+      - key: DB_POOL_MIN_SIZE
+        value: "1"
+      - key: DB_POOL_MAX_SIZE
+        value: "20"           # WEB_CONCURRENCY × este valor no debe exceder el límite de Supabase
+
+  # Worker opcional: solo necesario si se usa la generación masiva de
+  # boletines en background (backend/services/task_queue.py). Requiere
+  # REDIS_URL configurado (mismo valor que el servicio web) y un plan de
+  # pago de Render, ya que "background worker" no está disponible en free.
+  - type: worker
+    name: infocampus-backend-worker
+    env: python
+    region: frankfurt
+    plan: starter
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && arq services.task_queue.WorkerSettings
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY_AUTH
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: ENVIRONMENT
+        value: production

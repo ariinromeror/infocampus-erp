@@ -10,6 +10,7 @@ import logging
 import json
 
 from auth.dependencies import require_roles, get_current_user
+from cache import get_json, set_json
 from database import get_db
 
 logger = logging.getLogger(__name__)
@@ -19,6 +20,15 @@ router = APIRouter(
     tags=["Dashboards"],
     responses={401: {"description": "No autorizado"}, 403: {"description": "Prohibido"}}
 )
+
+# Dashboard institucional: agrega datos de toda la institución (potencialmente
+# costoso con 800 estudiantes) y lo consultan varios roles a la vez al cargar
+# sus paneles. No hay un único punto de escritura que invalidar (pagos,
+# inscripciones, becas cambian constantemente), así que se usa un TTL corto:
+# suficiente para absorber ráfagas de refrescos simultáneos sin servir datos
+# significativamente desactualizados.
+_DASHBOARD_INSTITUCIONAL_CACHE_KEY = "infocampus:dashboard:institucional"
+_DASHBOARD_INSTITUCIONAL_CACHE_TTL_SECONDS = 60
 
 
 def _parse_horario(horario_raw) -> str:
@@ -36,6 +46,10 @@ def _parse_horario(horario_raw) -> str:
 async def dashboard_institucional(
     current_user: Dict[str, Any] = Depends(require_roles(['director', 'admin', 'coordinador', 'administrativo']))
 ) -> Dict[str, Any]:
+    cached = await get_json(_DASHBOARD_INSTITUCIONAL_CACHE_KEY)
+    if cached is not None:
+        return cached
+
     try:
         async with get_db() as conn:
             stats = dict(await conn.fetchrow("""
@@ -89,7 +103,7 @@ async def dashboard_institucional(
                     'en_mora':         True,
                 })
 
-        return {
+        resultado = {
             "total_estudiantes":       int(stats['total_estudiantes']),
             "total_profesores":        int(stats['total_profesores']),
             "materias_totales":        int(stats['materias_totales']),
@@ -102,6 +116,12 @@ async def dashboard_institucional(
             "estudiantes_por_carrera": estudiantes_por_carrera,
             "alumnos_mora":            alumnos_mora,
         }
+        await set_json(
+            _DASHBOARD_INSTITUCIONAL_CACHE_KEY,
+            resultado,
+            _DASHBOARD_INSTITUCIONAL_CACHE_TTL_SECONDS,
+        )
+        return resultado
 
     except Exception as e:
         logger.error(f"Error dashboard institucional: {e}")

@@ -53,3 +53,6 @@ logs/
 # Contiene credenciales de las cuentas demo/seed (password compartida,
 # datos falsos generados con Faker) — no debe versionarse igual.
 scripts_db/credenciales_infocampus_*.txt
+
+# ── Artefactos generados por jobs en background (backend/services/task_queue.py) ──
+backend/generated_reports/

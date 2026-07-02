@@ -31,7 +31,21 @@ class Settings(BaseSettings):
 
     # AI / Groq
     GROQ_API_KEY: str = ""
-    
+
+    # Pool de conexiones PostgreSQL (asyncpg). Ajustar según el plan de Supabase
+    # contratado: el límite real es `DB_POOL_MAX_SIZE × workers_gunicorn` en
+    # modo *transaction pooling* de pgbouncer, no debe exceder las conexiones
+    # que permite el plan (ver docs/DEPLOY.md).
+    DB_POOL_MIN_SIZE: int = 1
+    DB_POOL_MAX_SIZE: int = 20
+
+    # Redis (opcional): cache de configuración institucional, dashboards
+    # agregados y revocación de tokens, y cola de tareas en background
+    # (backend/services/task_queue.py). Si se deja vacío, el sistema funciona
+    # igual, solo sin las optimizaciones de cache/cola (degrada a leer
+    # siempre de Postgres / ejecutar en el propio request).
+    REDIS_URL: str = ""
+
     # App Info
     APP_NAME: str = "Info Campus ERP API"
     APP_VERSION: str = "2.0.0"
