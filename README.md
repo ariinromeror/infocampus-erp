@@ -373,12 +373,15 @@ App available at: `http://localhost:5173`
 ### Populate with test data
 
 ```bash
+pip install -r requirements.txt   # root requirements.txt: only what populate.py needs (see file header)
 cd scripts_db
 cp .env.example .env    # Set DATABASE_URL
 python populate.py
 ```
 
 This generates realistic students, professors, sections, enrollments, grades, and payment records using Faker.
+
+> **Note:** the root `requirements.txt` is scoped to `scripts_db/populate.py` only (psycopg2, Faker, tqdm, passlib, python-dotenv). The API's dependencies live exclusively in `backend/requirements.txt`.
 
 ---
 

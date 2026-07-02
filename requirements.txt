@@ -1,46 +1,23 @@
-# ===================================
-# InfoCampus ERP - Requirements
-# Backend FastAPI + PostgreSQL
-# ===================================
+# ===================================================================
+# InfoCampus ERP — Dependencias de scripts_db/ (seed de datos de demo)
+# ===================================================================
+# NO es el requirements.txt de la API. La API usa backend/requirements.txt
+# (referenciado en render.yaml y en el README como fuente de verdad).
+#
+# Este archivo cubre únicamente lo que importa scripts_db/populate.py:
+# conexión directa a Postgres (psycopg2) + generación de datos de demo
+# (Faker/tqdm) + hashing de contraseñas (passlib/bcrypt) + carga de .env.
+#
+# Las versiones de paquetes que también usa el backend (psycopg2-binary,
+# passlib, bcrypt, python-dotenv) están fijadas IGUAL que en
+# backend/requirements.txt para evitar drift entre ambos entornos.
+#
+# Uso: pip install -r requirements.txt && python scripts_db/populate.py
+# ===================================================================
 
-# Framework Web
-fastapi==0.115.0
-uvicorn[standard]==0.30.6
-gunicorn==22.0.0
-
-# Base de Datos
-psycopg2-binary==2.9.9
-
-# Autenticación y Seguridad
-python-jose[cryptography]==3.3.0
+psycopg2-binary==2.9.10
 passlib[bcrypt]==1.7.4
-bcrypt==4.0.1  
-passlib
-
-# Utilidades
-python-multipart==0.0.9
+bcrypt==4.2.0
 python-dotenv==1.0.1
-
-# Validación de Datos
-pydantic==2.9.0
-pydantic-settings==2.5.2
-
-# IA y API Externa
-groq
-
-# Reportes PDF
-reportlab==4.0.8
-
-# ===================================
-# Dependencias para Scripts de Población
-
-# ===================================
-Faker==18.0.0  
-
-# ===================================
-# NOTAS IMPORTANTES:
-# - bcrypt==4.0.1 es CRÍTICO para compatibilidad con passlib
-# - NO actualizar bcrypt a 5.x (rompe compatibilidad)
-# - passlib[bcrypt] instala bcrypt como dependencia, pero
-#   especificar la versión explícita evita conflictos
-# ===================================
+Faker==24.0.0
+tqdm==4.66.5
