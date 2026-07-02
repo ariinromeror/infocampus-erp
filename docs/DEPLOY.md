@@ -33,6 +33,8 @@
 | `REDIS_URL` | (Optional) Habilita cache y cola de background jobs — ver sección "Escalabilidad" |
 | `DB_POOL_MIN_SIZE` / `DB_POOL_MAX_SIZE` | (Optional) Por defecto `1`/`20` — ver sección "Escalabilidad" |
 | `WEB_CONCURRENCY` | (Optional) Workers de Gunicorn, por defecto `2` — ver sección "Escalabilidad" |
+| `SENTRY_DSN` | (Optional) Habilita captura de errores centralizada — ver sección "Observabilidad" |
+| `SENTRY_TRACES_SAMPLE_RATE` | (Optional) `0.0`–`1.0`, por defecto `0.1` — ver sección "Observabilidad" |
 
 4. **Verify:** `https://your-api.onrender.com/api/health` → `{"status":"ok"}`
 
@@ -210,6 +212,95 @@ Con un plan de pago de Supabase (Pro o superior):
 
 ---
 
+## Observabilidad (Sentry, logging estructurado, métricas, alertas)
+
+Con 800 estudiantes concurrentes en picos (matrícula, cierre de pagos), un
+incidente sin visibilidad de aplicación es muy difícil de diagnosticar solo
+con las métricas de infraestructura de Render. Esta sección resume cómo
+InfoCampus ERP expone errores, logs correlacionados y métricas.
+
+### Sentry (backend + frontend)
+
+- **Backend**: configurar `SENTRY_DSN` (ver tabla de variables de entorno del
+  backend, arriba) activa `sentry_sdk.init()` en [`backend/main.py`](../backend/main.py).
+  Sin esa variable, el SDK no se inicializa y todo sigue funcionando igual,
+  solo sin reporte de errores. `send_default_pii=False`: no se envían datos
+  personales (IP, cookies, cuerpos de request) automáticamente.
+- **Frontend**: configurar `VITE_SENTRY_DSN` en Vercel activa `Sentry.init()`
+  en [`frontend/src/sentry.js`](../frontend/src/sentry.js), llamado desde
+  `main.jsx` al arrancar la app. El `ErrorBoundary` global
+  ([`frontend/src/components/ErrorBoundary.jsx`](../frontend/src/components/ErrorBoundary.jsx))
+  reporta a Sentry cualquier error no capturado en el árbol de componentes.
+- **Contexto de usuario**: tanto backend como frontend adjuntan únicamente
+  `id` + `rol` a los eventos de Sentry (nunca nombre, cédula, email ni
+  tokens), para poder correlacionar errores por tipo de usuario sin exponer
+  datos sensibles de estudiantes.
+- **Cómo obtener un DSN**: crear un proyecto en [sentry.io](https://sentry.io)
+  (uno para "Python/FastAPI" y otro para "React"), copiar el DSN de
+  *Settings → Projects → \<proyecto\> → Client Keys*, y configurarlo como
+  variable de entorno en Render (`SENTRY_DSN`) y Vercel (`VITE_SENTRY_DSN`)
+  respectivamente.
+
+### Logging estructurado con request-id
+
+[`backend/logging_setup.py`](../backend/logging_setup.py) configura logging
+en formato JSON (un objeto por línea) con un `request_id` (correlation-id)
+inyectado en cada log emitido durante el ciclo de vida de un request:
+
+- `RequestIdMiddleware` lee el header `X-Request-ID` entrante (si el cliente
+  o un proxy ya generó uno) o genera un UUID4 nuevo, lo propaga vía
+  `contextvars` a todos los loggers del request, y lo devuelve en la
+  respuesta HTTP (`X-Request-ID`).
+- Esto permite, ante un reporte de error, buscar en los logs de Render por
+  el `request_id` devuelto al usuario/frontend y reconstruir exactamente qué
+  pasó en el backend para ese request específico, sin tener que correlacionar
+  por timestamp aproximado.
+- Formato JSON: facilita ingestión en Render Logs, o en un backend de logs
+  externo (Better Stack, Datadog, etc.) si se contrata a futuro.
+
+### Métricas de aplicación (Prometheus)
+
+`prometheus-fastapi-instrumentator` expone `GET /metrics` (formato
+Prometheus) con latencia por endpoint, tasa de error por código de estado, y
+throughput, además de las métricas por defecto de Python (GC, memoria).
+
+- Render provee métricas básicas de infraestructura (CPU, RAM, red) en su
+  dashboard; `/metrics` complementa eso con métricas *de aplicación*
+  (¿qué endpoint es lento? ¿qué endpoint falla más?).
+- Para visualizarlas: apuntar un scraper de Prometheus (Grafana Cloud free
+  tier, Better Stack, etc.) a `https://tu-api.onrender.com/metrics`. Evaluar
+  si conviene restringir el acceso a esta ruta (por ejemplo, vía un proxy
+  con autenticación) antes de exponerla en un dominio público sin control de
+  acceso adicional.
+
+### Health check enriquecido y alertas mínimas
+
+`GET /api/health` (además del chequeo de conectividad a Postgres, que
+determina el código 200/503) devuelve:
+
+- `db_pool`: tamaño actual del pool de asyncpg (`size`, `idle`, `in_use`,
+  `min_size`, `max_size`) — útil para detectar saturación del pool antes de
+  que empiece a fallar (`in_use` cercano a `max_size` de forma sostenida).
+- `redis`: `"connected"` / `"unavailable"` / `"disabled"` — indica si el
+  cache está operativo (degradación aceptable: la app sigue funcionando sin
+  Redis, solo más lenta).
+
+Para alertas mínimas ante caída del servicio o tasa de error elevada:
+
+1. **Uptime**: configurar un monitor externo (UptimeRobot, StatusCake, Better
+   Stack, o el "Health Check" nativo de Render si el plan lo incluye) contra
+   `GET /api/health`, con alerta por email/Slack si responde con código
+   distinto de 200 o no responde en un umbral de tiempo.
+2. **Tasa de error elevada**: Sentry permite configurar *Alert Rules* (por
+   ejemplo, "más de N eventos del mismo error en 5 minutos") con notificación
+   a email/Slack, sin necesidad de infraestructura adicional.
+3. **Saturación de pool de DB**: si se contrata un backend de métricas
+   (Grafana Cloud, etc.), configurar una alerta sobre la métrica derivada de
+   `/api/health` → `db_pool.in_use / db_pool.max_size` sostenida por encima
+   de un umbral (p. ej. 90 % durante 5 minutos).
+
+---
+
 ## Frontend (Vercel)
 
 1. **Add New** → **Project** → Connect GitHub repo
@@ -222,7 +313,13 @@ Con un plan de pago de Supabase (Pro o superior):
 | Build Command | `npm run build` |
 | Output Directory | `dist` |
 
-3. **Environment variable:** `VITE_API_URL` = `https://your-api.onrender.com/api`
+3. **Environment variables:**
+
+| Key | Value |
+|-----|-------|
+| `VITE_API_URL` | `https://your-api.onrender.com/api` |
+| `VITE_SENTRY_DSN` | (Optional) Habilita captura de errores del frontend — ver sección "Observabilidad" |
+
 4. **Deploy** → Copy app URL
 5. **Update Render:** Set `ALLOWED_ORIGINS` to your Vercel URL
 

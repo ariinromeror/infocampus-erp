@@ -46,6 +46,13 @@ class Settings(BaseSettings):
     # siempre de Postgres / ejecutar en el propio request).
     REDIS_URL: str = ""
 
+    # Observabilidad (opcional). Sin SENTRY_DSN, Sentry simplemente no se
+    # inicializa: el sistema funciona igual, solo sin captura de errores
+    # centralizada. traces_sample_rate bajo por defecto (10%) para no
+    # generar overhead/costo innecesario en producción con 800 usuarios.
+    SENTRY_DSN: str = ""
+    SENTRY_TRACES_SAMPLE_RATE: float = 0.1
+
     # App Info
     APP_NAME: str = "Info Campus ERP API"
     APP_VERSION: str = "2.0.0"

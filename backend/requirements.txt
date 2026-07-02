@@ -12,6 +12,10 @@ asyncpg==0.30.0
 redis==5.3.1
 arq==0.28.0
 
+# Observabilidad (Sentry es opcional, activado solo si SENTRY_DSN está configurado)
+sentry-sdk[fastapi]==2.19.0
+prometheus-fastapi-instrumentator==7.0.2
+
 # Web Server (NEW)
 gunicorn==23.0.0
 

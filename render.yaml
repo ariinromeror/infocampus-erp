@@ -31,6 +31,8 @@ services:
         sync: false           # OBLIGATORIO: sin esto, CORS no permite ningun origen (fail-closed)
       - key: REDIS_URL
         sync: false           # Opcional: cache + cola de background jobs (ver worker abajo)
+      - key: SENTRY_DSN
+        sync: false           # Opcional: captura de errores centralizada (ver docs/DEPLOY.md#observabilidad)
       - key: ENVIRONMENT
         value: production
       - key: ALGORITHM
@@ -43,6 +45,8 @@ services:
         value: "1"
       - key: DB_POOL_MAX_SIZE
         value: "20"           # WEB_CONCURRENCY × este valor no debe exceder el límite de Supabase
+      - key: SENTRY_TRACES_SAMPLE_RATE
+        value: "0.1"
 
   # Worker opcional: solo necesario si se usa la generación masiva de
   # boletines en background (backend/services/task_queue.py). Requiere
@@ -62,5 +66,7 @@ services:
         sync: false
       - key: REDIS_URL
         sync: false
+      - key: SENTRY_DSN
+        sync: false           # Opcional: captura de errores del proceso worker (ver docs/DEPLOY.md#observabilidad)
       - key: ENVIRONMENT
         value: production

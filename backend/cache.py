@@ -62,6 +62,11 @@ def _get_client():
     return _client
 
 
+def get_redis_client():
+    """Acceso público al cliente Redis perezoso, usado por /api/health."""
+    return _get_client()
+
+
 def _reset_client_for_tests() -> None:
     """Solo para tests: fuerza a que el próximo `_get_client()` reintente la conexión."""
     global _client, _client_init_attempted

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import api from '../services/api';
+import { setSentryUserContext } from '../sentry';
 
 const AuthContext = createContext(null);
 
@@ -44,6 +45,12 @@ export const AuthProvider = ({ children }) => {
 
         restoreSession();
     }, []);
+
+    // Adjunta id + rol (nunca nombre/cédula/token) a los eventos de Sentry
+    // para poder correlacionar errores por rol sin exponer datos sensibles.
+    useEffect(() => {
+        setSentryUserContext(user ? { id: user.id, rol: user.rol } : null);
+    }, [user]);
 
     const login = useCallback(async (username, password) => {
         try {

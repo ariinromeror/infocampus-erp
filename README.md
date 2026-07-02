@@ -93,8 +93,11 @@ This repository is the **FastAPI version**. The Django legacy version is archive
 | **Auth** | JWT (python-jose) · bcrypt | 60-min tokens, revocation table |
 | **PDFs** | ReportLab | Server-side generation |
 | **AI** | Groq API (llama3) | Contextual chatbot Eva |
-| **Rate limiting** | SlowAPI | Login endpoint protection |
-| **Deployment** | Render · Vercel · Supabase | Free tier, production config |
+| **Rate limiting** | SlowAPI | Login, payments, PDF & AI chat endpoints |
+| **Deployment** | Render · Vercel · Supabase | Docker-ready, paid-tier scalable |
+| **Caching / jobs** | Redis · arq | Token revocation, dashboards, bulk PDF generation |
+| **Observability** | Sentry · Prometheus · structured JSON logs | Request-id correlation, `/metrics`, enriched `/api/health` |
+| **Testing / CI** | pytest · GitHub Actions | RBAC, financial logic, lint, build gates on every PR |
 
 ### Project Structure
 
@@ -423,7 +426,12 @@ Full step-by-step guide: [`docs/DEPLOY.md`](docs/DEPLOY.md)
 | PDF generation (reports & certificates) | ✅ Complete |
 | PWA — installable on iOS & Android | ✅ Complete |
 | Deployment — Render + Vercel + Supabase | ✅ Live |
-| Automated tests | ⚠️ Pending |
+| Automated tests — pytest (RBAC, financial calcs, critical endpoints) | ✅ Complete |
+| CI/CD — GitHub Actions (lint + tests + build on every PR) | ✅ Complete |
+| Versioned DB migrations — `schema_migrations` runner | ✅ Complete |
+| Caching & background jobs — Redis + arq | ✅ Complete |
+| Observability — Sentry, structured logging, `/metrics`, health checks | ✅ Complete |
+| Load testing — 800 concurrent students scenario | ⚠️ Pending |
 
 ---
 

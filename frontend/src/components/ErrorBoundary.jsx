@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { Sentry } from '../sentry';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -14,6 +15,8 @@ class ErrorBoundary extends React.Component {
   componentDidCatch(error, info) {
     this.setState({ info });
     console.error('[ErrorBoundary]', error, info?.componentStack);
+    // No-op si VITE_SENTRY_DSN no está configurado (ver src/sentry.js).
+    Sentry.captureException(error, { extra: { componentStack: info?.componentStack } });
   }
 
   handleReload = () => {

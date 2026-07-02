@@ -74,3 +74,31 @@ def test_health_check_503_cuando_db_falla(client, monkeypatch):
 
     response = client.get("/api/health")
     assert response.status_code == 503
+
+
+def test_health_check_incluye_stats_de_pool_y_redis(client, monkeypatch):
+    conn = FakeConnection(fetchrow_results=[{"?column?": 1}])
+    monkeypatch.setattr(main, "get_db", fake_get_db(conn))
+    monkeypatch.setattr(
+        main,
+        "get_pool_stats",
+        lambda: {"min_size": 2, "max_size": 10, "size": 3, "idle": 2, "in_use": 1},
+    )
+
+    response = client.get("/api/health")
+    body = response.json()
+    assert body["db_pool"] == {"min_size": 2, "max_size": 10, "size": 3, "idle": 2, "in_use": 1}
+    # Sin REDIS_URL configurado en el entorno de test, el chequeo se reporta como deshabilitado.
+    assert body["redis"] == "disabled"
+
+
+# ---------------------------------------------------------------------------
+# Métricas Prometheus
+# ---------------------------------------------------------------------------
+
+def test_metrics_endpoint_expone_formato_prometheus(client):
+    # Genera al menos una petición previa para que existan métricas HTTP.
+    client.get("/")
+    response = client.get("/metrics")
+    assert response.status_code == 200
+    assert "text/plain" in response.headers["content-type"]

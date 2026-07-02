@@ -110,3 +110,14 @@ class TestCacheWithFakeClient:
         monkeypatch.setattr(cache, "_get_client", lambda: fake)
 
         await cache.set_json("k1", "v1", 60)  # no debe lanzar
+
+
+def test_get_redis_client_expone_el_cliente_lazy(monkeypatch):
+    """`get_redis_client()` (usado por /api/health) delega en `_get_client()`."""
+    fake = _FakeRedisClient()
+    monkeypatch.setattr(cache, "_get_client", lambda: fake)
+    assert cache.get_redis_client() is fake
+
+
+def test_get_redis_client_none_si_deshabilitado():
+    assert cache.get_redis_client() is None

@@ -29,8 +29,10 @@ from arq.connections import ArqRedis, RedisSettings
 
 from config import settings
 from database import get_db
+from logging_setup import configure_logging
 from services.pdf_generator import generar_boletin_notas
 
+configure_logging()
 logger = logging.getLogger(__name__)
 
 # Almacenamiento local simple para los ZIP generados. En Render el
@@ -115,9 +117,28 @@ async def generar_boletines_lote(ctx: Dict[str, Any], periodo_id: int) -> Dict[s
     return {"generados": generados, "zip_path": zip_path}
 
 
+async def _on_startup(ctx: Dict[str, Any]) -> None:
+    """
+    Inicializa Sentry en el proceso worker (proceso separado del proceso
+    web: `sentry_sdk.init()` en main.py no lo cubre). Sin SENTRY_DSN, no-op.
+    """
+    if settings.SENTRY_DSN:
+        import sentry_sdk
+
+        sentry_sdk.init(
+            dsn=settings.SENTRY_DSN,
+            environment=settings.ENVIRONMENT,
+            release=settings.APP_VERSION,
+            traces_sample_rate=settings.SENTRY_TRACES_SAMPLE_RATE,
+            send_default_pii=False,
+        )
+        logger.info("✅ Sentry inicializado en worker arq (environment=%s)", settings.ENVIRONMENT)
+
+
 class WorkerSettings:
     functions = [generar_boletines_lote]
     redis_settings = _redis_settings()
+    on_startup = _on_startup
     max_jobs = 5
     job_timeout = 600
     keep_result = 3600

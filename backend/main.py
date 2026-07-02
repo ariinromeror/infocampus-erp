@@ -24,12 +24,14 @@ from contextlib import asynccontextmanager
 import logging
 import os
 
+from prometheus_fastapi_instrumentator import Instrumentator
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from config import settings
-from database import init_connection_pool, get_db
+from database import init_connection_pool, get_db, get_pool_stats
+from logging_setup import RequestIdMiddleware, configure_logging
 from migrations_runner import apply_pending_migrations_async
 from routers import auth, dashboards, inscripciones, estudiantes, periodos, reportes
 import routers.estudiante_dashboard as estudiante_dashboard
@@ -41,11 +43,31 @@ from routers.estudiante_routes import router as estudiante_router
 from routers.ia_context import router as ia_router
 from routers.director_router import router as director_router
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+configure_logging()
 logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Sentry — captura de errores centralizada (opcional, ver config.py).
+# Sin SENTRY_DSN configurado, sentry_sdk.init() simplemente no se llama y el
+# sistema funciona igual, solo sin reporte de errores a Sentry.
+# ---------------------------------------------------------------------------
+if settings.SENTRY_DSN:
+    import sentry_sdk
+
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        environment=settings.ENVIRONMENT,
+        release=settings.APP_VERSION,
+        traces_sample_rate=settings.SENTRY_TRACES_SAMPLE_RATE,
+        # send_default_pii=False (default): evita enviar datos personales
+        # (IP, cookies, cuerpos de request) automáticamente. El contexto de
+        # usuario que sí se adjunta explícitamente (ver auth/dependencies.py
+        # o middlewares) se limita a id/rol, nunca contraseñas ni tokens.
+        send_default_pii=False,
+    )
+    logger.info("✅ Sentry inicializado (environment=%s)", settings.ENVIRONMENT)
+else:
+    logger.info("Sentry no configurado (SENTRY_DSN vacío): captura de errores centralizada deshabilitada.")
 
 
 @asynccontextmanager
@@ -187,6 +209,22 @@ app.state.limiter = auth.limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
 
+# ---------------------------------------------------------------------------
+# Request-ID — propaga/genera X-Request-ID y lo adjunta a cada log de la
+# petición (ver logging_setup.py). Se añade después de SlowAPI para que el
+# ID esté disponible también en logs de rate-limit.
+# ---------------------------------------------------------------------------
+app.add_middleware(RequestIdMiddleware)
+
+# ---------------------------------------------------------------------------
+# Métricas Prometheus — expone /metrics con latencia por endpoint, tasa de
+# error y throughput. Instrumentator debe inicializarse antes del startup
+# del app (se engancha via evento) pero después de que existan los routers
+# no es estrictamente necesario; se hace aquí, tras registrar middlewares,
+# y expose() se llama después de incluir los routers más abajo.
+# ---------------------------------------------------------------------------
+Instrumentator().instrument(app)
+
 
 # ---------------------------------------------------------------------------
 # Global 500 handler — unhandled exceptions (HTTPException handled by FastAPI)
@@ -220,6 +258,13 @@ app.include_router(administrativo_router, prefix="/api")
 app.include_router(ia_router, prefix="/api")
 app.include_router(director_router, prefix="/api")
 
+# Expone /metrics (formato Prometheus) tras registrar todos los routers, para
+# que las rutas aparezcan correctamente etiquetadas en las métricas por
+# endpoint (handler). No requiere autenticación: en Render, restringir el
+# acceso externo a /metrics vía firewall/proxy si se expone públicamente, o
+# apuntar el scraper de Prometheus/Grafana Cloud directamente con su token.
+Instrumentator().expose(app, endpoint="/metrics", include_in_schema=False)
+
 
 # ---------------------------------------------------------------------------
 # Health / Root
@@ -237,21 +282,50 @@ async def root():
 
 @app.get("/api/health")
 async def health_check():
+    """
+    Chequeo de salud enriquecido para monitoreo/alertas (Fase 4):
+    - Conectividad a la base de datos (obligatoria: 503 si falla).
+    - Estadísticas del pool de conexiones (saturación).
+    - Estado de Redis (best-effort, no crítico: la app degrada sin caché).
+
+    Usar este endpoint para alertas de uptime (UptimeRobot, Render health
+    checks, StatusCake, etc.) apuntando a un umbral de "status == ok" y
+    tiempo de respuesta.
+    """
     try:
         async with get_db() as conn:
             result = await conn.fetchrow("SELECT 1")
-        return {
-            "status": "ok",
-            "database": "connected",
-            "version": settings.APP_VERSION,
-            "check": result,
-        }
     except Exception as e:
         logger.error(f"Health check falló: {e}")
         raise HTTPException(
             status_code=503,
             detail={"status": "error", "database": "disconnected", "error": str(e)},
         )
+
+    pool_stats = get_pool_stats()
+    redis_status = "disabled"
+    if settings.REDIS_URL:
+        try:
+            from cache import get_redis_client
+
+            client = get_redis_client()
+            if client is not None:
+                await client.ping()
+                redis_status = "connected"
+            else:
+                redis_status = "unavailable"
+        except Exception as e:
+            redis_status = "unavailable"
+            logger.warning("Health check: Redis no disponible: %s", e)
+
+    return {
+        "status": "ok",
+        "database": "connected",
+        "version": settings.APP_VERSION,
+        "check": result,
+        "db_pool": pool_stats,
+        "redis": redis_status,
+    }
 
 
 if __name__ == "__main__":

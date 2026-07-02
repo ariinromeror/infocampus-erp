@@ -106,3 +106,25 @@ def get_db_direct():
     """Conexión directa sin pool (para scripts externos)."""
     db_params = parse_database_url(settings.DATABASE_URL)
     return psycopg2.connect(**db_params, cursor_factory=RealDictCursor)
+
+
+def get_pool_stats() -> dict | None:
+    """
+    Estadísticas del pool asyncpg (tamaño, conexiones libres/en uso) para
+    exponer en /api/health y métricas. Devuelve None si el pool aún no
+    se ha inicializado (p.ej. arranque en curso).
+    """
+    if _async_pool is None:
+        return None
+    try:
+        size = _async_pool.get_size()
+        idle = _async_pool.get_idle_size()
+        return {
+            "min_size": _async_pool.get_min_size(),
+            "max_size": _async_pool.get_max_size(),
+            "size": size,
+            "idle": idle,
+            "in_use": size - idle,
+        }
+    except Exception:
+        return None
