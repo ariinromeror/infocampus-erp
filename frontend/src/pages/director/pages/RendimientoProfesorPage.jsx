@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { ArrowLeft, GraduationCap, RefreshCw } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -117,7 +116,6 @@ const RendimientoProfesorPage = () => {
       {secciones.length > 0 && (() => {
         const totalEst  = secciones.reduce((a, s) => a + (s.total_estudiantes || 0), 0);
         const totalApr  = secciones.reduce((a, s) => a + (s.estudiantes_aprobados || 0), 0);
-        const totalRep  = secciones.reduce((a, s) => a + (s.estudiantes_reprobados || 0), 0);
         const promedios = secciones.filter(s => s.promedio_notas).map(s => parseFloat(s.promedio_notas));
         const promGlobal = promedios.length ? (promedios.reduce((a, b) => a + b, 0) / promedios.length).toFixed(1) : '—';
         return (

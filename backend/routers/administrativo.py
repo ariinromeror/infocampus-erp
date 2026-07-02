@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from decimal import Decimal
 import logging
 from passlib.context import CryptContext
@@ -317,7 +317,8 @@ async def registrar_primera_matricula(
             if not carrera:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carrera no encontrada")
 
-            import random, string
+            import random
+            import string
             password_temp = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
             password_hash = pwd_context.hash(password_temp)
             username = f"{data.email.split('@')[0]}_{data.cedula[-4:]}"

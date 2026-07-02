@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, DollarSign, ShieldCheck, AlertTriangle,
   Save, CheckCircle2, FileText, Vault, BookOpen,

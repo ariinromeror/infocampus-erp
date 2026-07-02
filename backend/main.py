@@ -119,11 +119,22 @@ app = FastAPI(
 # Ejemplo de variable en Render:
 #   ALLOWED_ORIGINS=https://ariinromeror-infocampus-erp.vercel.app,https://infocampus-erp.vercel.app
 # ---------------------------------------------------------------------------
-_raw_origins = getattr(settings, "ALLOWED_ORIGINS", "") or os.getenv("ALLOWED_ORIGINS", "")
-allowed_origins: list[str] = [o.strip() for o in _raw_origins.split(",") if o.strip()]
-is_production = getattr(settings, "ENVIRONMENT", "production").lower() == "production"
+def resolve_cors_origins(raw_origins: str, environment: str) -> tuple[list[str], bool]:
+    """
+    Resuelve la lista de origenes CORS y si se debe usar wildcard '*'.
 
-use_wildcard = (not allowed_origins or allowed_origins == ["*"]) and not is_production
+    Funcion pura (sin efectos secundarios) para poder testearla de forma
+    aislada. Devuelve (allowed_origins, use_wildcard).
+    """
+    origins = [o.strip() for o in (raw_origins or "").split(",") if o.strip()]
+    is_prod = (environment or "production").lower() == "production"
+    use_wc = (not origins or origins == ["*"]) and not is_prod
+    return (origins, use_wc)
+
+
+_raw_origins = getattr(settings, "ALLOWED_ORIGINS", "") or os.getenv("ALLOWED_ORIGINS", "")
+is_production = getattr(settings, "ENVIRONMENT", "production").lower() == "production"
+allowed_origins, use_wildcard = resolve_cors_origins(_raw_origins, getattr(settings, "ENVIRONMENT", "production"))
 
 if not allowed_origins and is_production:
     logger.error(

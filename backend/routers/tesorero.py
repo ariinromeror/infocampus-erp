@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict, Any, Optional
-from decimal import Decimal
 import logging
 
 from auth.dependencies import require_roles

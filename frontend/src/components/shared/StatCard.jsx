@@ -10,7 +10,6 @@ const StatCard = ({
   value,
   sub,
   icon,
-  variant,
   loading,
   delay,
   onClick,

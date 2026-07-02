@@ -73,7 +73,7 @@ async def mis_secciones(
                 if isinstance(horario_data, str):
                     try:
                         horario_data = json.loads(horario_data)
-                    except:
+                    except (json.JSONDecodeError, TypeError):
                         horario_data = {}
 
                 dias = horario_data.get('dias', [])

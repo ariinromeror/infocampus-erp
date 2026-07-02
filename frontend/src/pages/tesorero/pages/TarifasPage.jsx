@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Settings, DollarSign, CreditCard, Save, AlertCircle, CheckCircle } from 'lucide-react';
 import api from '../../../services/api';
 
@@ -45,7 +44,7 @@ const TarifasPage = () => {
         await api.put(`/academico/carreras/${id}`, { precio_credito: precio });
       }
       setMensaje({ tipo: 'success', texto: 'Tarifas actualizadas correctamente' });
-    } catch (err) {
+    } catch {
       setMensaje({ tipo: 'error', texto: 'Error al guardar tarifas' });
     } finally {
       setGuardando(false);

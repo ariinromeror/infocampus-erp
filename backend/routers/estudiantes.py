@@ -9,7 +9,7 @@ Fixes:
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 from decimal import Decimal
 import logging

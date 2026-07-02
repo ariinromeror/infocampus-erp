@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import {
   BarChart3, Download, TrendingUp, TrendingDown,
   CheckCircle2, Clock, AlertCircle,

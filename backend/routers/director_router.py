@@ -4,9 +4,9 @@ Router exclusivo del Director
 - GET /director/configuracion      → Listar parámetros institucionales
 - PUT /director/configuracion/{clave} → Actualizar parámetro
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import logging
 
 from auth.dependencies import require_roles

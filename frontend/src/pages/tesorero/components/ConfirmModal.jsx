@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { AlertTriangle, CheckCircle2, X } from 'lucide-react';
 
 const CFG = {

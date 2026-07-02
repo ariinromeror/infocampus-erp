@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   Search, User, DollarSign, BookOpen, ShieldCheck,
   AlertTriangle, ChevronRight, Loader2,

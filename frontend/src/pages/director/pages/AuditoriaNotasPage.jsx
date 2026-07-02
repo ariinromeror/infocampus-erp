@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { History, Search, RefreshCw, FileDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { academicoService } from '../../../services/academicoService';
 import { SkeletonTable } from '../../../components/shared/Loader';

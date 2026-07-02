@@ -197,7 +197,6 @@ export const generarMallaCurricularPDF = (carrera, semestres) => {
 
   const primaryColor = [79, 70, 229];
   const darkColor = [30, 41, 59];
-  const grayColor = [100, 116, 139];
 
   // Header
   doc.setFillColor(...primaryColor);

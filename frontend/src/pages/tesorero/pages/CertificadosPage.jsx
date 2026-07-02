@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { FileText, Search, Download, User, BookOpen, Calendar } from 'lucide-react';
 import SelectModal from '../components/SelectModal';
 import api from '../../../services/api';

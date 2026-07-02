@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { academicoService } from '../../../services/academicoService';
 
 const useNotas = () => {

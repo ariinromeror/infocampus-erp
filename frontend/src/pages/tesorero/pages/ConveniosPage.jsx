@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { ShieldCheck, Search, AlertTriangle, FileText, ChevronRight, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import useMora from '../hooks/useMora';
@@ -160,7 +159,7 @@ const ConveniosPage = () => {
               </tr>
             </thead>
             <tbody>
-              {filtrados.map((est, i) => (
+              {filtrados.map((est) => (
                 <tr 
                   key={est.id} 
                   onClick={() => navigate(`/tesorero/estudiante/${est.id}`)}

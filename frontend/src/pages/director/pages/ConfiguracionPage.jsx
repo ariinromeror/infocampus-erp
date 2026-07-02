@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Settings, Save, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { academicoService } from '../../../services/academicoService';
 

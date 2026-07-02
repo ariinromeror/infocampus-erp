@@ -6,7 +6,7 @@ Database access layer.
 - Sync connection (psycopg2) via get_db_direct() for scripts_db/ only.
 """
 import logging
-from contextlib import contextmanager, asynccontextmanager
+from contextlib import asynccontextmanager
 from urllib.parse import urlparse
 
 import asyncpg

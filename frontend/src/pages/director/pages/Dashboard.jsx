@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useAuth } from '../../../context/AuthContext';
 import {
   Users, DollarSign, TrendingUp, AlertTriangle, BookOpen,
@@ -33,7 +32,7 @@ const Dashboard = () => {
   const [notif,         setNotif]         = useState({ open: false, titulo: '', mensaje: '', tipo: 'success' });
   const [fichaOpen,     setFichaOpen]     = useState(false);
   const [fichaDetalle,  setFichaDetalle]  = useState(null);
-  const [loadingFicha,  setLoadingFicha]  = useState(false);
+  const [_loadingFicha, setLoadingFicha]  = useState(false);
 
   const handleCerrarCiclo = async () => {
     setClosing(true);

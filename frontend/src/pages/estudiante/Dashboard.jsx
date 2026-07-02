@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { motion } from 'framer-motion';
 import {
   GraduationCap, AlertCircle, AlertTriangle, Clock,
   TrendingUp, BookOpen, DollarSign, CheckCircle2,
