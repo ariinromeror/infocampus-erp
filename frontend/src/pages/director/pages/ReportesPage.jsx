@@ -135,6 +135,7 @@ const ReportesPage = () => {
     },
   ];
 
+  // eslint-disable-next-line no-unused-vars -- Icon se usa en el JSX de abajo; falso positivo del linter en este patrón
   const ReporteCard = ({ reportKey, label, sub, icon: Icon, color, fn }) => (
     <button
       onClick={() => run(reportKey, fn)}

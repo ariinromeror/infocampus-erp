@@ -21,6 +21,7 @@ const descargar = async (url, filename, setEstado, key) => {
   }
 };
 
+// eslint-disable-next-line no-unused-vars -- Icon se usa en el JSX de abajo; falso positivo del linter
 const PDFCard = ({ icon: Icon, titulo, descripcion, estado, onDescargar }) => {
   const isLoading = estado === 'cargando';
   const isReady = estado === 'listo';

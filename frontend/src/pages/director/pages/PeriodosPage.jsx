@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Calendar, Plus, X, Loader2, BarChart3, AlertTriangle } from 'lucide-react';
 import usePeriodos from '../hooks/usePeriodos';
 import NotifModal from '../components/NotifModal';

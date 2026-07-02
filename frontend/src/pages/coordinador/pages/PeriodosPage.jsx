@@ -41,7 +41,7 @@ const PeriodosPage = () => {
       setForm({ nombre: '', codigo: '', fecha_inicio: '', fecha_fin: '', activo: false });
       showNotif('success', 'Período creado exitosamente');
       fetchPeriodos();
-    } catch (error) {
+    } catch {
       showNotif('error', 'Error al crear período');
     } finally {
       setGuardando(false);
@@ -53,7 +53,7 @@ const PeriodosPage = () => {
       await academicoService.updatePeriodo(periodoId, { activo: true });
       showNotif('success', 'Período activado');
       fetchPeriodos();
-    } catch (error) {
+    } catch {
       showNotif('error', 'Error al activar período');
     }
   };

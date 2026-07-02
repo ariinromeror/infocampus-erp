@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import {
   User, Lock, AlertCircle, Loader2, BookOpen, ChevronRight, ChevronDown,
   GraduationCap, Wallet, LayoutList, BookMarked, FolderOpen,
@@ -166,7 +166,8 @@ const Login = () => {
                 </motion.button>
               );
             })}
-            {ROLES_CON_LISTA.map(({ rol, usuarios, Icon }) => {
+            {/* eslint-disable-next-line no-unused-vars -- RolIcon se usa en el JSX de abajo; falso positivo del linter en este patrón anidado */}
+            {ROLES_CON_LISTA.map(({ rol, usuarios, Icon: RolIcon }) => {
               const isExpanded = expandedRol === rol;
               return (
                 <div key={rol} className="col-span-2 sm:col-span-1">
@@ -176,7 +177,7 @@ const Login = () => {
                     disabled={loading}
                     className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all disabled:opacity-50 text-left w-full"
                   >
-                    <Icon className="w-6 h-6 text-slate-500" strokeWidth={1.5} />
+                    <RolIcon className="w-6 h-6 text-slate-500" strokeWidth={1.5} />
                     <span className="text-sm font-semibold text-slate-800">{rol}</span>
                     {isExpanded ? (
                       <ChevronUp className="w-4 h-4 text-slate-400" />

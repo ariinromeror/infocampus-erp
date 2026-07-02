@@ -63,7 +63,7 @@ const FichaEstudianteModal = ({ isOpen, onClose, detalle, onVerSeccion }) => {
               { label: 'Semestre', value: detalle.semestre_actual ? `${detalle.semestre_actual}°` : (detalle.semestre ? `${detalle.semestre}°` : '—'), icon: BookOpen, color: 'text-violet-600', bg: 'bg-violet-50' },
               { label: 'Créditos Aprobados', value: detalle.creditos_aprobados ?? '—', icon: Award, color: 'text-emerald-600', bg: 'bg-emerald-50' },
               { label: 'Deuda Total', value: `$${deuda.toFixed(2)}`, icon: DollarSign, color: deuda > 0 ? 'text-rose-600' : 'text-slate-500', bg: deuda > 0 ? 'bg-rose-50' : 'bg-slate-50' },
-            ].map(({ label, value, icon: Icon, color, bg }) => (
+            ].map(({ label, value, icon: Icon, color, bg }) => ( // eslint-disable-line no-unused-vars -- Icon se usa abajo; falso positivo del linter
               <div key={label} className={`${bg} rounded-2xl p-4`}>
                 <div className={`w-7 h-7 bg-white/60 rounded-lg flex items-center justify-center mb-2`}>
                   <Icon size={14} className={color} />

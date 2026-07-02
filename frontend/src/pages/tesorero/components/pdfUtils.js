@@ -258,7 +258,7 @@ export const generarReciboPagoPDF = ({ estudiante, pago, monto }) => {
   setTimeout(() => ventana.print(), 500);
 };
 
-export const generarReporteMoraPDF = ({ estudiantes, totalDeuda, fechaReporte }) => {
+export const generarReporteMoraPDF = ({ estudiantes, totalDeuda }) => {
   const fecha = new Date().toLocaleDateString('es-EC', { day: '2-digit', month: 'long', year: 'numeric' });
 
   const filas = (estudiantes || []).map((e, i) => `
@@ -368,7 +368,7 @@ export const generarReporteMoraPDF = ({ estudiantes, totalDeuda, fechaReporte })
 export const generarReporteIngresosPDF = ({ periodos, ingresosTotales, pagosCompletados }) => {
   const fecha = new Date().toLocaleDateString('es-EC', { day: '2-digit', month: 'long', year: 'numeric' });
 
-  const filas = (periodos || []).map((p, i) => `
+  const filas = (periodos || []).map((p) => `
     <tr>
       <td>${p.codigo || '—'}</td>
       <td>${p.nombre || '—'}</td>

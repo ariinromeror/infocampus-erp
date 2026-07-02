@@ -13,7 +13,9 @@ const useEstudiantes = () => {
       const res = await api.get('/academico/carreras');
       const data = res.data;
       setCarreras(data?.data?.carreras || data?.carreras || []);
-    } catch {}
+    } catch {
+      // Error silencioso: el selector de carreras simplemente queda vacío
+    }
   }, []);
 
   const fetchEstudiantes = useCallback(async (filtros = {}) => {

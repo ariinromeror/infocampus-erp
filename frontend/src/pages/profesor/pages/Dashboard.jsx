@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   AlertTriangle, BookOpen, Users, TrendingUp, MapPin, Clock, RefreshCw,
 } from 'lucide-react';

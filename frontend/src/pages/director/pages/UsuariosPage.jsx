@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import {
   UserCog, Plus, Search, X, Loader2, RefreshCw,
   Shield, Mail, Eye, EyeOff, User, Users,

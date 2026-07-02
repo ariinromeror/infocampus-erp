@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import {
   Users, BookOpen, Calendar, Award,
@@ -108,6 +107,7 @@ const CoordinadorDashboard = () => {
       <motion.div variants={motionVariants.item}>
         <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 sm:mb-4">Acciones Principales</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          {/* eslint-disable-next-line no-unused-vars -- Icon se usa en el JSX de abajo; falso positivo del linter en este patrón */}
           {acciones.map(({ label, sub, icon: Icon, path, color }) => (
             <motion.button
               key={path}
@@ -126,6 +126,7 @@ const CoordinadorDashboard = () => {
       <motion.div variants={motionVariants.item}>
         <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3 sm:mb-4">Gestión Académica</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+          {/* eslint-disable-next-line no-unused-vars -- Icon se usa en el JSX de abajo; falso positivo del linter en este patrón */}
           {directorio.map(({ label, sub, icon: Icon, path, color }) => (
             <motion.button
               key={path}

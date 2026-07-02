@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { motion } from 'framer-motion';
 import {
   GraduationCap, AlertCircle, AlertTriangle, Clock,
   TrendingUp, BookOpen, DollarSign, CheckCircle2,
@@ -255,6 +254,7 @@ const Dashboard = () => {
             { label: 'Asistencia',   sub: 'Ver registro',      icon: CheckCircle2, path: '/estudiante/asistencia' },
             { label: 'Pagos',        sub: 'Estado financiero', icon: DollarSign,   path: '/estudiante/pagos' },
             { label: 'Documentos',  sub: 'Descargar',         icon: BookOpen,     path: '/estudiante/documentos' },
+            // eslint-disable-next-line no-unused-vars -- Icon se usa en el JSX de abajo; falso positivo del linter
           ].map(({ label, sub, icon: Icon, path }) => (
             <motion.button
               key={path}

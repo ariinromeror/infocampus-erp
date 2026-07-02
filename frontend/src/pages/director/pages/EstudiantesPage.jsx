@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Users, AlertTriangle, Award, X, FileDown } from 'lucide-react';
 import { useMediaQuery } from '../../../hooks/useMediaQuery';

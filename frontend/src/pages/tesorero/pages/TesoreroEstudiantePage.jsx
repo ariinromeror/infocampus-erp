@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, DollarSign, ShieldCheck, AlertTriangle,
   Save, CheckCircle2, FileText, Vault, BookOpen,
@@ -64,6 +64,7 @@ const TesoreroEstudiantePage = () => {
 
   useEffect(() => {
     if (estudiante) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza el formulario local cuando llega el estudiante desde la API
       setConvenioActivo(estudiante.convenio_activo || false);
       if (estudiante.fecha_limite_convenio) {
         setFechaLimite(estudiante.fecha_limite_convenio.split('T')[0]);
@@ -217,6 +218,7 @@ const TesoreroEstudiantePage = () => {
 
       {/* Tabs */}
       <div className="flex gap-2 overflow-x-auto pb-1">
+        {/* eslint-disable-next-line no-unused-vars -- Icon se usa en el JSX de abajo; falso positivo del linter en este patrón */}
         {TABS.map(({ key, label, Icon }) => (
           <button
             key={key}
@@ -322,6 +324,7 @@ const TesoreroEstudiantePage = () => {
                       Método de Pago *
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {/* eslint-disable-next-line no-unused-vars -- Icon se usa en el JSX de abajo; falso positivo del linter en este patrón */}
                       {METODOS.map(({ value, label, Icon }) => (
                         <button
                           key={value}

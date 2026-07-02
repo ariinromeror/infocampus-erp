@@ -60,7 +60,9 @@ const useUsuarios = () => {
       const res = await api.get('/academico/carreras');
       const data = res.data;
       setCarreras(data?.data?.carreras || data?.carreras || []);
-    } catch {}
+    } catch {
+      // Error silencioso: el selector de carreras simplemente queda vacío
+    }
   }, []);
 
   const verificarEmailDisponible = useCallback(async (email) => {
