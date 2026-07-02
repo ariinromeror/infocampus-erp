@@ -130,11 +130,12 @@ infocampus-erp/
 │   │   ├── calculos_financieros.py  # Financial logic with Decimal precision
 │   │   └── pdf_generator.py         # ReportLab PDF builder
 │   │
-│   ├── migrations/
-│   │   └── 001_revoked_tokens.sql   # Idempotent, advisory-lock protected
+│   ├── alembic/
+│   │   └── versions/              # Versioned schema migrations (0001_initial_schema, 0002_revoked_tokens...)
 │   │
 │   ├── config.py                 # pydantic-settings, env vars
 │   ├── database.py               # asyncpg pool, pgbouncer fix
+│   ├── db_migrations.py          # Runs `alembic upgrade head` behind an advisory lock at startup
 │   └── main.py                   # App factory, CORS, middleware, routers
 │
 ├── frontend/
@@ -274,14 +275,14 @@ _async_pool = await asyncpg.create_pool(
 
 ### Advisory lock on startup migrations
 
-When Gunicorn starts multiple workers simultaneously, each worker runs the lifespan hook. Without coordination, concurrent migrations cause deadlocks. The solution uses PostgreSQL advisory locks:
+When Gunicorn starts multiple workers simultaneously, each worker runs the lifespan hook. Without coordination, concurrent migrations cause deadlocks. `backend/db_migrations.py` wraps `alembic upgrade head` (run in a thread, since Alembic is synchronous) with the same PostgreSQL advisory lock pattern used before RQ-03 introduced versioned migrations:
 
 ```python
-await conn.execute(f"SELECT pg_advisory_lock({MIGRATION_LOCK_ID})")
+lock_conn.cursor().execute("SELECT pg_advisory_lock(%s)", (MIGRATION_LOCK_ID,))
 try:
-    await conn.execute(migration_sql)
+    command.upgrade(alembic_cfg, "head")
 finally:
-    await conn.execute(f"SELECT pg_advisory_unlock({MIGRATION_LOCK_ID})")
+    lock_conn.cursor().execute("SELECT pg_advisory_unlock(%s)", (MIGRATION_LOCK_ID,))
 ```
 
 ### Smart 401 handling on the frontend
@@ -339,16 +340,15 @@ The suite runs against a real PostgreSQL database (no SQLite, no DB mocks) — t
 cd backend
 pip install -r requirements-dev.txt   # adds pytest, pytest-asyncio, pytest-cov, httpx
 
-# One-time: create a dedicated test database and load its schema
+# One-time: create a dedicated test database (schema comes from Alembic — see below)
 createdb infocampus_test
-psql -d infocampus_test -f tests/schema.sql
 
 export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/infocampus_test"
 export SECRET_KEY_AUTH="local_test_secret_key_32_characters_min"
 pytest --cov=. --cov-report=term-missing
 ```
 
-Test data (users, careers, sections, enrollments) is created and torn down per test via fixtures in `tests/conftest.py`; nothing is left behind in `infocampus_test` between runs.
+The test session applies pending Alembic migrations automatically (see `tests/conftest.py`), so the schema is always the same one used in production — no separate `schema.sql` to keep in sync. Test data (users, careers, sections, enrollments) is created and torn down per test via fixtures in `tests/conftest.py`; nothing is left behind in `infocampus_test` between runs.
 
 ### Frontend
 
@@ -388,6 +388,24 @@ npm run test:watch    # watch mode for local development
 |----------|-------------|
 | `VITE_API_URL` | Backend URL (e.g. `http://127.0.0.1:8000/api`) |
 
+### Database migrations (Alembic)
+
+RQ-03 (`docs/PRD.md`): the schema (~14 tables) is versioned with [Alembic](https://alembic.sqlalchemy.org/) instead of living only as a side effect of the seed script. A brand-new environment is set up by running migrations alone — `scripts_db/populate.py` only inserts demo data, it never creates or drops tables.
+
+```bash
+cd backend
+export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/infocampus_erp"
+
+alembic upgrade head        # apply all pending migrations (creates the schema on a new DB)
+alembic current             # show the currently applied revision
+alembic history             # list the full migration history
+alembic downgrade -1        # revert the last migration (reversible history)
+```
+
+To create a new migration, add a revision file under `backend/alembic/versions/` (either by hand with raw SQL via `op.execute(...)`, matching the style of the existing ones, or via `alembic revision -m "description"`) and implement both `upgrade()` and `downgrade()`.
+
+> **Note:** SQLAlchemy is a dependency of `backend/requirements.txt` **only** because Alembic needs it as its migration engine. The application itself still queries PostgreSQL exclusively through `asyncpg` with raw SQL — there is no ORM and no SQLAlchemy models in the request/response path.
+
 ### Populate with test data
 
 ```bash
@@ -400,6 +418,8 @@ python populate.py
 This generates realistic students, professors, sections, enrollments, grades, and payment records using Faker.
 
 > **Note:** the root `requirements.txt` is scoped to `scripts_db/populate.py` only (psycopg2, Faker, tqdm, passlib, python-dotenv). The API's dependencies live exclusively in `backend/requirements.txt`.
+>
+> **Prerequisite:** the target database must already have the schema applied via `alembic upgrade head` (see [Database migrations](#database-migrations-alembic) above) — `populate.py` only truncates and re-inserts data, it never creates tables.
 
 ---
 

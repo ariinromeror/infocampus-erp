@@ -36,6 +36,28 @@
 
 ---
 
+## Database migrations (Alembic)
+
+RQ-03 (`docs/PRD.md`): the schema is versioned with Alembic under `backend/alembic/versions/`. `backend/main.py` runs `alembic upgrade head` automatically on every startup (see `backend/db_migrations.py`), coordinated across Gunicorn workers with a PostgreSQL advisory lock — **no manual step is required for a normal deploy.**
+
+Manual commands (useful for local debugging or a one-off manual migration):
+
+```bash
+cd backend
+export DATABASE_URL="<your Supabase/production connection string>"
+
+alembic current       # shows the revision currently applied to this database
+alembic history       # full migration history
+alembic upgrade head  # apply any pending migrations manually
+alembic downgrade -1  # revert the most recent migration
+```
+
+### Adopting Alembic on an already-running database
+
+The existing Render/Supabase database was originally created by `scripts_db/populate.py` (before RQ-03), not by Alembic — it already has the tables, just no `alembic_version` row. Both initial migrations (`0001_initial_schema`, `0002_revoked_tokens`) use `CREATE TABLE IF NOT EXISTS` / `CREATE INDEX IF NOT EXISTS` specifically so this is safe: the **first** deploy after this change can simply run `alembic upgrade head` as usual (via the app's own startup hook) — it will find the tables already there, skip creating them, and just record `0002` as the current revision. No `alembic stamp` step or manual intervention is needed.
+
+---
+
 ## Frontend (Vercel)
 
 1. **Add New** → **Project** → Connect GitHub repo
