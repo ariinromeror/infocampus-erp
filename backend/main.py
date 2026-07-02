@@ -30,6 +30,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from config import settings
 from database import init_connection_pool, get_db
+from observability import capture_exception_with_context, configure_logging, init_sentry, RequestIdMiddleware
 from routers import auth, dashboards, inscripciones, estudiantes, periodos, reportes
 import routers.estudiante_dashboard as estudiante_dashboard
 from routers.tesorero import router as tesorero_router
@@ -40,10 +41,12 @@ from routers.estudiante_routes import router as estudiante_router
 from routers.ia_context import router as ia_router
 from routers.director_router import router as director_router
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+# RQ-10 (docs/PRD.md): logging estructurado en JSON (antes: texto libre vía
+# logging.basicConfig) + Sentry opcional (no-op si SENTRY_DSN no está seteado).
+# Se configuran ambos ANTES de crear la app para capturar también errores de
+# arranque (p.ej. fallo de conexión a la base de datos en el lifespan).
+configure_logging(level=logging.INFO)
+init_sentry(settings.SENTRY_DSN, environment=settings.ENVIRONMENT, release=settings.APP_VERSION)
 logger = logging.getLogger(__name__)
 
 
@@ -140,6 +143,13 @@ else:
     logger.info(f"✅ CORS configurado para: {allowed_origins}")
 
 # ---------------------------------------------------------------------------
+# Request ID — se agrega temprano para que envuelva a todo lo demás (CORS,
+# rate limiting, handlers) y todos los logs/eventos de un mismo request
+# compartan el mismo identificador (ver observability.py).
+# ---------------------------------------------------------------------------
+app.add_middleware(RequestIdMiddleware)
+
+# ---------------------------------------------------------------------------
 # Rate limiting (SlowAPI)
 # ---------------------------------------------------------------------------
 app.state.limiter = auth.limiter
@@ -152,13 +162,44 @@ app.add_middleware(SlowAPIMiddleware)
 # ---------------------------------------------------------------------------
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
-    """Catches unhandled exceptions and returns 500. Re-raises HTTPException."""
+    """Catches unhandled exceptions and returns 500. Re-raises HTTPException.
+
+    RQ-10 (docs/PRD.md): enriquece el log y el evento de Sentry con
+    request_id, endpoint y rol de usuario (si ya se autenticó), y devuelve el
+    request_id al cliente para que pueda reportarlo en un ticket de soporte.
+    """
     if isinstance(exc, HTTPException):
         raise exc
-    logger.exception("Unhandled exception: %s", exc)
+
+    request_id = getattr(request.state, "request_id", "-")
+    user_id = getattr(request.state, "user_id", None)
+    user_rol = getattr(request.state, "user_rol", None)
+
+    logger.error(
+        "Unhandled exception in %s %s",
+        request.method,
+        request.url.path,
+        exc_info=exc,
+        extra={
+            "endpoint": request.url.path,
+            "method": request.method,
+            "user_id": user_id,
+            "user_rol": user_rol,
+        },
+    )
+
+    capture_exception_with_context(
+        exc,
+        request_id=request_id,
+        endpoint=request.url.path,
+        method=request.method,
+        user_id=user_id,
+        user_rol=user_rol,
+    )
+
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal server error"},
+        content={"detail": "Internal server error", "request_id": request_id},
     )
 
 # ---------------------------------------------------------------------------

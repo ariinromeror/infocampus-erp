@@ -3,7 +3,7 @@ Auth dependencies — RBAC (Role-Based Access Control).
 Roles: estudiante, profesor, coordinador, director, tesorero, administrativo, admin.
 admin is treated as director for dashboard/API access.
 """
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import List, Dict, Any, Optional
 import logging
@@ -18,6 +18,7 @@ security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ) -> Dict[str, Any]:
     """
@@ -99,7 +100,13 @@ async def get_current_user(
         )
     
     user_dict = dict(user)
-    
+
+    # RQ-10 (docs/PRD.md): expuesto en request.state para que el
+    # global_exception_handler de main.py pueda enriquecer logs/eventos de
+    # Sentry con el rol del usuario, sin tener que re-decodificar el token.
+    request.state.user_id = user_dict.get("id")
+    request.state.user_rol = user_dict.get("rol")
+
     logger.info(f"✅ Usuario autenticado: {user_dict.get('cedula')} (rol: {user_dict.get('rol')})")
     
     return user_dict

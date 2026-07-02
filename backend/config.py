@@ -22,7 +22,12 @@ class Settings(BaseSettings):
 
     # AI / Groq
     GROQ_API_KEY: str = ""
-    
+
+    # Observability (RQ-10) — opcional: sin DSN, Sentry queda deshabilitado
+    # y el resto de la app funciona exactamente igual.
+    SENTRY_DSN: str = ""
+    ENVIRONMENT: str = "development"
+
     # App Info
     APP_NAME: str = "Info Campus ERP API"
     APP_VERSION: str = "2.0.0"
