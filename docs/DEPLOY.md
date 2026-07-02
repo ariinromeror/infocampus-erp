@@ -301,6 +301,54 @@ Para alertas mínimas ante caída del servicio o tasa de error elevada:
 
 ---
 
+## Validación de capacidad (Fase 5 — load testing)
+
+[`backend/loadtest/`](../backend/loadtest/) contiene un script de carga
+(Locust) que simula el escenario más exigente para 800 estudiantes:
+apertura de matrícula / cierre de pagos, combinando ~790 estudiantes
+concurrentes consultando su portal con un puñado de personal de secretaría y
+tesorería procesando inscripciones y pagos en paralelo. Ver
+[`backend/loadtest/README.md`](../backend/loadtest/README.md) para la
+metodología completa, cómo ejecutarlo y por qué **no** se simulan 800 logins
+HTTP concurrentes (el rate limiter de login es por-IP; un test desde un solo
+host mediría el limiter, no la capacidad real).
+
+### Resultados de referencia y conclusiones
+
+Corridas locales (Postgres 16 co-ubicado, sin latencia de red, VM de 4 vCPU)
+con la configuración por defecto (`WEB_CONCURRENCY=2`,
+`DB_POOL_MAX_SIZE=20`) sostuvieron ~377 req/s agregados con 800 usuarios
+concurrentes, p95 de 20 ms y tasa de error de 0.02 % (errores transitorios
+del *ramp-up* inicial, no sostenidos). Subir a 4 workers no mejoró
+significativamente el resultado a esta escala: el cuello de botella no está
+ahí. Un microbenchmark aislado mostró que **la verificación bcrypt
+(`rounds=12`) escala con núcleos de CPU física, no con workers de Gunicorn**,
+y se satura en ese límite (en la VM de prueba: ~18 verificaciones/s con 4
+núcleos, sin mejora adicional con más hilos).
+
+**Conclusión práctica:**
+
+1. La configuración parametrizada en Fase 3 (`WEB_CONCURRENCY`,
+   `DB_POOL_MIN_SIZE`/`MAX_SIZE`) es adecuada como punto de partida; no se
+   detectaron problemas de correctitud (deadlocks, fugas de conexión, RBAC
+   incorrecto) bajo 800 conexiones concurrentes.
+2. Para el pico de **logins** durante la apertura de matrícula, el recurso
+   crítico es **CPU física**, no el pool de DB ni los workers de Gunicorn:
+   contratar un plan de Render con ≥2, idealmente 4 vCPU dedicadas.
+3. Estos resultados **subestiman la presión real sobre el pool de DB**
+   porque Postgres local responde en <1 ms; Supabase en producción añade
+   latencia de red real. **Antes de un evento real de matrícula, repetir
+   esta misma corrida contra un entorno de staging con Render + Supabase de
+   pago**, observando `GET /api/health` (`db_pool.in_use`) y Sentry/`/metrics`
+   durante la prueba, y ajustar `DB_POOL_MAX_SIZE`/`WEB_CONCURRENCY` según lo
+   que se observe ahí (no según los números locales de esta sección).
+4. Configurar una alerta sobre la latencia de `/api/auth/login` (Sentry
+   Performance) específicamente durante ventanas de matrícula: el rate
+   limiter por IP no protege contra el costo agregado de CPU de cientos de
+   estudiantes *distintos* logueándose casi al mismo tiempo.
+
+---
+
 ## Frontend (Vercel)
 
 1. **Add New** → **Project** → Connect GitHub repo

@@ -56,3 +56,9 @@ scripts_db/credenciales_infocampus_*.txt
 
 # ── Artefactos generados por jobs en background (backend/services/task_queue.py) ──
 backend/generated_reports/
+
+# ── Resultados de corridas de carga (backend/loadtest/) ─────
+# CSVs de Locust: específicos de cada corrida/máquina, no aportan valor
+# versionados. Los hallazgos relevantes se documentan en docs/DEPLOY.md.
+backend/loadtest/resultados/
+backend/loadtest/*.csv
