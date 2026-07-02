@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict, Any
 import logging
 
-from auth.dependencies import require_roles, get_current_user
+from auth.dependencies import get_current_user
 from database import get_db
 
 logger = logging.getLogger(__name__)

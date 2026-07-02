@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import {
   User, Lock, AlertCircle, Loader2, BookOpen, ChevronRight, ChevronDown,
   GraduationCap, Wallet, LayoutList, BookMarked, FolderOpen,

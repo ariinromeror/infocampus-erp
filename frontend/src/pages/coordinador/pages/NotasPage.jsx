@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { ClipboardList, AlertTriangle } from 'lucide-react';
 import useNotas from '../hooks/useNotas';
 import useSecciones from '../hooks/useSecciones';

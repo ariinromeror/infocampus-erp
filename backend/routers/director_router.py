@@ -4,13 +4,14 @@ Router exclusivo del Director
 - GET /director/configuracion      → Listar parámetros institucionales
 - PUT /director/configuracion/{clave} → Actualizar parámetro
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import logging
 
 from auth.dependencies import require_roles
 from database import get_db
+from services.configuracion_cache import invalidate_configuracion_ia
 
 logger = logging.getLogger(__name__)
 
@@ -122,6 +123,7 @@ async def actualizar_configuracion(
                 SET valor = EXCLUDED.valor, actualizado_en = NOW()
             """, clave, data.valor)
 
+        await invalidate_configuracion_ia()
         logger.info(f"Director {current_user['cedula']} actualizó config: {clave} = {data.valor}")
 
         return {

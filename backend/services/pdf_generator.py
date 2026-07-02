@@ -7,7 +7,7 @@ from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_JUSTIFY
 from reportlab.lib.units import inch
 from datetime import datetime
 from decimal import Decimal
-from typing import Dict, Any, List, Optional
+from typing import Dict, List, Optional
 import logging
 
 logger = logging.getLogger(__name__)

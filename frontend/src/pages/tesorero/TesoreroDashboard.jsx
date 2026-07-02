@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import {
   TrendingUp, AlertTriangle, Search, RefreshCw, DollarSign,
@@ -128,7 +127,7 @@ const TesoreroDashboard = () => {
       <motion.div variants={motionVariants.item}>
         <p className={UI.sectionTitle}>Acciones Rápidas</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-          {acciones.map(({ label, sub, icon: Icon, path, color }) => (
+          {acciones.map(({ label, icon: Icon, path, color }) => (
             <button
               key={path}
               onClick={() => navigate(path)}

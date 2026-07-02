@@ -18,11 +18,41 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60  # 60 minutos (antes: 1440 = 24 horas)
     
     # CORS
-    ALLOWED_ORIGINS: str = "https://ariinromeror-infocampus-erp.vercel.app"
+    # Sin valor por defecto: en producción es obligatorio configurar los
+    # orígenes permitidos explícitamente vía variable de entorno.
+    ALLOWED_ORIGINS: str = ""
+
+    # Entorno de ejecución: "production" | "development" | "test"
+    # Controla comportamientos de seguridad (p.ej. fallback de CORS a wildcard
+    # solo se permite fuera de "production"). Por defecto "production" para
+    # que un despliegue mal configurado falle de forma segura (cerrado) en
+    # vez de abrirse accidentalmente.
+    ENVIRONMENT: str = "production"
 
     # AI / Groq
     GROQ_API_KEY: str = ""
-    
+
+    # Pool de conexiones PostgreSQL (asyncpg). Ajustar según el plan de Supabase
+    # contratado: el límite real es `DB_POOL_MAX_SIZE × workers_gunicorn` en
+    # modo *transaction pooling* de pgbouncer, no debe exceder las conexiones
+    # que permite el plan (ver docs/DEPLOY.md).
+    DB_POOL_MIN_SIZE: int = 1
+    DB_POOL_MAX_SIZE: int = 20
+
+    # Redis (opcional): cache de configuración institucional, dashboards
+    # agregados y revocación de tokens, y cola de tareas en background
+    # (backend/services/task_queue.py). Si se deja vacío, el sistema funciona
+    # igual, solo sin las optimizaciones de cache/cola (degrada a leer
+    # siempre de Postgres / ejecutar en el propio request).
+    REDIS_URL: str = ""
+
+    # Observabilidad (opcional). Sin SENTRY_DSN, Sentry simplemente no se
+    # inicializa: el sistema funciona igual, solo sin captura de errores
+    # centralizada. traces_sample_rate bajo por defecto (10%) para no
+    # generar overhead/costo innecesario en producción con 800 usuarios.
+    SENTRY_DSN: str = ""
+    SENTRY_TRACES_SAMPLE_RATE: float = 0.1
+
     # App Info
     APP_NAME: str = "Info Campus ERP API"
     APP_VERSION: str = "2.0.0"

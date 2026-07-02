@@ -93,8 +93,11 @@ This repository is the **FastAPI version**. The Django legacy version is archive
 | **Auth** | JWT (python-jose) · bcrypt | 60-min tokens, revocation table |
 | **PDFs** | ReportLab | Server-side generation |
 | **AI** | Groq API (llama3) | Contextual chatbot Eva |
-| **Rate limiting** | SlowAPI | Login endpoint protection |
-| **Deployment** | Render · Vercel · Supabase | Free tier, production config |
+| **Rate limiting** | SlowAPI | Login, payments, PDF & AI chat endpoints |
+| **Deployment** | Render · Vercel · Supabase | Docker-ready, paid-tier scalable |
+| **Caching / jobs** | Redis · arq | Token revocation, dashboards, bulk PDF generation |
+| **Observability** | Sentry · Prometheus · structured JSON logs | Request-id correlation, `/metrics`, enriched `/api/health` |
+| **Testing / CI** | pytest · GitHub Actions | RBAC, financial logic, lint, build gates on every PR |
 
 ### Project Structure
 
@@ -125,14 +128,22 @@ infocampus-erp/
 │   │
 │   ├── services/
 │   │   ├── calculos_financieros.py  # Financial logic with Decimal precision
-│   │   └── pdf_generator.py         # ReportLab PDF builder
+│   │   ├── pdf_generator.py         # ReportLab PDF builder
+│   │   ├── configuracion_cache.py   # Redis cache for institutional config
+│   │   └── task_queue.py            # arq background jobs (bulk PDF generation)
 │   │
-│   ├── migrations/
-│   │   └── 001_revoked_tokens.sql   # Idempotent, advisory-lock protected
+│   ├── migrations/                  # Versioned SQL migrations (schema_migrations)
+│   ├── migrations_runner.py         # Async/sync migration runner
+│   ├── tests/                       # pytest suite (RBAC, financial calcs, cache, etc.)
+│   ├── loadtest/                    # Locust script — Fase 5 capacity validation
 │   │
+│   ├── cache.py                  # Optional Redis wrapper (graceful degradation)
+│   ├── logging_setup.py          # Structured JSON logging + request-id middleware
 │   ├── config.py                 # pydantic-settings, env vars
-│   ├── database.py               # asyncpg pool, pgbouncer fix
-│   └── main.py                   # App factory, CORS, middleware, routers
+│   ├── database.py               # asyncpg pool, pgbouncer fix, pool stats
+│   └── main.py                   # App factory, CORS, middleware, routers, /metrics
+│
+├── .github/workflows/ci.yml      # Lint + tests (backend) + build (frontend) on every PR
 │
 ├── frontend/
 │   └── src/
@@ -423,7 +434,12 @@ Full step-by-step guide: [`docs/DEPLOY.md`](docs/DEPLOY.md)
 | PDF generation (reports & certificates) | ✅ Complete |
 | PWA — installable on iOS & Android | ✅ Complete |
 | Deployment — Render + Vercel + Supabase | ✅ Live |
-| Automated tests | ⚠️ Pending |
+| Automated tests — pytest (RBAC, financial calcs, critical endpoints) | ✅ Complete |
+| CI/CD — GitHub Actions (lint + tests + build on every PR) | ✅ Complete |
+| Versioned DB migrations — `schema_migrations` runner | ✅ Complete |
+| Caching & background jobs — Redis + arq | ✅ Complete |
+| Observability — Sentry, structured logging, `/metrics`, health checks | ✅ Complete |
+| Load testing — 800 concurrent students scenario (Locust) | ✅ Complete |
 
 ---
 

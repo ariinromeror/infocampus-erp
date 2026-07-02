@@ -4,7 +4,6 @@ import { reportesService } from '../../../services/reportesService';
 import { academicoService } from '../../../services/academicoService';
 
 const ReportesPage = () => {
-  const [loading, setLoading] = useState(false);
   const [reporteGenerando, setReporteGenerando] = useState(null);
   const [modalReporte, setModalReporte] = useState(null);
   const [busqueda, setBusqueda] = useState('');

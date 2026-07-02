@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 import logging
 import json
 import unicodedata
-from datetime import date
 
 from auth.dependencies import require_roles, get_current_user
 from database import get_db

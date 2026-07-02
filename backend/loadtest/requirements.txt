@@ -1,0 +1,6 @@
+# Dependencias del script de carga (Fase 5). Deliberadamente separadas de
+# backend/requirements.txt y backend/requirements-dev.txt: locust no es una
+# dependencia de la API en producción ni de la suite de pytest en CI.
+locust==2.44.4
+psycopg2-binary==2.9.10
+python-jose==3.3.0

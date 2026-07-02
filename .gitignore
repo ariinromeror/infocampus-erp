@@ -48,3 +48,17 @@ Thumbs.db
 # ── Logs ─────────────────────────────────────────────────────
 *.log
 logs/
+
+# ── Artefactos generados por scripts_db/populate.py ─────────
+# Contiene credenciales de las cuentas demo/seed (password compartida,
+# datos falsos generados con Faker) — no debe versionarse igual.
+scripts_db/credenciales_infocampus_*.txt
+
+# ── Artefactos generados por jobs en background (backend/services/task_queue.py) ──
+backend/generated_reports/
+
+# ── Resultados de corridas de carga (backend/loadtest/) ─────
+# CSVs de Locust: específicos de cada corrida/máquina, no aportan valor
+# versionados. Los hallazgos relevantes se documentan en docs/DEPLOY.md.
+backend/loadtest/resultados/
+backend/loadtest/*.csv

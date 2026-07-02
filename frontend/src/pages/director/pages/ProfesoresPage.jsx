@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { GraduationCap, BookOpen, Users, Plus, X, Loader2, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import useProfesores from '../hooks/useProfesores';

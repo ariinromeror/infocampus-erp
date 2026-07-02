@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
 import { Receipt, ChevronLeft, ChevronRight, SlidersHorizontal, X, Search } from 'lucide-react';
 import usePagos from '../hooks/usePagos';
 import SelectModal from '../components/SelectModal';

@@ -12,16 +12,12 @@ import { generarCertificadoInscripcion } from '../../utils/pdfGenerator';
 
 const SecretariaInscripcionesPage = () => {
   const {
-    busqueda, setBusqueda,
-    resultados, buscando,
-    estudianteSeleccionado, esNuevo,
+    estudianteSeleccionado,
     seccionesFiltradas, loadingSec,
     seccionesSeleccionadas, toggleSeccion,
     carreras,
     inscribiendo, creando, resultado,
     formNuevo, actualizarFormNuevo,
-    buscarEstudiante,
-    seleccionarEstudianteExistente,
     iniciarNuevoEstudiante,
     crearEstudiante,
     inscribirSeleccionadas,

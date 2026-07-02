@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from typing import Dict, Any, List, Optional
 from decimal import Decimal
 from datetime import date, datetime, timedelta
@@ -13,11 +13,13 @@ from pydantic import BaseModel
 from auth.dependencies import get_current_user
 from config import settings
 from database import get_db
+from routers.auth import limiter
 from services.calculos_financieros import (
     calcular_deuda_total,
     calcular_en_mora,
     calcular_deuda_vencida,
 )
+from services.configuracion_cache import get_configuracion_ia
 
 
 class _ChatMensaje(BaseModel):
@@ -89,8 +91,7 @@ async def obtener_contexto(
                 except Exception:
                     pass
 
-            politicas_rows = await conn.fetch("SELECT clave, valor FROM public.configuracion_ia ORDER BY id")
-            politicas = {r["clave"]: r["valor"] for r in politicas_rows}
+            politicas = await get_configuracion_ia(conn)
 
             ctx: Dict[str, Any] = {
                 "fecha_hoy": hoy.isoformat(),
@@ -669,7 +670,10 @@ DATOS EN TIEMPO REAL ({hoy}):
 # ─── Chat endpoint ────────────────────────────────────────────────────────────
 
 @router.post("/chat")
+@limiter.limit("15/minute")
 async def chat_ia(
+    request: Request,
+    response: Response,
     body: _ChatRequest,
     current_user: Dict[str, Any] = Depends(get_current_user),
 ) -> Dict[str, Any]:

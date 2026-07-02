@@ -6,7 +6,7 @@ Database access layer.
 - Sync connection (psycopg2) via get_db_direct() for scripts_db/ only.
 """
 import logging
-from contextlib import contextmanager, asynccontextmanager
+from contextlib import asynccontextmanager
 from urllib.parse import urlparse
 
 import asyncpg
@@ -32,15 +32,27 @@ def parse_database_url(url: str) -> dict:
     }
 
 
-async def init_connection_pool(min_conn: int = 1, max_conn: int = 20):
+async def init_connection_pool(min_conn: int | None = None, max_conn: int | None = None):
     """
     Inicializa el pool asíncrono de conexiones con asyncpg.
 
     Se usa para la API FastAPI. Los scripts síncronos usan `get_db_direct()`.
+
+    `min_conn`/`max_conn` son parametrizables vía `DB_POOL_MIN_SIZE` /
+    `DB_POOL_MAX_SIZE` (variables de entorno, ver config.py) para poder
+    dimensionar el pool según el plan de Supabase contratado. El límite real
+    de conexiones simultáneas a la DB es `max_conn × workers_gunicorn`: con
+    varios workers, súbelo con cuidado de no exceder el límite del plan
+    (ver docs/DEPLOY.md).
     """
     global _async_pool
     if _async_pool is not None:
         return
+
+    if min_conn is None:
+        min_conn = settings.DB_POOL_MIN_SIZE
+    if max_conn is None:
+        max_conn = settings.DB_POOL_MAX_SIZE
 
     try:
         # statement_cache_size=0: Supabase/Render usa pgbouncer en modo transaction,
@@ -94,3 +106,25 @@ def get_db_direct():
     """Conexión directa sin pool (para scripts externos)."""
     db_params = parse_database_url(settings.DATABASE_URL)
     return psycopg2.connect(**db_params, cursor_factory=RealDictCursor)
+
+
+def get_pool_stats() -> dict | None:
+    """
+    Estadísticas del pool asyncpg (tamaño, conexiones libres/en uso) para
+    exponer en /api/health y métricas. Devuelve None si el pool aún no
+    se ha inicializado (p.ej. arranque en curso).
+    """
+    if _async_pool is None:
+        return None
+    try:
+        size = _async_pool.get_size()
+        idle = _async_pool.get_idle_size()
+        return {
+            "min_size": _async_pool.get_min_size(),
+            "max_size": _async_pool.get_max_size(),
+            "size": size,
+            "idle": idle,
+            "in_use": size - idle,
+        }
+    except Exception:
+        return None

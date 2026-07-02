@@ -1,7 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { AlertTriangle, TrendingDown, Search } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import useMora from '../hooks/useMora';
 import SelectModal from '../components/SelectModal';
 import MoraRow from '../components/MoraRow';
@@ -14,7 +12,6 @@ const fmt = n => new Intl.NumberFormat('es-EC', {
 }).format(n || 0);
 
 const TesoreroMoraPage = () => {
-  const navigate = useNavigate();
   const { estudiantes, loading, fetchMora } = useMora();
   const [busqueda, setBusqueda] = useState('');
   const [carreras, setCarreras] = useState([]);

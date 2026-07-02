@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { FileText, Download, Calendar, DollarSign, Users, AlertTriangle } from 'lucide-react';
 import api from '../../../services/api';
 import { generarReporteMoraPDF, generarReporteIngresosPDF } from '../components/pdfUtils';

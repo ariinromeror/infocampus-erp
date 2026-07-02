@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { GraduationCap, Search, Plus, CheckCircle, User, X, Save } from 'lucide-react';
 import api from '../../../services/api';
 import SelectModal from '../components/SelectModal';

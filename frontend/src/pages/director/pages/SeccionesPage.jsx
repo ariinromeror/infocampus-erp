@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { BookOpen, Plus, X } from 'lucide-react';
 import useSecciones from '../../director/hooks/useSecciones';
 import ModalForm from '../components/ModalForm';
