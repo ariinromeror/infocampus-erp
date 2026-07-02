@@ -1,0 +1,9 @@
+# Dependencias del script de seed de datos demo (scripts_db/populate.py).
+# No son necesarias para correr el backend en producción (ver backend/requirements.txt);
+# solo se usan para poblar una base de datos vacía con datos ficticios de ejemplo.
+psycopg2-binary==2.9.10
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.0
+faker==40.28.1
+tqdm==4.68.3
+python-dotenv==1.0.1

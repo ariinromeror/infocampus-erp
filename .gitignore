@@ -48,3 +48,8 @@ Thumbs.db
 # ── Logs ─────────────────────────────────────────────────────
 *.log
 logs/
+
+# ── Artefactos generados por scripts_db/populate.py ─────────
+# Contiene credenciales de las cuentas demo/seed (password compartida,
+# datos falsos generados con Faker) — no debe versionarse igual.
+scripts_db/credenciales_infocampus_*.txt

@@ -30,6 +30,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from config import settings
 from database import init_connection_pool, get_db
+from migrations_runner import apply_pending_migrations_async
 from routers import auth, dashboards, inscripciones, estudiantes, periodos, reportes
 import routers.estudiante_dashboard as estudiante_dashboard
 from routers.tesorero import router as tesorero_router
@@ -57,23 +58,21 @@ async def lifespan(app: FastAPI):
         logger.error(f"Error inicializando base de datos: {e}")
         raise
 
-    # Aplica migraciones SQL idempotentes al arrancar.
-    # Usa advisory lock para evitar deadlock cuando varios workers (gunicorn) arrancan a la vez.
+    # Aplica migraciones SQL versionadas pendientes al arrancar (backend/migrations/).
+    # Usa advisory lock para evitar deadlock/carreras cuando varios workers
+    # (gunicorn) arrancan a la vez y compiten por aplicar el mismo esquema.
     MIGRATION_LOCK_ID = 0x494346455250  # "ICERP" en hex
-    migration_file = os.path.join(os.path.dirname(__file__), "migrations", "001_revoked_tokens.sql")
-    if os.path.exists(migration_file):
-        with open(migration_file, "r") as f:
-            sql = f.read()
-        try:
-            async with get_db() as conn:
-                await conn.execute(f"SELECT pg_advisory_lock({MIGRATION_LOCK_ID})")
-                try:
-                    await conn.execute(sql)
-                    logger.info("✅ Migración 001_revoked_tokens aplicada")
-                finally:
-                    await conn.execute(f"SELECT pg_advisory_unlock({MIGRATION_LOCK_ID})")
-        except Exception as e:
-            logger.error(f"❌ Error en migración: {e}")
+    try:
+        async with get_db() as conn:
+            await conn.execute(f"SELECT pg_advisory_lock({MIGRATION_LOCK_ID})")
+            try:
+                applied = await apply_pending_migrations_async(get_db)
+                if applied:
+                    logger.info("✅ Migraciones aplicadas: %s", ", ".join(applied))
+            finally:
+                await conn.execute(f"SELECT pg_advisory_unlock({MIGRATION_LOCK_ID})")
+    except Exception as e:
+        logger.error(f"❌ Error aplicando migraciones: {e}")
 
     yield
     logger.info("Cerrando Info Campus ERP API")
