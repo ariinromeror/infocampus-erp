@@ -17,11 +17,13 @@ Tras una auditoría de arquitectura se identificaron 10 áreas de mejora. Este d
 
 ## 2. Objetivo
 
-Elevar la base de código a un nivel de calidad, seguridad y mantenibilidad consistente con un sistema en producción real, sin detener el desarrollo de funcionalidades, priorizando primero los riesgos que afectan directamente la integridad de los datos financieros/académicos.
+Elevar la base de código a un nivel de calidad, seguridad y mantenibilidad consistente con un sistema en producción real, sin detener el desarrollo de funcionalidades.
+
+**Contexto estratégico de priorización:** el proyecto corre hoy en planes gratuitos (Render + Supabase free) simulando tráfico real de una institución de demostración. El cuello de botella de **infraestructura** (cómputo, conexiones, sleep del free tier) se resuelve el día que una institución real pague una suscripción — es un problema de dinero, no de ingeniería. Pero el cuello de botella de **arquitectura** (sin tests, sin CI, sin observability, sin migraciones versionadas, sin paginación) **no se resuelve con un plan pago**: si no se corrige antes, la primera institución que pague sufrirá bugs de cobro, lentitud al crecer los datos, o incidentes que nadie detecta a tiempo. Por eso la priorización de este PRD combina dos ejes: **qué se ve hoy** (impacto en la percepción del proyecto como portafolio) y **qué bloquearía aceptar tráfico/datos reales mañana** (impacto en la capacidad de sostener un cliente pagando sin colapsar).
 
 ## 3. Principios guía
 
-- **Priorizar por riesgo, no por esfuerzo**: lo que puede corromper datos de dinero o notas va primero.
+- **Priorizar por doble criterio: visibilidad de portafolio + bloqueo para escalado real**, no solo por riesgo técnico aislado (ver sección 7).
 - **Sin big-bang rewrites**: cada requisito debe poder implementarse y mergearse de forma incremental.
 - **Evidencia antes que opinión**: cada requisito referencia el código real que motiva el cambio.
 - **Proporcionalidad al contexto del proyecto**: al ser un proyecto portafolio con datos demo públicos por diseño, no se tratan como incidentes de seguridad situaciones que son intencionales (ver RQ-01).
@@ -271,18 +273,22 @@ Además, casi ningún endpoint declara `response_model`, por lo que el contrato 
 
 ## 7. Orden de ejecución recomendado
 
-No se define como calendario, sino como secuencia de dependencia e impacto:
+No se define como calendario, sino como secuencia priorizada por **doble criterio**: visibilidad para quien evalúa el proyecto como portafolio hoy, y capacidad de sostener sin colapsar el tráfico/datos de una institución real el día que pague una suscripción (momento en el que el cuello de botella de infraestructura —Render/Supabase free— se resuelve con dinero, pero el de arquitectura no).
 
-1. **RQ-02** (unificar dependencias) — trivial, elimina una fuente de bugs ambientales antes de tocar cualquier otra cosa.
-2. **RQ-06** (manejo de errores) — bajo esfuerzo, alto impacto en seguridad/calidad, no depende de nada más.
-3. **RQ-10** (observability) — bajo esfuerzo, da visibilidad inmediata para detectar regresiones introducidas por los siguientes pasos.
-4. **RQ-04** (tests de flujos críticos) — habilita ejecutar los siguientes refactors con red de seguridad.
-5. **RQ-05** (CI) — una vez hay tests que correr, automatizar su ejecución en cada PR.
-6. **RQ-03** (Alembic) — puede avanzar en paralelo a los anteriores; no depende de ellos.
-7. **RQ-08** (validación de entrada / response_model) — apoyándose en los tests ya existentes para no romper contratos.
-8. **RQ-09** (paginación) — cambio acotado, se beneficia de tests de regresión ya existentes.
-9. **RQ-07** (extracción a servicios) — el refactor de mayor alcance; se hace al final, apoyado en toda la red de tests/CI ya construida.
-10. **RQ-01** (housekeeping de credenciales demo) — puede hacerse en cualquier momento, es independiente del resto.
+| Orden | Requisito | Visible en portafolio hoy | Bloquea aceptar una institución pagando | Esfuerzo |
+|---|---|---|---|---|
+| 1 | **RQ-06** Manejo de errores | **Alta** — cualquiera que pruebe la demo y toque un caso límite ve el mensaje | Sí | Bajo |
+| 2 | **RQ-08** Validación de entrada + `response_model` | **Alta** — mejora directamente `/docs` (Swagger), enlazado en el README como "API Docs" | Medio | Medio |
+| 3 | **RQ-05** CI (lint + tests en cada PR) | **Alta** — checks verdes visibles en GitHub, señal estándar para cualquier revisor técnico | Sí | Bajo-Medio |
+| 4 | **RQ-02** Unificar dependencias | Media — se nota si alguien clona el repo y el `pip install` falla | No, pero es gratis arreglarlo | Muy bajo |
+| 5 | **RQ-04** Tests de flujos críticos | Media — visible como archivos/cobertura en el repo, no lo ve un usuario de la demo | **Sí, crítico** — una institución pagando no tolera bugs de cobro o notas | Medio-Alto |
+| 6 | **RQ-10** Observability (Sentry) | Baja hoy (nadie externo lo ve) | **Sí, crítico** — sin esto no te enteras de un incidente hasta que el cliente se queja | Bajo |
+| 7 | **RQ-03** Migraciones versionadas (Alembic) | Baja para un usuario final, media para un revisor de código | **Sí** — no se puede evolucionar el esquema con datos reales de un cliente sin este mecanismo | Medio |
+| 8 | **RQ-09** Paginación consistente | Baja hoy (poco dato demo) | **Sí, directo** — es literalmente "no colapsar" cuando haya tráfico real | Bajo |
+| 9 | **RQ-07** Extracción de lógica a servicios | Baja (cambio interno) | Medio — facilita mantenimiento pero no bloquea aceptar el primer cliente | Alto |
+| 10 | **RQ-01** Housekeeping de credenciales demo | Baja | No | Muy bajo |
+
+**Lectura de la tabla:** los primeros 3 puestos priorizan lo que un visitante o revisor técnico nota de inmediato con el menor esfuerzo posible. Los puestos 5, 6, 7 y 8 tienen baja visibilidad *hoy* (porque el tráfico y los datos son de demo) pero son exactamente lo que separa "parece producción" de "es producción" el día que una institución real empiece a pagar y a generar datos y tráfico reales — por eso se mantienen en posición alta pese a su bajo impacto visible inmediato. Los puestos 9 y 10 son de menor urgencia porque son invisibles externamente y no bloquean aceptar un primer cliente real.
 
 ## 8. Riesgos de no ejecutar este plan
 
