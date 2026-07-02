@@ -333,12 +333,22 @@ Interactive docs: `http://127.0.0.1:8000/docs`
 
 #### Running tests
 
+The suite runs against a real PostgreSQL database (no SQLite, no DB mocks) — the app uses `asyncpg` with raw SQL, so a mock would hide real query bugs.
+
 ```bash
 cd backend
 pip install -r requirements-dev.txt   # adds pytest, pytest-asyncio, pytest-cov, httpx
-# requires a reachable PostgreSQL (see .env); tests run against a real DB, not mocks
+
+# One-time: create a dedicated test database and load its schema
+createdb infocampus_test
+psql -d infocampus_test -f tests/schema.sql
+
+export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/infocampus_test"
+export SECRET_KEY_AUTH="local_test_secret_key_32_characters_min"
 pytest --cov=. --cov-report=term-missing
 ```
+
+Test data (users, careers, sections, enrollments) is created and torn down per test via fixtures in `tests/conftest.py`; nothing is left behind in `infocampus_test` between runs.
 
 ### Frontend
 
@@ -350,6 +360,14 @@ npm run dev
 ```
 
 App available at: `http://localhost:5173`
+
+#### Running tests
+
+```bash
+cd frontend
+npm run test          # Vitest, single run (used in CI)
+npm run test:watch    # watch mode for local development
+```
 
 ### Environment Variables
 
