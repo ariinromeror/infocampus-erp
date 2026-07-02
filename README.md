@@ -19,7 +19,7 @@
 
 ---
 
-> **Personal project · First production deployment · Built from scratch as an autodidact using AI as a development tool.**
+> **Personal project · First production deployment · Built from scratch using AI as a development tool.**
 >
 > Started in February 2025. Fully operational in production.
 
@@ -445,7 +445,7 @@ The Django version is preserved at [`infocampus-erp-legacy`](https://github.com/
 
 **Arin Romero**
 
-Autodidact developer. InfoCampus is my first full project — built, migrated, and deployed to production independently using AI as a development tool.
+InfoCampus is my first full project — built, migrated, and deployed to production independently using AI as a development tool.
 
 📧 ariin.romeror@gmail.com
 💼 [LinkedIn](https://www.linkedin.com/in/arin-romero-606661129)
