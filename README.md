@@ -11,6 +11,9 @@
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
 
+[![Backend CI](https://github.com/ariinromeror/infocampus-erp/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/ariinromeror/infocampus-erp/actions/workflows/backend-ci.yml)
+[![Frontend CI](https://github.com/ariinromeror/infocampus-erp/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/ariinromeror/infocampus-erp/actions/workflows/frontend-ci.yml)
+
 **Full-stack academic & financial ERP for educational institutions**
 
 **Live on Render · Vercel · Supabase — Installable as PWA**
@@ -327,6 +330,15 @@ uvicorn main:app --reload
 
 API available at: `http://127.0.0.1:8000`
 Interactive docs: `http://127.0.0.1:8000/docs`
+
+#### Running tests
+
+```bash
+cd backend
+pip install -r requirements-dev.txt   # adds pytest, pytest-asyncio, pytest-cov, httpx
+# requires a reachable PostgreSQL (see .env); tests run against a real DB, not mocks
+pytest --cov=. --cov-report=term-missing
+```
 
 ### Frontend
 

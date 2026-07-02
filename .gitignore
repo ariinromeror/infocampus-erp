@@ -25,6 +25,10 @@ venv/
 .venv/
 env/
 .env/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
 
 # ── Node / Frontend ─────────────────────────────────────────
 node_modules/
