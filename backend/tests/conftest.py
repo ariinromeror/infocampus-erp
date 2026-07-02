@@ -8,6 +8,15 @@ crudo (placeholders $1, $2), por lo que los tests corren contra un Postgres
 real para detectar errores de sintaxis SQL que un mock no vería.
 """
 import os
+import sys
+from pathlib import Path
+
+# Permite `import main`, `import database`, etc. sin depender de cómo se invoque
+# pytest (python -m pytest sí antepone el cwd a sys.path; `pytest` a secas no
+# siempre lo hace, p.ej. en el runner de GitHub Actions).
+BACKEND_DIR = Path(__file__).resolve().parent.parent
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
 
 os.environ.setdefault("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/infocampus_test")
 os.environ.setdefault("SECRET_KEY_AUTH", "test_secret_key_ci_only_do_not_use_in_prod_32chars")
