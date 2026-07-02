@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { GraduationCap, Search, Plus, CheckCircle, User, X, Save } from 'lucide-react';
 import api from '../../../services/api';
 import SelectModal from '../components/SelectModal';
@@ -77,8 +76,9 @@ const BecasPage = () => {
     try {
       setGuardando(true);
       setMensaje(null);
-      await api.post(`/tesorero/becas/${estudianteSeleccionado}`, null, {
-        params: { porcentaje_beca: porcentaje, tipo_beca: tipoBeca }
+      await api.post(`/tesorero/becas/${estudianteSeleccionado}`, {
+        porcentaje_beca: porcentaje,
+        tipo_beca: tipoBeca,
       });
       
       setMensaje({ ok: true, text: 'Beca asignada correctamente' });

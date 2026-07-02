@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field
+from typing import Dict, Any, Optional, List
 from decimal import Decimal
 import logging
 
@@ -16,10 +17,37 @@ router = APIRouter(
 )
 
 
-@router.get("/resumen-kpis", summary="KPIs financieros rápidos")
+class AsignarBecaRequest(BaseModel):
+    """RQ-08 (docs/PRD.md): reemplaza los query params sueltos que tenía este
+    endpoint financiero por un body validado por Pydantic."""
+    porcentaje_beca: int = Field(default=0, ge=0, le=100, description="Porcentaje de beca, 0-100")
+    tipo_beca: Optional[str] = Field(default=None, max_length=100)
+
+    class Config:
+        json_schema_extra = {"example": {"porcentaje_beca": 50, "tipo_beca": "Mérito académico"}}
+
+
+class IngresoMensual(BaseModel):
+    mes: Optional[str] = None
+    monto: float
+
+
+class ResumenKPIsResponse(BaseModel):
+    """RQ-08 (docs/PRD.md): response_model para uno de los endpoints de dashboard
+    de mayor tráfico, documentando el contrato de salida en /docs."""
+    recaudado_total: float
+    pendiente_cobro: float
+    estudiantes_mora: int
+    pagos_completados: int
+    pagos_pendientes: int
+    proyeccion_mes: float
+    ingresos_ultimos_6_meses: List[IngresoMensual]
+
+
+@router.get("/resumen-kpis", summary="KPIs financieros rápidos", response_model=ResumenKPIsResponse)
 async def resumen_kpis(
     current_user: Dict[str, Any] = Depends(require_roles(["tesorero", "director", "admin"]))
-) -> Dict[str, Any]:
+) -> ResumenKPIsResponse:
     try:
         async with get_db() as conn:
             pagos_stats = dict(await conn.fetchrow("""
@@ -355,13 +383,9 @@ async def buscar_estudiante(
 @router.post("/becas/{estudiante_id}", summary="Asignar o modificar beca de estudiante")
 async def asignar_beca(
     estudiante_id: int,
-    porcentaje_beca: int = 0,
-    tipo_beca: Optional[str] = None,
+    data: AsignarBecaRequest,
     current_user: Dict[str, Any] = Depends(require_roles(["tesorero", "director", "admin"])),
 ) -> Dict[str, Any]:
-    if not (0 <= porcentaje_beca <= 100):
-        raise HTTPException(status_code=400, detail="El porcentaje debe estar entre 0 y 100")
-
     try:
         async with get_db() as conn:
             estudiante = await conn.fetchrow(
@@ -371,14 +395,14 @@ async def asignar_beca(
             if not estudiante:
                 raise HTTPException(status_code=404, detail="Estudiante no encontrado")
 
-            es_becado = porcentaje_beca > 0
+            es_becado = data.porcentaje_beca > 0
             await conn.execute(
                 """
                 UPDATE public.usuarios
                 SET es_becado = $1, porcentaje_beca = $2, tipo_beca = $3
                 WHERE id = $4
                 """,
-                es_becado, porcentaje_beca, tipo_beca, estudiante_id,
+                es_becado, data.porcentaje_beca, data.tipo_beca, estudiante_id,
             )
 
         est = dict(estudiante)
@@ -389,8 +413,8 @@ async def asignar_beca(
                 "estudiante_id":   estudiante_id,
                 "nombre":          f"{est['first_name']} {est['last_name']}",
                 "es_becado":       es_becado,
-                "porcentaje_beca": porcentaje_beca,
-                "tipo_beca":       tipo_beca,
+                "porcentaje_beca": data.porcentaje_beca,
+                "tipo_beca":       data.tipo_beca,
             },
         }
 

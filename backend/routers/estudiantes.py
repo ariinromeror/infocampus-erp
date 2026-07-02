@@ -9,8 +9,8 @@ Fixes:
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from typing import Dict, Any, List
-from datetime import datetime
+from typing import Dict, Any, List, Optional
+from datetime import datetime, date
 from decimal import Decimal
 import logging
 
@@ -37,6 +37,15 @@ class PagoRequest(BaseModel):
 
     class Config:
         json_schema_extra = {"example": {"metodo_pago": "transferencia", "comprobante": "TRX-2024-001"}}
+
+
+class ActualizarConvenioRequest(BaseModel):
+    """RQ-08 (docs/PRD.md): reemplaza el `data: dict` sin tipar que recibía este endpoint."""
+    convenio_activo: bool = False
+    fecha_limite_convenio: Optional[date] = None
+
+    class Config:
+        json_schema_extra = {"example": {"convenio_activo": True, "fecha_limite_convenio": "2026-12-31"}}
 
 
 @router.post("/{estudiante_id}/registrar-pago", summary="Registrar pago de estudiante")
@@ -324,7 +333,7 @@ async def estado_cuenta(
 @router.put("/{estudiante_id}/convenio", summary="Actualizar convenio de pago")
 async def actualizar_convenio(
     estudiante_id: int,
-    data: dict,
+    data: ActualizarConvenioRequest,
     current_user: Dict[str, Any] = Depends(require_roles(['tesorero', 'director', 'admin']))
 ) -> Dict[str, Any]:
     try:
@@ -336,7 +345,7 @@ async def actualizar_convenio(
                 UPDATE public.usuarios
                 SET convenio_activo = $1, fecha_limite_convenio = $2
                 WHERE id = $3
-            """, data.get('convenio_activo', False), data.get('fecha_limite_convenio'), estudiante_id)
+            """, data.convenio_activo, data.fecha_limite_convenio, estudiante_id)
 
         return {"message": "Convenio actualizado correctamente"}
 

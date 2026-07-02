@@ -4,7 +4,8 @@ Antes: loop sobre ~492 estudiantes × 3-5 queries c/u = ~2000 queries → 50 seg
 Ahora: 1 JOIN por endpoint → <1 segundo
 """
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import Dict, Any
+from pydantic import BaseModel
+from typing import Dict, Any, List
 from decimal import Decimal
 import logging
 import json
@@ -20,6 +21,22 @@ router = APIRouter(
     tags=["Dashboards"],
     responses={401: {"description": "No autorizado"}, 403: {"description": "Prohibido"}}
 )
+
+
+class DeudorItem(BaseModel):
+    id: int
+    nombre_completo: str
+    en_mora: bool
+    deuda_total: float
+
+
+class DashboardFinanzasResponse(BaseModel):
+    """RQ-08 (docs/PRD.md): response_model para el dashboard financiero,
+    uno de los endpoints de mayor tráfico esperado (tesorero + director)."""
+    ingreso_proyectado: float
+    ingreso_real: float
+    tasa_cobranza: float
+    listado_cobranza: List[DeudorItem]
 
 
 def _parse_horario(horario_raw) -> str:
@@ -109,10 +126,10 @@ async def dashboard_institucional(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
-@router.get("/finanzas", summary="Dashboard de Tesorería")
+@router.get("/finanzas", summary="Dashboard de Tesorería", response_model=DashboardFinanzasResponse)
 async def dashboard_finanzas(
     current_user: Dict[str, Any] = Depends(require_roles(['tesorero', 'director', 'admin']))
-) -> Dict[str, Any]:
+) -> DashboardFinanzasResponse:
     try:
         async with get_db() as conn:
             montos = dict(await conn.fetchrow("""
