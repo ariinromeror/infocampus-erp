@@ -21,6 +21,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
+import asyncio
 import logging
 import os
 
@@ -30,6 +31,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from config import settings
 from database import init_connection_pool, get_db
+from db_migrations import run_migrations
 from observability import capture_exception_with_context, configure_logging, init_sentry, RequestIdMiddleware
 from routers import auth, dashboards, inscripciones, estudiantes, periodos, reportes
 import routers.estudiante_dashboard as estudiante_dashboard
@@ -60,23 +62,14 @@ async def lifespan(app: FastAPI):
         logger.error(f"Error inicializando base de datos: {e}")
         raise
 
-    # Aplica migraciones SQL idempotentes al arrancar.
-    # Usa advisory lock para evitar deadlock cuando varios workers (gunicorn) arrancan a la vez.
-    MIGRATION_LOCK_ID = 0x494346455250  # "ICERP" en hex
-    migration_file = os.path.join(os.path.dirname(__file__), "migrations", "001_revoked_tokens.sql")
-    if os.path.exists(migration_file):
-        with open(migration_file, "r") as f:
-            sql = f.read()
-        try:
-            async with get_db() as conn:
-                await conn.execute(f"SELECT pg_advisory_lock({MIGRATION_LOCK_ID})")
-                try:
-                    await conn.execute(sql)
-                    logger.info("✅ Migración 001_revoked_tokens aplicada")
-                finally:
-                    await conn.execute(f"SELECT pg_advisory_unlock({MIGRATION_LOCK_ID})")
-        except Exception as e:
-            logger.error(f"❌ Error en migración: {e}")
+    # RQ-03 (docs/PRD.md): aplica el esquema versionado (Alembic) al arrancar.
+    # Alembic corre en un hilo aparte (motor síncrono) para no bloquear el
+    # event loop; el advisory lock (dentro de run_migrations) coordina varios
+    # workers de Gunicorn arrancando a la vez.
+    try:
+        await asyncio.to_thread(run_migrations, settings.DATABASE_URL)
+    except Exception as e:
+        logger.error(f"❌ Error aplicando migraciones Alembic: {e}")
 
     yield
     logger.info("Cerrando Info Campus ERP API")

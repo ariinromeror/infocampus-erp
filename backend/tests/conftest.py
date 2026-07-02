@@ -33,6 +33,9 @@ import pytest_asyncio
 from fastapi.testclient import TestClient
 from passlib.context import CryptContext
 
+from alembic import command
+from alembic.config import Config
+
 # bcrypt__rounds bajo: los tests crean decenas de usuarios y el costo de cómputo
 # de bcrypt (12 rounds, igual que en producción) haría la suite notablemente
 # lenta. El hash sigue siendo verificable por el pwd_context de producción
@@ -55,6 +58,18 @@ TABLES_TO_TRUNCATE = (
     "configuracion_ia",
     "revoked_tokens",
 )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _apply_migrations():
+    """RQ-03 (docs/PRD.md): garantiza que `infocampus_test` tiene el esquema
+    al día antes de correr cualquier test, aplicando `alembic upgrade head`
+    directamente contra DATABASE_URL. Reemplaza el paso manual anterior
+    (`psql -f tests/schema.sql`): ahora el esquema de test viene de la misma
+    fuente de verdad que producción (backend/alembic/versions/)."""
+    cfg = Config(str(BACKEND_DIR / "alembic.ini"))
+    cfg.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
+    command.upgrade(cfg, "head")
 
 
 @pytest.fixture(scope="session")
