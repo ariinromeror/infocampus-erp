@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 
 from auth.dependencies import require_roles
 from database import get_db
+from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
 
@@ -89,4 +90,4 @@ async def horario_estudiante(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo horario: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)

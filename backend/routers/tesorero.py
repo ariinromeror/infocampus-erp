@@ -5,6 +5,7 @@ import logging
 
 from auth.dependencies import require_roles
 from database import get_db
+from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +77,7 @@ async def resumen_kpis(
 
     except Exception as e:
         logger.error(f"Error obteniendo KPIs: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/pagos", summary="Listar todos los pagos")
@@ -192,7 +193,7 @@ async def listar_pagos(
 
     except Exception as e:
         logger.error(f"Error listando pagos: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/estudiantes-mora", summary="Estudiantes en mora")
@@ -253,7 +254,7 @@ async def estudiantes_mora(
 
     except Exception as e:
         logger.error(f"Error consultando mora: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/ingresos-por-periodo", summary="Ingresos agrupados por período")
@@ -291,7 +292,7 @@ async def ingresos_por_periodo(
 
     except Exception as e:
         logger.error(f"Error consultando ingresos: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/buscar-estudiante", summary="Buscar estudiante por nombre o cédula")
@@ -348,7 +349,7 @@ async def buscar_estudiante(
 
     except Exception as e:
         logger.error(f"Error buscando estudiante: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.post("/becas/{estudiante_id}", summary="Asignar o modificar beca de estudiante")
@@ -397,7 +398,7 @@ async def asignar_beca(
         raise
     except Exception as e:
         logger.error(f"Error asignando beca: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/periodos", summary="Listar períodos lectivos")
@@ -437,7 +438,7 @@ async def listar_periodos(
 
     except Exception as e:
         logger.error(f"Error listando períodos: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/becas", summary="Listar todos los estudiantes con beca")
@@ -482,4 +483,4 @@ async def listar_becados(
 
     except Exception as e:
         logger.error(f"Error listando becados: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)

@@ -7,6 +7,7 @@ from passlib.context import CryptContext
 
 from auth.dependencies import require_roles
 from database import get_db
+from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
 
@@ -141,7 +142,7 @@ async def inscribir_estudiante(
         raise
     except Exception as e:
         logger.error(f"Error inscribiendo estudiante: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/usuarios", summary="Listar usuarios del sistema")
@@ -207,7 +208,7 @@ async def listar_usuarios(
 
     except Exception as e:
         logger.error(f"Error listando usuarios: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.post("/usuarios", summary="Crear nuevo usuario")
@@ -244,7 +245,7 @@ async def crear_usuario(
         raise
     except Exception as e:
         logger.error(f"Error creando usuario: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.put("/usuarios/{usuario_id}", summary="Actualizar usuario")
@@ -300,7 +301,7 @@ async def actualizar_usuario(
         raise
     except Exception as e:
         logger.error(f"Error actualizando usuario: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.post("/primera-matricula", summary="Crear estudiante y registrar pago de primera matrícula")
@@ -373,4 +374,4 @@ async def registrar_primera_matricula(
         raise
     except Exception as e:
         logger.error(f"Error registrando primera matrícula: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)

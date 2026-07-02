@@ -7,6 +7,7 @@ import logging
 
 from auth.dependencies import require_roles, get_current_user
 from database import get_db
+from utils.errors import GENERIC_ERROR_DETAIL
 from services.calculos_financieros import calcular_en_mora, calcular_deuda_total
 
 logger = logging.getLogger(__name__)
@@ -149,7 +150,7 @@ async def actualizar_nota(
         raise
     except Exception as e:
         logger.error(f"Error actualizando nota: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error actualizando nota: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/seccion/{seccion_id}/notas", summary="Obtener notas de una sección")
@@ -222,7 +223,7 @@ async def obtener_notas_seccion(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo notas: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error obteniendo notas: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/estudiante/mis-inscripciones", summary="Mis inscripciones (estudiante)")
@@ -273,7 +274,7 @@ async def mis_inscripciones(
 
     except Exception as e:
         logger.error(f"Error obteniendo inscripciones: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error obteniendo inscripciones: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{inscripcion_id}", summary="Detalle de inscripción")
@@ -343,4 +344,4 @@ async def detalle_inscripcion(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo detalle: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error obteniendo detalle: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)

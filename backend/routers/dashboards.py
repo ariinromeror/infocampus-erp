@@ -11,6 +11,7 @@ import json
 
 from auth.dependencies import require_roles, get_current_user
 from database import get_db
+from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +106,7 @@ async def dashboard_institucional(
 
     except Exception as e:
         logger.error(f"Error dashboard institucional: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/finanzas", summary="Dashboard de Tesorería")
@@ -165,7 +166,7 @@ async def dashboard_finanzas(
 
     except Exception as e:
         logger.error(f"Error dashboard finanzas: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/profesor", summary="Dashboard de Profesor")
@@ -226,7 +227,7 @@ async def dashboard_profesor(
 
     except Exception as e:
         logger.error(f"Error dashboard profesor: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/resumen", summary="Resumen rápido del sistema")
@@ -269,5 +270,5 @@ async def resumen_sistema(
         logger.error(f"Error resumen: {e}")
         return {
             "usuario": {"id": current_user['id'], "nombre": current_user.get('username'), "rol": current_user['rol']},
-            "error": str(e),
+            "error": GENERIC_ERROR_DETAIL,
         }

@@ -14,6 +14,7 @@ import logging
 
 from auth.dependencies import require_roles, get_current_user
 from database import get_db
+from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +95,7 @@ async def dashboard_summary(
         raise
     except Exception as e:
         logger.error(f"Error en dashboard summary: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{user_id}/notas")
@@ -180,7 +181,7 @@ async def notas_estudiante(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo notas: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{user_id}/asistencias")
@@ -264,7 +265,7 @@ async def asistencias_estudiante(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo asistencias: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{user_id}/pagos")
@@ -356,4 +357,4 @@ async def pagos_estudiante(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo pagos: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)

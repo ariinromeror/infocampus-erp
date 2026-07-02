@@ -11,6 +11,7 @@ import logging
 
 from auth.dependencies import require_roles
 from database import get_db
+from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +85,7 @@ async def historial_notas(
 
     except Exception as e:
         logger.error(f"Error obteniendo historial notas: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_DETAIL)
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -104,7 +105,7 @@ async def listar_configuracion(
 
     except Exception as e:
         logger.error(f"Error obteniendo configuración: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.put("/configuracion/{clave}", summary="Actualizar parámetro de configuración")
@@ -132,4 +133,4 @@ async def actualizar_configuracion(
 
     except Exception as e:
         logger.error(f"Error actualizando configuración: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_DETAIL)

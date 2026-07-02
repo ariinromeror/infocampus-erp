@@ -7,6 +7,7 @@ import json
 
 from auth.dependencies import require_roles
 from database import get_db
+from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +105,7 @@ async def mis_secciones(
         raise
     except Exception as e:
         logger.error(f"Error secciones profesor: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{profesor_id}/seccion/{seccion_id}/alumnos", summary="Alumnos de una sección")
@@ -162,7 +163,7 @@ async def alumnos_seccion(
         raise
     except Exception as e:
         logger.error(f"Error alumnos sección: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.post("/asistencia", summary="Registrar asistencia")
@@ -197,7 +198,7 @@ async def registrar_asistencia(
         raise
     except Exception as e:
         logger.error(f"Error registrando asistencia: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{profesor_id}/seccion/{seccion_id}/evaluaciones", summary="Evaluaciones de una sección")
@@ -257,7 +258,7 @@ async def evaluaciones_seccion(
         raise
     except Exception as e:
         logger.error(f"Error evaluaciones sección: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.post("/evaluacion", summary="Registrar evaluación parcial")
@@ -294,7 +295,7 @@ async def registrar_evaluacion(
         raise
     except Exception as e:
         logger.error(f"Error registrando evaluación: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 @router.get("/{profesor_id}/seccion/{seccion_id}/asistencia-historica", summary="Historial de asistencia de una sección")
 async def asistencia_historica(
@@ -382,4 +383,4 @@ async def asistencia_historica(
         raise
     except Exception as e:
         logger.error(f"Error historial asistencia: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)

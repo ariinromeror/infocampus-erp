@@ -16,6 +16,7 @@ import logging
 
 from auth.dependencies import require_roles
 from database import get_db
+from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +124,7 @@ async def registrar_pago(
         raise
     except Exception as e:
         logger.error(f"Error registrando pago: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{estudiante_id}", summary="Detalle de estudiante")
@@ -219,7 +220,7 @@ async def detalle_estudiante(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo detalle: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{estudiante_id}/estado-cuenta", summary="Estado de cuenta simplificado")
@@ -317,7 +318,7 @@ async def estado_cuenta(
         raise
     except Exception as e:
         logger.error(f"Error en estado de cuenta: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.put("/{estudiante_id}/convenio", summary="Actualizar convenio de pago")
@@ -343,4 +344,4 @@ async def actualizar_convenio(
         raise
     except Exception as e:
         logger.error(f"Error actualizando convenio: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_DETAIL)

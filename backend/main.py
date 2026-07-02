@@ -209,7 +209,7 @@ async def health_check():
         logger.error(f"Health check falló: {e}")
         raise HTTPException(
             status_code=503,
-            detail={"status": "error", "database": "disconnected", "error": str(e)},
+            detail={"status": "error", "database": "disconnected"},
         )
 
 

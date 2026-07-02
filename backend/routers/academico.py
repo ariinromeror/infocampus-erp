@@ -8,6 +8,7 @@ from datetime import date
 
 from auth.dependencies import require_roles, get_current_user
 from database import get_db
+from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +119,7 @@ async def crear_seccion(
         raise
     except Exception as e:
         logger.error(f"Error creando sección: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.put("/secciones/{seccion_id}", summary="Actualizar sección")
@@ -180,7 +181,7 @@ async def actualizar_seccion(
         raise
     except Exception as e:
         logger.error(f"Error actualizando sección: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.post("/periodos", summary="Crear nuevo período lectivo")
@@ -213,7 +214,7 @@ async def crear_periodo(
         raise
     except Exception as e:
         logger.error(f"Error creando período: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.put("/periodos/{periodo_id}", summary="Actualizar período lectivo")
@@ -267,7 +268,7 @@ async def actualizar_periodo(
         raise
     except Exception as e:
         logger.error(f"Error actualizando período: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.put("/inscripciones/{inscripcion_id}/corregir-nota", summary="Corregir nota (solo coordinador)")
@@ -322,7 +323,7 @@ async def corregir_nota(
         raise
     except Exception as e:
         logger.error(f"Error corrigiendo nota: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/carreras", summary="Listar carreras")
@@ -361,7 +362,7 @@ async def listar_carreras(
             return {"data": {"carreras": carreras}}
     except Exception as e:
         logger.error(f"Error listando carreras: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.put("/carreras/{carrera_id}", summary="Actualizar carrera (precio_credito)")
@@ -394,7 +395,7 @@ async def actualizar_carrera(
         raise
     except Exception as e:
         logger.error(f"Error actualizando carrera: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/carreras/{carrera_id}/primer-semestre", summary="Obtener créditos del primer semestre")
@@ -442,7 +443,7 @@ async def obtener_primer_semestre(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo primer semestre: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/materias", summary="Listar materias")
@@ -488,7 +489,7 @@ async def listar_materias(
             return {"data": {"materias": materias}}
     except Exception as e:
         logger.error(f"Error listando materias: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/carreras/{carrera_id}/malla", summary="Obtener malla curricular de una carrera")
@@ -571,7 +572,7 @@ async def obtener_malla_curricular(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo malla curricular: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/secciones", summary="Listar secciones")
@@ -645,7 +646,7 @@ async def listar_secciones(
             return {"data": {"secciones": secciones}}
     except Exception as e:
         logger.error(f"Error listando secciones: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/periodos", summary="Listar períodos lectivos")
@@ -673,7 +674,7 @@ async def listar_periodos(
             return {"data": {"periodos": periodos}}
     except Exception as e:
         logger.error(f"Error listando periodos: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/estudiantes", summary="Listar estudiantes")
@@ -760,7 +761,7 @@ async def listar_estudiantes(
             return {"data": {"estudiantes": estudiantes, "total": total, "page": page, "total_pages": (total + limit - 1) // limit}}
     except Exception as e:
         logger.error(f"Error listando estudiantes: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/profesores", summary="Listar profesores")
@@ -796,7 +797,7 @@ async def listar_profesores(
             return {"data": {"profesores": profesores}}
     except Exception as e:
         logger.error(f"Error listando profesores: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/secciones/{seccion_id}/estudiantes", summary="Listar estudiantes de una sección")
@@ -842,7 +843,7 @@ async def listar_estudiantes_seccion(
         raise
     except Exception as e:
         logger.error(f"Error listando estudiantes de sección: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/profesores/{profesor_id}/rendimiento", summary="Obtener rendimiento de un profesor")
@@ -961,7 +962,7 @@ async def obtener_rendimiento_profesor(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo rendimiento del profesor: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/horarios", summary="Obtener horarios de todas las secciones")
@@ -1033,4 +1034,4 @@ async def obtener_horarios(
             return {"data": {"secciones": secciones}}
     except Exception as e:
         logger.error(f"Error obteniendo horarios: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)

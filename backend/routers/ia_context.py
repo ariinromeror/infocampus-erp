@@ -735,4 +735,4 @@ async def chat_ia(
             raise HTTPException(status_code=503, detail="Límite de uso de IA alcanzado. Espera unos minutos o genera una nueva clave en console.groq.com")
         if "model" in err.lower() and ("not found" in err.lower() or "does not exist" in err.lower()):
             raise HTTPException(status_code=503, detail="Modelo de IA no disponible. Contacta al administrador.")
-        raise HTTPException(status_code=503, detail=f"Error al contactar el servicio de IA: {err[:120]}")
+        raise HTTPException(status_code=503, detail="No se pudo contactar al servicio de IA. Intenta nuevamente más tarde.")
