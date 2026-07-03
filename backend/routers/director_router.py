@@ -11,6 +11,7 @@ import logging
 
 from auth.dependencies import require_roles
 from database import get_db
+from schemas.common import PaginationParams, pagination_params, paginated_payload
 from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
@@ -33,8 +34,7 @@ class ConfiguracionUpdateRequest(BaseModel):
 
 @router.get("/historial-notas", summary="Historial de correcciones de notas")
 async def historial_notas(
-    page: int = 1,
-    limit: int = 50,
+    pagination: PaginationParams = Depends(pagination_params(default_limit=50, max_limit=100)),
     current_user: Dict[str, Any] = Depends(require_roles(["director", "admin"]))
 ) -> Dict[str, Any]:
     try:
@@ -57,7 +57,7 @@ async def historial_notas(
                 LEFT JOIN public.usuarios u ON hn.modificado_por = u.id::TEXT
                 ORDER BY hn.fecha_modificacion DESC
                 LIMIT $1 OFFSET $2
-            """, limit, (page - 1) * limit)
+            """, pagination.limit, pagination.offset)
 
             registros = []
             for row in rows:
@@ -74,14 +74,7 @@ async def historial_notas(
                     "fecha_modificacion":    r["fecha_modificacion"].isoformat() if r["fecha_modificacion"] else None,
                 })
 
-        return {
-            "data": {
-                "registros":   registros,
-                "total":       total,
-                "page":        page,
-                "total_pages": max(1, -(-total // limit)),  # ceil division
-            }
-        }
+        return {"data": paginated_payload("registros", registros, pagination, total)}
 
     except Exception as e:
         logger.error(f"Error obteniendo historial notas: {e}")

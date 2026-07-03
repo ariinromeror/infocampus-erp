@@ -130,6 +130,9 @@ infocampus-erp/
 │   │   ├── calculos_financieros.py  # Financial logic with Decimal precision
 │   │   └── pdf_generator.py         # ReportLab PDF builder
 │   │
+│   ├── schemas/
+│   │   └── common.py              # Shared pagination dependency + response builder
+│   │
 │   ├── alembic/
 │   │   └── versions/              # Versioned schema migrations (0001_initial_schema, 0002_revoked_tokens...)
 │   │
@@ -284,6 +287,27 @@ try:
 finally:
     lock_conn.cursor().execute("SELECT pg_advisory_unlock(%s)", (MIGRATION_LOCK_ID,))
 ```
+
+### Consistent pagination across listing endpoints
+
+Before RQ-09, some list endpoints paginated with `page`/`limit`, others returned every row unbounded (`/academico/materias`, `/academico/secciones`, `/academico/carreras`, `/profesor/{id}/secciones`, `/estudiante/{id}/pagos`, `/estudiante/{id}/asistencias`, ...), and a couple had a hardcoded `LIMIT` with no way to page past it. `backend/schemas/common.py` centralizes the pattern into a reusable FastAPI dependency:
+
+```python
+from schemas.common import pagination_params, paginated_payload
+
+@router.get("/materias")
+async def listar_materias(
+    pagination: PaginationParams = Depends(pagination_params(default_limit=200, max_limit=500)),
+):
+    total = await conn.fetchval("SELECT COUNT(*) FROM public.materias")
+    rows = await conn.fetch(
+        "SELECT * FROM public.materias ORDER BY nombre LIMIT $1 OFFSET $2",
+        pagination.limit, pagination.offset,
+    )
+    return {"data": paginated_payload("materias", rows, pagination, total)}
+```
+
+Every listing endpoint now executes a real SQL `LIMIT`/`OFFSET` and returns the same response shape (`{<items_key>: [...], page, limit, total, total_pages}`). `default_limit`/`max_limit` are calibrated per endpoint: catalogs the frontend still renders in full without a paging UI (e.g. `/academico/secciones`) get a generous default well above current data volume so nothing is silently truncated, while `max_limit` remains a hard cap enforced by Pydantic (`Query(..., le=max_limit)`) as an abuse safety net regardless of the default.
 
 ### Smart 401 handling on the frontend
 

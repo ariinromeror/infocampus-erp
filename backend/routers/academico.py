@@ -8,6 +8,7 @@ from datetime import date
 
 from auth.dependencies import require_roles, get_current_user
 from database import get_db
+from schemas.common import PaginationParams, pagination_params, paginated_payload
 from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
@@ -328,10 +329,14 @@ async def corregir_nota(
 
 @router.get("/carreras", summary="Listar carreras")
 async def listar_carreras(
+    pagination: PaginationParams = Depends(pagination_params(default_limit=50, max_limit=100)),
     current_user: Dict[str, Any] = Depends(get_current_user)
 ) -> Dict[str, Any]:
     try:
         async with get_db() as conn:
+            total_row = await conn.fetchrow("SELECT COUNT(*) as total FROM public.carreras")
+            total = total_row['total']
+
             rows = await conn.fetch("""
                 SELECT
                     c.id, c.nombre, c.codigo, c.duracion_semestres,
@@ -343,7 +348,8 @@ async def listar_carreras(
                 LEFT JOIN public.materias m ON m.carrera_id = c.id
                 GROUP BY c.id
                 ORDER BY c.nombre
-            """)
+                LIMIT $1 OFFSET $2
+            """, pagination.limit, pagination.offset)
             carreras = []
             for row in rows:
                 r = dict(row)
@@ -359,7 +365,7 @@ async def listar_carreras(
                     "total_estudiantes": r['total_estudiantes'],
                     "total_materias": r['total_materias']
                 })
-            return {"data": {"carreras": carreras}}
+            return {"data": paginated_payload("carreras", carreras, pagination, total)}
     except Exception as e:
         logger.error(f"Error listando carreras: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
@@ -450,6 +456,12 @@ async def obtener_primer_semestre(
 async def listar_materias(
     carrera_id: Optional[int] = None,
     semestre: Optional[int] = None,
+    # RQ-09: default/max generosos (>= catálogo completo de una institución
+    # de este tamaño) porque coordinador/director y los selectores de
+    # "materia" en los formularios de secciones dependen hoy de recibir el
+    # catálogo completo en una sola respuesta (no hay UI de paginación en el
+    # frontend todavía para este listado).
+    pagination: PaginationParams = Depends(pagination_params(default_limit=200, max_limit=500)),
     current_user: Dict[str, Any] = Depends(get_current_user)
 ) -> Dict[str, Any]:
     try:
@@ -465,6 +477,13 @@ async def listar_materias(
                 params.append(semestre)
                 idx += 1
             where = f"WHERE {' AND '.join(filtros)}" if filtros else ""
+
+            total_row = await conn.fetchrow(
+                f"SELECT COUNT(*) as total FROM public.materias m {where}", *params
+            )
+            total = total_row['total']
+
+            param_count = len(params)
             rows = await conn.fetch(f"""
                 SELECT m.id, m.nombre, m.codigo, m.creditos, m.semestre,
                     m.carrera_id, m.descripcion, c.nombre as carrera_nombre
@@ -472,7 +491,8 @@ async def listar_materias(
                 JOIN public.carreras c ON m.carrera_id = c.id
                 {where}
                 ORDER BY m.semestre, m.nombre
-            """, *params)
+                LIMIT ${param_count + 1} OFFSET ${param_count + 2}
+            """, *params, pagination.limit, pagination.offset)
             materias = []
             for row in rows:
                 r = dict(row)
@@ -486,7 +506,7 @@ async def listar_materias(
                     "carrera": r['carrera_nombre'],
                     "descripcion": r['descripcion']
                 })
-            return {"data": {"materias": materias}}
+            return {"data": paginated_payload("materias", materias, pagination, total)}
     except Exception as e:
         logger.error(f"Error listando materias: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
@@ -581,6 +601,13 @@ async def listar_secciones(
     materia_id: Optional[int] = None,
     docente_id: Optional[int] = None,
     carrera_id: Optional[int] = None,
+    # RQ-09: es el catálogo con mayor volumen del sistema (todas las
+    # secciones de todos los períodos). Default/max altos a propósito:
+    # varios flujos críticos (inscripción/reinscripción de estudiantes,
+    # planificación de horarios) hoy dependen de recibir el resultado
+    # completo en una sola respuesta; bajar el default rompería esos flujos
+    # sin que el frontend tenga todavía una UI de paginación para compensar.
+    pagination: PaginationParams = Depends(pagination_params(default_limit=1000, max_limit=2000)),
     current_user: Dict[str, Any] = Depends(require_roles(['coordinador', 'director', 'admin', 'profesor', 'administrativo', 'tesorero', 'estudiante']))
 ) -> Dict[str, Any]:
     try:
@@ -604,6 +631,16 @@ async def listar_secciones(
                 params.append(carrera_id)
                 idx += 1
             where = f"WHERE {' AND '.join(filtros)}" if filtros else ""
+
+            total_row = await conn.fetchrow(f"""
+                SELECT COUNT(*) as total
+                FROM public.secciones s
+                JOIN public.materias m ON s.materia_id = m.id
+                {where}
+            """, *params)
+            total = total_row['total']
+
+            param_count = len(params)
             rows = await conn.fetch(f"""
                 SELECT
                     s.id, s.codigo, s.aula, s.horario, s.cupo_maximo, s.cupo_actual, m.semestre as semestre,
@@ -617,7 +654,8 @@ async def listar_secciones(
                 LEFT JOIN public.usuarios u ON s.docente_id = u.id
                 {where}
                 ORDER BY p.codigo DESC, m.semestre, m.nombre
-            """, *params)
+                LIMIT ${param_count + 1} OFFSET ${param_count + 2}
+            """, *params, pagination.limit, pagination.offset)
             secciones = []
             for row in rows:
                 r = dict(row)
@@ -643,7 +681,7 @@ async def listar_secciones(
                     "hora_fin": h.get('hora_fin', ''),
                     "horario": f"{', '.join(dias)} {h.get('hora_inicio', '')}-{h.get('hora_fin', '')}".strip()
                 })
-            return {"data": {"secciones": secciones}}
+            return {"data": paginated_payload("secciones", secciones, pagination, total)}
     except Exception as e:
         logger.error(f"Error listando secciones: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
@@ -683,8 +721,7 @@ async def listar_estudiantes(
     carrera_id: Optional[int] = None,
     semestre: Optional[int] = None,
     es_becado: Optional[bool] = None,
-    page: int = 1,
-    limit: int = 100,
+    pagination: PaginationParams = Depends(pagination_params(default_limit=100, max_limit=200)),
     current_user: Dict[str, Any] = Depends(require_roles(['coordinador', 'director', 'tesorero', 'administrativo']))
 ) -> Dict[str, Any]:
     try:
@@ -728,7 +765,7 @@ async def listar_estudiantes(
             total = total_row['total']
             
             param_count = len(params)
-            data_params = params + [limit, (page - 1) * limit]
+            data_params = params + [pagination.limit, pagination.offset]
             rows = await conn.fetch(f"""
                 SELECT
                     u.id, u.first_name, u.last_name, u.cedula, u.email,
@@ -758,7 +795,7 @@ async def listar_estudiantes(
                     "tipo_beca": r['tipo_beca'],
                     "convenio_activo": r['convenio_activo']
                 })
-            return {"data": {"estudiantes": estudiantes, "total": total, "page": page, "total_pages": (total + limit - 1) // limit}}
+            return {"data": paginated_payload("estudiantes", estudiantes, pagination, total)}
     except Exception as e:
         logger.error(f"Error listando estudiantes: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
@@ -766,10 +803,19 @@ async def listar_estudiantes(
 
 @router.get("/profesores", summary="Listar profesores")
 async def listar_profesores(
+    # RQ-09: default/max por encima de la planta docente actual — los
+    # selectores de "profesor" en los formularios de secciones y las
+    # páginas de gestión de profesores esperan el listado completo.
+    pagination: PaginationParams = Depends(pagination_params(default_limit=100, max_limit=200)),
     current_user: Dict[str, Any] = Depends(require_roles(['coordinador', 'director', 'administrativo']))
 ) -> Dict[str, Any]:
     try:
         async with get_db() as conn:
+            total_row = await conn.fetchrow(
+                "SELECT COUNT(*) as total FROM public.usuarios WHERE rol = 'profesor' AND activo = true"
+            )
+            total = total_row['total']
+
             rows = await conn.fetch("""
                 SELECT
                     u.id, u.first_name, u.last_name, u.cedula, u.email,
@@ -780,7 +826,8 @@ async def listar_profesores(
                 WHERE u.rol = 'profesor' AND u.activo = true
                 GROUP BY u.id
                 ORDER BY u.last_name
-            """)
+                LIMIT $1 OFFSET $2
+            """, pagination.limit, pagination.offset)
             profesores = []
             for row in rows:
                 r = dict(row)
@@ -794,7 +841,7 @@ async def listar_profesores(
                     "años_experiencia": r['años_experiencia'],
                     "secciones_activas": r['secciones_activas']
                 })
-            return {"data": {"profesores": profesores}}
+            return {"data": paginated_payload("profesores", profesores, pagination, total)}
     except Exception as e:
         logger.error(f"Error listando profesores: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)

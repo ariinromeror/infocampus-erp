@@ -6,6 +6,7 @@ import logging
 
 from auth.dependencies import require_roles
 from database import get_db
+from schemas.common import PaginationParams, pagination_params, paginated_payload
 from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
@@ -115,8 +116,7 @@ async def listar_pagos(
     periodo_id: Optional[int] = None,
     carrera_id: Optional[int] = None,
     semestre: Optional[int] = None,
-    page: int = 1,
-    limit: int = 20,
+    pagination: PaginationParams = Depends(pagination_params(default_limit=20, max_limit=100)),
     current_user: Dict[str, Any] = Depends(require_roles(["tesorero", "director", "admin"])),
 ) -> Dict[str, Any]:
     try:
@@ -175,7 +175,7 @@ async def listar_pagos(
             total = total_row["total"]
 
             param_count = len(params_data)
-            params_pag = params_data + [limit, (page - 1) * limit]
+            params_pag = params_data + [pagination.limit, pagination.offset]
 
             pagos_rows = await conn.fetch(
                 f"""
@@ -210,14 +210,7 @@ async def listar_pagos(
                     "periodo":     r["periodo_nombre"],
                 })
 
-        return {
-            "data": {
-                "pagos":       pagos,
-                "total":       total,
-                "page":        page,
-                "total_pages": (total + limit - 1) // limit,
-            }
-        }
+        return {"data": paginated_payload("pagos", pagos, pagination, total)}
 
     except Exception as e:
         logger.error(f"Error listando pagos: {e}")
@@ -226,10 +219,26 @@ async def listar_pagos(
 
 @router.get("/estudiantes-mora", summary="Estudiantes en mora")
 async def estudiantes_mora(
+    # RQ-09: reemplaza el `LIMIT 200` fijo que tenía este endpoint por el
+    # estándar page/limit. Default alto (por encima del volumen actual de
+    # estudiantes en mora) porque el frontend (tabla de mora, convenios,
+    # KPIs y exportación CSV/PDF) hoy asume recibir la lista completa.
+    pagination: PaginationParams = Depends(pagination_params(default_limit=500, max_limit=1000)),
     current_user: Dict[str, Any] = Depends(require_roles(["tesorero", "director", "admin"]))
 ) -> Dict[str, Any]:
     try:
         async with get_db() as conn:
+            total_row = await conn.fetchrow("""
+                SELECT COUNT(DISTINCT u.id) AS total
+                FROM public.usuarios u
+                JOIN public.inscripciones i ON i.estudiante_id = u.id AND i.pago_id IS NULL
+                JOIN public.carreras      c ON u.carrera_id = c.id
+                JOIN public.secciones     s ON i.seccion_id = s.id
+                JOIN public.materias      m ON s.materia_id = m.id
+                WHERE u.rol = 'estudiante'
+            """)
+            total = total_row["total"]
+
             rows = await conn.fetch("""
                 SELECT
                     u.id,
@@ -259,8 +268,8 @@ async def estudiantes_mora(
                 WHERE u.rol = 'estudiante'
                 GROUP BY u.id, c.nombre, c.precio_credito
                 ORDER BY deuda_total DESC
-                LIMIT 200
-            """)
+                LIMIT $1 OFFSET $2
+            """, pagination.limit, pagination.offset)
             estudiantes = []
             for row in rows:
                 r = dict(row)
@@ -278,7 +287,7 @@ async def estudiantes_mora(
                     "deuda_total":              round(float(r["deuda_total"]), 2),
                 })
 
-            return {"data": {"estudiantes": estudiantes}}
+            return {"data": paginated_payload("estudiantes", estudiantes, pagination, total)}
 
     except Exception as e:
         logger.error(f"Error consultando mora: {e}")

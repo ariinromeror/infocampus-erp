@@ -7,6 +7,7 @@ import json
 
 from auth.dependencies import require_roles
 from database import get_db
+from schemas.common import PaginationParams, pagination_params, paginated_payload
 from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
@@ -41,7 +42,8 @@ class EvaluacionRequest(BaseModel):
 @router.get("/{profesor_id}/secciones", summary="Secciones del profesor")
 async def mis_secciones(
     profesor_id: int,
-    current_user: Dict[str, Any] = Depends(require_roles(['profesor', 'coordinador', 'director', 'admin']))
+    current_user: Dict[str, Any] = Depends(require_roles(['profesor', 'coordinador', 'director', 'admin'])),
+    pagination: PaginationParams = Depends(pagination_params(default_limit=50, max_limit=200)),
 ) -> Dict[str, Any]:
 
     logger.info(f"Secciones profesor {profesor_id} por {current_user['cedula']}")
@@ -51,6 +53,11 @@ async def mis_secciones(
 
     try:
         async with get_db() as conn:
+            total = await conn.fetchval(
+                "SELECT COUNT(*) FROM public.secciones s WHERE s.docente_id = $1",
+                profesor_id,
+            )
+
             rows = await conn.fetch("""
                 SELECT
                     s.id, s.codigo, s.aula, s.horario, s.cupo_maximo, s.cupo_actual,
@@ -65,7 +72,8 @@ async def mis_secciones(
                 WHERE s.docente_id = $1
                 GROUP BY s.id, m.id, p.id
                 ORDER BY p.codigo DESC, m.nombre
-            """, profesor_id)
+                LIMIT $2 OFFSET $3
+            """, profesor_id, pagination.limit, pagination.offset)
 
             secciones = []
             for row in rows:
@@ -99,7 +107,7 @@ async def mis_secciones(
                     "horario": f"{', '.join(dias)} {hora_inicio}-{hora_fin}".strip()
                 })
 
-            return {"data": {"secciones": secciones}}
+            return {"data": paginated_payload("secciones", secciones, pagination, total)}
 
     except HTTPException:
         raise
