@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { CalendarClock, Clock, BookOpen, MapPin, User } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../services/api';

@@ -7,6 +7,7 @@ import logging
 
 from auth.dependencies import require_roles, get_current_user
 from database import get_db
+from utils.errors import GENERIC_ERROR_DETAIL
 from services.pdf_generator import (
     generar_estado_cuenta,
     generar_certificado_inscripcion
@@ -114,7 +115,7 @@ async def certificado_inscripcion(
         raise
     except Exception as e:
         logger.error(f"Error generando certificado: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error generando certificado: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/estado-cuenta/{estudiante_id}", summary="Descargar estado de cuenta en PDF")
@@ -244,7 +245,7 @@ async def estado_cuenta_pdf(
         raise
     except Exception as e:
         logger.error(f"Error generando estado de cuenta: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error generando estado de cuenta: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/tesoreria", summary="Reporte de tesorería en PDF")
@@ -450,7 +451,7 @@ async def reporte_tesoreria(
         raise
     except Exception as e:
         logger.error(f"Error generando reporte de tesorería: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error generando reporte: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/notas/{estudiante_id}", summary="Boletín de notas del estudiante")
@@ -676,4 +677,4 @@ async def boletin_notas(
         raise
     except Exception as e:
         logger.error(f"Error generando boletín de notas: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error generando boletín: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)

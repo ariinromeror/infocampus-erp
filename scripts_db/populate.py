@@ -394,239 +394,44 @@ class DatabaseSeeder:
 
     # ─── PASO 1 ───────────────────────────────────────────────────────────────
 
-    def drop_and_create_schema(self):
-        log.info("━━━ [1/18] Recreando schema...")
-        tablas = [
-            "audit_logs", "historial_notas", "asistencias", "evaluaciones_parciales",
-            "inscripciones", "pagos", "secciones", "prerequisitos",
-            "materias", "periodos_lectivos", "usuarios", "carreras",
-            "configuracion_ia", "revoked_tokens",
-        ]
-        for t in tablas:
-            self._exec(f"DROP TABLE IF EXISTS public.{t} CASCADE")
-        log.info("   Tablas eliminadas")
+    REQUIRED_TABLES = (
+        "carreras", "usuarios", "periodos_lectivos", "materias", "prerequisitos",
+        "secciones", "pagos", "inscripciones", "historial_notas",
+        "evaluaciones_parciales", "asistencias", "audit_logs",
+        "configuracion_ia", "revoked_tokens",
+    )
 
-        self._exec("""
-        CREATE TABLE public.carreras (
-            id               SERIAL PRIMARY KEY,
-            nombre           VARCHAR(100) NOT NULL,
-            codigo           VARCHAR(20)  UNIQUE NOT NULL,
-            duracion_semestres INTEGER    NOT NULL,
-            creditos_totales INTEGER      NOT NULL,
-            precio_credito   DECIMAL(10,2) NOT NULL,
-            dias_gracia_pago INTEGER      DEFAULT 10,
-            descripcion      TEXT,
-            created_at       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-            updated_at       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
-        )""")
+    def _assert_schema_exists(self):
+        """RQ-03 (docs/PRD.md): populate.py ya no crea tablas — la creación y
+        evolución del esquema es responsabilidad exclusiva de las migraciones
+        Alembic (backend/alembic/versions/). Este script solo puebla datos
+        demo sobre un esquema que ya debe existir.
+        """
+        rows = self._fetchall("""
+            SELECT table_name FROM information_schema.tables
+            WHERE table_schema = 'public' AND table_name = ANY(%s)
+        """, (list(self.REQUIRED_TABLES),))
+        existentes = {r["table_name"] for r in rows}
+        faltantes = set(self.REQUIRED_TABLES) - existentes
+        if faltantes:
+            log.error(
+                "El esquema no existe todavía (tablas faltantes: %s). "
+                "Ejecuta las migraciones antes de poblar datos:\n"
+                "    cd backend && DATABASE_URL=... alembic upgrade head",
+                ", ".join(sorted(faltantes)),
+            )
+            sys.exit(1)
 
-        self._exec("""
-        CREATE TABLE public.usuarios (
-            id                   SERIAL PRIMARY KEY,
-            username             VARCHAR(50)  UNIQUE NOT NULL,
-            password_hash        VARCHAR(255) NOT NULL,
-            email                VARCHAR(100) UNIQUE NOT NULL,
-            first_name           VARCHAR(50)  NOT NULL,
-            last_name            VARCHAR(50)  NOT NULL,
-            cedula               VARCHAR(15)  UNIQUE,
-            telefono             VARCHAR(20),
-            direccion            TEXT,
-            fecha_nacimiento     DATE,
-            genero               VARCHAR(20),
-            rol                  VARCHAR(20)  NOT NULL
-                CHECK (rol IN ('admin','profesor','estudiante','director','coordinador','tesorero','administrativo')),
-            activo               BOOLEAN      DEFAULT true,
-            carrera_id           INTEGER      REFERENCES public.carreras(id) ON DELETE SET NULL,
-            semestre_actual      INTEGER,
-            promedio_acumulado   DECIMAL(5,2) DEFAULT 0.00,
-            creditos_aprobados   INTEGER      DEFAULT 0,
-            titulo_academico     VARCHAR(150),
-            especialidad         VARCHAR(100),
-            años_experiencia     INTEGER,
-            es_becado            BOOLEAN      DEFAULT false,
-            porcentaje_beca      INTEGER      DEFAULT 0,
-            tipo_beca            VARCHAR(100),
-            convenio_activo      BOOLEAN      DEFAULT false,
-            fecha_limite_convenio DATE,
-            created_at           TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-            updated_at           TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
-        )""")
-
-        self._exec("""
-        CREATE TABLE public.periodos_lectivos (
-            id           SERIAL PRIMARY KEY,
-            nombre       VARCHAR(50)  NOT NULL,
-            codigo       VARCHAR(20)  UNIQUE NOT NULL,
-            fecha_inicio DATE         NOT NULL,
-            fecha_fin    DATE         NOT NULL,
-            activo       BOOLEAN      DEFAULT false,
-            created_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-            updated_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
-        )""")
-
-        self._exec("""
-        CREATE TABLE public.materias (
-            id         SERIAL PRIMARY KEY,
-            nombre     VARCHAR(150) NOT NULL,
-            codigo     VARCHAR(20)  UNIQUE NOT NULL,
-            creditos   INTEGER      NOT NULL,
-            semestre   INTEGER      NOT NULL,
-            carrera_id INTEGER      REFERENCES public.carreras(id) ON DELETE CASCADE,
-            descripcion TEXT,
-            created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
-        )""")
-
-        self._exec("""
-        CREATE TABLE public.prerequisitos (
-            id             SERIAL PRIMARY KEY,
-            materia_id     INTEGER REFERENCES public.materias(id) ON DELETE CASCADE,
-            prerequisito_id INTEGER REFERENCES public.materias(id) ON DELETE CASCADE,
-            UNIQUE(materia_id, prerequisito_id)
-        )""")
-
-        self._exec("""
-        CREATE TABLE public.secciones (
-            id          SERIAL PRIMARY KEY,
-            materia_id  INTEGER REFERENCES public.materias(id) ON DELETE CASCADE,
-            periodo_id  INTEGER REFERENCES public.periodos_lectivos(id) ON DELETE CASCADE,
-            docente_id  INTEGER REFERENCES public.usuarios(id) ON DELETE SET NULL,
-            codigo      VARCHAR(20)  NOT NULL,
-            cupo_maximo INTEGER      NOT NULL,
-            cupo_actual INTEGER      DEFAULT 0,
-            aula        VARCHAR(20),
-            horario     JSONB,
-            created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-            updated_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
-        )""")
-
-        self._exec("""
-        CREATE TABLE public.pagos (
-            id           SERIAL PRIMARY KEY,
-            estudiante_id INTEGER REFERENCES public.usuarios(id) ON DELETE CASCADE,
-            monto        DECIMAL(10,2) NOT NULL,
-            fecha_pago   DATE          NOT NULL,
-            metodo_pago  VARCHAR(50),
-            estado       VARCHAR(20)   DEFAULT 'pendiente'
-                CHECK (estado IN ('pendiente','completado','cancelado')),
-            referencia   VARCHAR(100),
-            concepto     TEXT,
-            periodo_id   INTEGER REFERENCES public.periodos_lectivos(id) ON DELETE SET NULL,
-            created_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP
-        )""")
-
-        self._exec("""
-        CREATE TABLE public.inscripciones (
-            id                SERIAL PRIMARY KEY,
-            estudiante_id     INTEGER REFERENCES public.usuarios(id)  ON DELETE CASCADE,
-            seccion_id        INTEGER REFERENCES public.secciones(id) ON DELETE CASCADE,
-            pago_id           INTEGER REFERENCES public.pagos(id)     ON DELETE SET NULL,
-            fecha_inscripcion DATE    DEFAULT CURRENT_DATE,
-            estado            VARCHAR(20) DEFAULT 'activo'
-                CHECK (estado IN ('activo','retirado','aprobado','reprobado')),
-            nota_final        DECIMAL(5,2),
-            created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(estudiante_id, seccion_id)
-        )""")
-
-        # FIX 🚨1: tabla historial_notas (requerida por academico.py y director_router.py)
-        self._exec("""
-        CREATE TABLE public.historial_notas (
-            id                  SERIAL PRIMARY KEY,
-            inscripcion_id      INTEGER REFERENCES public.inscripciones(id) ON DELETE CASCADE,
-            estudiante_nombre   VARCHAR(200),
-            nota_anterior       DECIMAL(5,2),
-            nota_nueva          DECIMAL(5,2),
-            modificado_por      VARCHAR(100),
-            motivo              TEXT,
-            fecha_modificacion  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )""")
-
-        self._exec("""
-        CREATE TABLE public.evaluaciones_parciales (
-            id              SERIAL PRIMARY KEY,
-            inscripcion_id  INTEGER REFERENCES public.inscripciones(id) ON DELETE CASCADE,
-            tipo_evaluacion VARCHAR(50)   NOT NULL,
-            nota            DECIMAL(5,2),
-            fecha_evaluacion DATE,
-            peso_porcentual DECIMAL(5,2),
-            created_at      TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(inscripcion_id, tipo_evaluacion)
-        )""")
-
-        # FIX 🚨2: columna observaciones añadida
-        self._exec("""
-        CREATE TABLE public.asistencias (
-            id             SERIAL PRIMARY KEY,
-            inscripcion_id INTEGER REFERENCES public.inscripciones(id) ON DELETE CASCADE,
-            fecha          DATE         NOT NULL,
-            estado         VARCHAR(20)  NOT NULL
-                CHECK (estado IN ('presente','ausente','tardanza','justificado')),
-            observaciones  TEXT,
-            created_at     TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(inscripcion_id, fecha)
-        )""")
-
-        self._exec("""
-        CREATE TABLE public.audit_logs (
-            id              SERIAL PRIMARY KEY,
-            usuario_id      INTEGER REFERENCES public.usuarios(id) ON DELETE SET NULL,
-            accion          VARCHAR(100) NOT NULL,
-            tabla_afectada  VARCHAR(50),
-            detalles        JSONB,
-            ip_address      VARCHAR(45),
-            created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )""")
-
-        # FIX 🚨3: configuracion_ia usa actualizado_en (no updated_at), sin tipo ni created_at
-        self._exec("""
-        CREATE TABLE public.configuracion_ia (
-            id             SERIAL PRIMARY KEY,
-            clave          VARCHAR(100) UNIQUE NOT NULL,
-            valor          TEXT,
-            descripcion    TEXT,
-            actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )""")
-
-        # Token revocation table (required by jwt_handler middleware)
-        self._exec("""
-        CREATE TABLE public.revoked_tokens (
-            jti        VARCHAR(255) PRIMARY KEY,
-            revoked_at TIMESTAMP   DEFAULT CURRENT_TIMESTAMP
-        )""")
-
-        # Índices base (relaciones FK)
-        indices_base = [
-            "CREATE INDEX ON public.materias(carrera_id)",
-            "CREATE INDEX ON public.secciones(materia_id)",
-            "CREATE INDEX ON public.secciones(periodo_id)",
-            "CREATE INDEX ON public.secciones(docente_id)",
-            "CREATE INDEX ON public.inscripciones(estudiante_id)",
-            "CREATE INDEX ON public.inscripciones(seccion_id)",
-            "CREATE INDEX ON public.inscripciones(pago_id)",
-            "CREATE INDEX ON public.evaluaciones_parciales(inscripcion_id)",
-            "CREATE INDEX ON public.asistencias(inscripcion_id)",
-            "CREATE INDEX ON public.pagos(estudiante_id)",
-            "CREATE INDEX ON public.pagos(periodo_id)",
-            "CREATE INDEX ON public.pagos(estado)",
-            "CREATE INDEX ON public.pagos(fecha_pago)",
-            "CREATE INDEX ON public.audit_logs(usuario_id)",
-            "CREATE INDEX ON public.historial_notas(inscripcion_id)",
-        ]
-        # Índices de performance críticos para dashboards y mora
-        indices_perf = [
-            "CREATE INDEX ON public.usuarios(rol)",
-            "CREATE INDEX ON public.usuarios(carrera_id)",
-            "CREATE INDEX ON public.usuarios(rol, es_becado)",
-            "CREATE INDEX ON public.inscripciones(estudiante_id) WHERE pago_id IS NULL",
-            "CREATE INDEX ON public.inscripciones(pago_id, estudiante_id)",
-        ]
-        for idx in indices_base + indices_perf:
-            self._exec(idx)
-
+    def reset_data(self):
+        """Vacía todas las tablas (TRUNCATE ... CASCADE) manteniendo el
+        esquema intacto, para poder re-sembrar datos demo repetidamente sin
+        recrear tablas ni perder el historial de migraciones aplicadas."""
+        log.info("━━━ [1/18] Limpiando datos existentes (esquema intacto)...")
+        self._assert_schema_exists()
+        tablas = ", ".join(f"public.{t}" for t in self.REQUIRED_TABLES)
+        self._exec(f"TRUNCATE TABLE {tablas} RESTART IDENTITY CASCADE")
         self._commit()
-        log.info("   Schema creado (13 tablas + indices de performance)")
+        log.info(f"   {len(self.REQUIRED_TABLES)} tablas vaciadas")
 
     # ─── PASO 2 ───────────────────────────────────────────────────────────────
 
@@ -1604,7 +1409,7 @@ class DatabaseSeeder:
         print("    (100% aligned with backend endpoints)")
         print("=" * 60)
 
-        self.drop_and_create_schema()
+        self.reset_data()
         self.seed_configuracion_ia()
         self.seed_carreras()
         self.seed_periodos()

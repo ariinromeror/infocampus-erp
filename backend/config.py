@@ -22,7 +22,22 @@ class Settings(BaseSettings):
 
     # AI / Groq
     GROQ_API_KEY: str = ""
-    
+
+    # Observability (RQ-10) — opcional: sin DSN, Sentry queda deshabilitado
+    # y el resto de la app funciona exactamente igual.
+    SENTRY_DSN: str = ""
+    ENVIRONMENT: str = "development"
+
+    # Demo login (RQ-01, docs/PRD.md): "apagador" del acceso demo. Todas las
+    # cuentas sembradas por scripts_db/populate.py comparten esta contraseña
+    # (`UNIVERSAL_PASSWORD` ahí, `DEMO_PASSWORD` en el frontend) a propósito,
+    # como feature de portafolio. Si este código se reutiliza para una
+    # institución real, poner ENABLE_DEMO_LOGIN=false rechaza cualquier login
+    # que use esta contraseña compartida (aunque el hash almacenado coincida),
+    # sin afectar a cuentas reales con contraseñas propias.
+    ENABLE_DEMO_LOGIN: bool = True
+    DEMO_PASSWORD: str = "campus2026"
+
     # App Info
     APP_NAME: str = "Info Campus ERP API"
     APP_VERSION: str = "2.0.0"

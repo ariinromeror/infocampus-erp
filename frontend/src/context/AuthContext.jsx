@@ -108,4 +108,5 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- patrón estándar Context+hook; no rompe Fast Refresh en la práctica
 export const useAuth = () => useContext(AuthContext);

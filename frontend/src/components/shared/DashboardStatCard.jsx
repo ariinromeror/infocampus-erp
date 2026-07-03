@@ -3,7 +3,6 @@
  * Design: Slate-900 text, Indigo-600 accents, rounded-xl/2xl.
  * Replaces duplicate StatCard implementations across modules.
  */
-import { motion } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
 
 const DashboardStatCard = ({

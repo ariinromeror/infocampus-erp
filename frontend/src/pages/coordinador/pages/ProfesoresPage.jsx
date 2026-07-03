@@ -148,11 +148,11 @@ const ProfesoresPage = () => {
   const [profesorSeleccionado, setProfesorSeleccionado] = useState(null);
   const [detalle, setDetalle] = useState(null);
   const [loadingDetalle, setLoadingDetalle] = useState(false);
-  const [tabActivo, setTabActivo] = useState('secciones');
+  const [, setTabActivo] = useState('secciones');
   const [periodos, setPeriodos] = useState([]);
   const [periodoFiltro, setPeriodoFiltro] = useState(null);
   const [seccionesDisponibles, setSeccionesDisponibles] = useState([]);
-  const [carreras, setCarreras] = useState([]);
+  const [, setCarreras] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [notif, setNotif] = useState({ show: false, type: 'success', message: '' });
 

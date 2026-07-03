@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { BookOpen, Plus, Calendar, GraduationCap } from 'lucide-react';
 import useSecciones from '../hooks/useSecciones';
 import ModalForm from '../components/ModalForm';
@@ -29,17 +28,6 @@ const SeccionesPage = () => {
    cupo: 30,
   });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const params = {};
-    if (periodoFiltro) params.periodo_id = parseInt(periodoFiltro);
-    if (carreraFiltro) params.carrera_id = parseInt(carreraFiltro);
-    fetchSecciones(params);
-  }, [periodoFiltro, carreraFiltro]);
-
   const fetchData = async () => {
     try {
       const [periodosRes, carrerasRes, materiasRes, profesoresRes] = await Promise.all([
@@ -61,6 +49,18 @@ const SeccionesPage = () => {
       console.error('Error fetching data:', error);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- carga inicial de catálogos (periodos/carreras/materias/profesores) al montar la página
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const params = {};
+    if (periodoFiltro) params.periodo_id = parseInt(periodoFiltro);
+    if (carreraFiltro) params.carrera_id = parseInt(carreraFiltro);
+    fetchSecciones(params);
+  }, [periodoFiltro, carreraFiltro]);
 
   const filtrados = useMemo(() => {
     if (!busqueda.trim()) return secciones;

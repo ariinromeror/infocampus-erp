@@ -7,6 +7,8 @@ from passlib.context import CryptContext
 
 from auth.dependencies import require_roles
 from database import get_db
+from schemas.common import PaginationParams, pagination_params, paginated_payload
+from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
 
@@ -141,15 +143,14 @@ async def inscribir_estudiante(
         raise
     except Exception as e:
         logger.error(f"Error inscribiendo estudiante: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/usuarios", summary="Listar usuarios del sistema")
 async def listar_usuarios(
     rol: Optional[str] = None,
     activo: Optional[bool] = None,
-    page: int = 1,
-    limit: int = 50,
+    pagination: PaginationParams = Depends(pagination_params(default_limit=50, max_limit=100)),
     current_user: Dict[str, Any] = Depends(require_roles(['administrativo', 'director', 'admin', 'coordinador']))
 ) -> Dict[str, Any]:
     try:
@@ -172,7 +173,7 @@ async def listar_usuarios(
             total = total_row['total']
 
             param_count = len(params)
-            data_params = params + [limit, (page - 1) * limit]
+            data_params = params + [pagination.limit, pagination.offset]
             rows = await conn.fetch(f"""
                 SELECT u.id, u.cedula, u.email, u.first_name, u.last_name,
                     u.rol, u.activo, u.carrera_id, c.nombre as carrera_nombre
@@ -196,18 +197,11 @@ async def listar_usuarios(
                     "carrera": r['carrera_nombre']
                 })
 
-        return {
-            "data": {
-                "usuarios":    usuarios,
-                "total":       total,
-                "page":        page,
-                "total_pages": (total + limit - 1) // limit
-            }
-        }
+        return {"data": paginated_payload("usuarios", usuarios, pagination, total)}
 
     except Exception as e:
         logger.error(f"Error listando usuarios: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.post("/usuarios", summary="Crear nuevo usuario")
@@ -244,7 +238,7 @@ async def crear_usuario(
         raise
     except Exception as e:
         logger.error(f"Error creando usuario: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.put("/usuarios/{usuario_id}", summary="Actualizar usuario")
@@ -300,7 +294,7 @@ async def actualizar_usuario(
         raise
     except Exception as e:
         logger.error(f"Error actualizando usuario: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.post("/primera-matricula", summary="Crear estudiante y registrar pago de primera matrícula")
@@ -373,4 +367,4 @@ async def registrar_primera_matricula(
         raise
     except Exception as e:
         logger.error(f"Error registrando primera matrícula: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)

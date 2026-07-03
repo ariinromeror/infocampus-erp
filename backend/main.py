@@ -21,6 +21,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
+import asyncio
 import logging
 import os
 
@@ -30,6 +31,8 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from config import settings
 from database import init_connection_pool, get_db
+from db_migrations import run_migrations
+from observability import capture_exception_with_context, configure_logging, init_sentry, RequestIdMiddleware
 from routers import auth, dashboards, inscripciones, estudiantes, periodos, reportes
 import routers.estudiante_dashboard as estudiante_dashboard
 from routers.tesorero import router as tesorero_router
@@ -40,10 +43,12 @@ from routers.estudiante_routes import router as estudiante_router
 from routers.ia_context import router as ia_router
 from routers.director_router import router as director_router
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+# RQ-10 (docs/PRD.md): logging estructurado en JSON (antes: texto libre vía
+# logging.basicConfig) + Sentry opcional (no-op si SENTRY_DSN no está seteado).
+# Se configuran ambos ANTES de crear la app para capturar también errores de
+# arranque (p.ej. fallo de conexión a la base de datos en el lifespan).
+configure_logging(level=logging.INFO)
+init_sentry(settings.SENTRY_DSN, environment=settings.ENVIRONMENT, release=settings.APP_VERSION)
 logger = logging.getLogger(__name__)
 
 
@@ -57,23 +62,14 @@ async def lifespan(app: FastAPI):
         logger.error(f"Error inicializando base de datos: {e}")
         raise
 
-    # Aplica migraciones SQL idempotentes al arrancar.
-    # Usa advisory lock para evitar deadlock cuando varios workers (gunicorn) arrancan a la vez.
-    MIGRATION_LOCK_ID = 0x494346455250  # "ICERP" en hex
-    migration_file = os.path.join(os.path.dirname(__file__), "migrations", "001_revoked_tokens.sql")
-    if os.path.exists(migration_file):
-        with open(migration_file, "r") as f:
-            sql = f.read()
-        try:
-            async with get_db() as conn:
-                await conn.execute(f"SELECT pg_advisory_lock({MIGRATION_LOCK_ID})")
-                try:
-                    await conn.execute(sql)
-                    logger.info("✅ Migración 001_revoked_tokens aplicada")
-                finally:
-                    await conn.execute(f"SELECT pg_advisory_unlock({MIGRATION_LOCK_ID})")
-        except Exception as e:
-            logger.error(f"❌ Error en migración: {e}")
+    # RQ-03 (docs/PRD.md): aplica el esquema versionado (Alembic) al arrancar.
+    # Alembic corre en un hilo aparte (motor síncrono) para no bloquear el
+    # event loop; el advisory lock (dentro de run_migrations) coordina varios
+    # workers de Gunicorn arrancando a la vez.
+    try:
+        await asyncio.to_thread(run_migrations, settings.DATABASE_URL)
+    except Exception as e:
+        logger.error(f"❌ Error aplicando migraciones Alembic: {e}")
 
     yield
     logger.info("Cerrando Info Campus ERP API")
@@ -140,6 +136,13 @@ else:
     logger.info(f"✅ CORS configurado para: {allowed_origins}")
 
 # ---------------------------------------------------------------------------
+# Request ID — se agrega temprano para que envuelva a todo lo demás (CORS,
+# rate limiting, handlers) y todos los logs/eventos de un mismo request
+# compartan el mismo identificador (ver observability.py).
+# ---------------------------------------------------------------------------
+app.add_middleware(RequestIdMiddleware)
+
+# ---------------------------------------------------------------------------
 # Rate limiting (SlowAPI)
 # ---------------------------------------------------------------------------
 app.state.limiter = auth.limiter
@@ -152,13 +155,44 @@ app.add_middleware(SlowAPIMiddleware)
 # ---------------------------------------------------------------------------
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
-    """Catches unhandled exceptions and returns 500. Re-raises HTTPException."""
+    """Catches unhandled exceptions and returns 500. Re-raises HTTPException.
+
+    RQ-10 (docs/PRD.md): enriquece el log y el evento de Sentry con
+    request_id, endpoint y rol de usuario (si ya se autenticó), y devuelve el
+    request_id al cliente para que pueda reportarlo en un ticket de soporte.
+    """
     if isinstance(exc, HTTPException):
         raise exc
-    logger.exception("Unhandled exception: %s", exc)
+
+    request_id = getattr(request.state, "request_id", "-")
+    user_id = getattr(request.state, "user_id", None)
+    user_rol = getattr(request.state, "user_rol", None)
+
+    logger.error(
+        "Unhandled exception in %s %s",
+        request.method,
+        request.url.path,
+        exc_info=exc,
+        extra={
+            "endpoint": request.url.path,
+            "method": request.method,
+            "user_id": user_id,
+            "user_rol": user_rol,
+        },
+    )
+
+    capture_exception_with_context(
+        exc,
+        request_id=request_id,
+        endpoint=request.url.path,
+        method=request.method,
+        user_id=user_id,
+        user_rol=user_rol,
+    )
+
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal server error"},
+        content={"detail": "Internal server error", "request_id": request_id},
     )
 
 # ---------------------------------------------------------------------------
@@ -209,7 +243,7 @@ async def health_check():
         logger.error(f"Health check falló: {e}")
         raise HTTPException(
             status_code=503,
-            detail={"status": "error", "database": "disconnected", "error": str(e)},
+            detail={"status": "error", "database": "disconnected"},
         )
 
 

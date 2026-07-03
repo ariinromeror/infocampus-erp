@@ -29,6 +29,7 @@ const SecretariaUsuariosPage = () => {
 
   useEffect(() => {
     if (mostrarForm && !form.password) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- autogenera password al abrir el formulario si aún no tiene una
       setForm(prev => ({ ...prev, password: generarPassword() }));
     }
   }, [mostrarForm, form.password, generarPassword]);

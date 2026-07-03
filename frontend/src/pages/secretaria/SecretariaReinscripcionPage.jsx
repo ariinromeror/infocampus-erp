@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Search, RefreshCw, Users, BookOpen, CheckCircle2, 
   AlertCircle, Loader2, GraduationCap

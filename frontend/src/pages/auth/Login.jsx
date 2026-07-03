@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import {
   User, Lock, AlertCircle, Loader2, BookOpen, ChevronRight, ChevronDown,
   GraduationCap, Wallet, LayoutList, BookMarked, FolderOpen,
@@ -48,6 +48,13 @@ const ROLES_CON_LISTA = [
 const CAMPUS_IMG = '/campus-bg.jpg';
 const CAMPUS_FALLBACK = 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&q=80';
 
+// RQ-01 (docs/PRD.md): "apagador" del panel de acceso demo. Por defecto
+// activo (entorno demo público); en "false" oculta el panel de un clic por
+// rol y muestra directamente el formulario de email/contraseña. El backend
+// debe tener ENABLE_DEMO_LOGIN=false en simultáneo para rechazar la
+// contraseña compartida del lado del servidor (ver routers/auth.py).
+const ENABLE_DEMO_LOGIN = import.meta.env.VITE_ENABLE_DEMO_LOGIN !== 'false';
+
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
@@ -56,7 +63,7 @@ const Login = () => {
   const [activeDemo, setActiveDemo] = useState(null);
   const [imgError, setImgError] = useState(false);
   const [expandedRol, setExpandedRol] = useState(null); // 'Profesor' | 'Estudiante' | null
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(!ENABLE_DEMO_LOGIN);
   const [showProjectModal, setShowProjectModal] = useState(false);
 
   const { login } = useAuth();
@@ -142,9 +149,12 @@ const Login = () => {
           </div>
 
           <h2 className="text-lg font-bold text-slate-800 mb-1">Portal de Acceso</h2>
-          <p className="text-slate-500 text-sm mb-6">Acceso demo por rol</p>
+          <p className="text-slate-500 text-sm mb-6">
+            {ENABLE_DEMO_LOGIN ? 'Acceso demo por rol' : 'Ingresa tus credenciales'}
+          </p>
 
-          {/* Grid de roles */}
+          {/* Grid de roles — panel de acceso demo, ver ENABLE_DEMO_LOGIN arriba */}
+          {ENABLE_DEMO_LOGIN && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
             {ROLES_UNICOS.map((role) => {
               const Icon = role.Icon;
@@ -166,7 +176,8 @@ const Login = () => {
                 </motion.button>
               );
             })}
-            {ROLES_CON_LISTA.map(({ rol, usuarios, Icon }) => {
+            {/* eslint-disable-next-line no-unused-vars -- RolIcon se usa en el JSX de abajo; falso positivo del linter en este patrón anidado */}
+            {ROLES_CON_LISTA.map(({ rol, usuarios, Icon: RolIcon }) => {
               const isExpanded = expandedRol === rol;
               return (
                 <div key={rol} className="col-span-2 sm:col-span-1">
@@ -176,7 +187,7 @@ const Login = () => {
                     disabled={loading}
                     className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all disabled:opacity-50 text-left w-full"
                   >
-                    <Icon className="w-6 h-6 text-slate-500" strokeWidth={1.5} />
+                    <RolIcon className="w-6 h-6 text-slate-500" strokeWidth={1.5} />
                     <span className="text-sm font-semibold text-slate-800">{rol}</span>
                     {isExpanded ? (
                       <ChevronUp className="w-4 h-4 text-slate-400" />
@@ -219,9 +230,11 @@ const Login = () => {
               );
             })}
           </div>
+          )}
 
-          {/* Formulario colapsable */}
+          {/* Formulario: colapsable si el panel demo está activo, siempre visible si no */}
           <div className="mb-6">
+            {ENABLE_DEMO_LOGIN && (
             <button
               onClick={() => setShowForm(!showForm)}
               className="text-sm text-slate-600 hover:text-slate-800 font-medium flex items-center gap-1"
@@ -229,6 +242,7 @@ const Login = () => {
               {showForm ? 'Ocultar' : '¿Tienes credenciales?'}
               {showForm ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
+            )}
             <AnimatePresence>
               {showForm && (
                 <motion.form

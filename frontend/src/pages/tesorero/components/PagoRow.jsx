@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { CheckCircle2, Clock, CreditCard, Banknote, ArrowLeftRight, Building2 } from 'lucide-react';
 
 const fmt = n => new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(n || 0);

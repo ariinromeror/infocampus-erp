@@ -17,7 +17,17 @@ const MisMateriasPage = () => {
       try {
         setLoading(true);
         const res = await api.get('/inscripciones/estudiante/mis-inscripciones');
-        setInscripciones(Array.isArray(res.data) ? res.data : []);
+        // RQ-09 (docs/PRD.md): el endpoint ahora responde paginado
+        // ({ data: { inscripciones, page, limit, total } }) en vez de un
+        // array plano; se mantiene el fallback al array plano por si algún
+        // caller viejo (tests, cache) todavía lo espera así.
+        const payload = res.data?.data;
+        const lista = Array.isArray(payload?.inscripciones)
+          ? payload.inscripciones
+          : Array.isArray(res.data)
+            ? res.data
+            : [];
+        setInscripciones(lista);
       } catch (err) {
         setError(err.message);
       } finally {

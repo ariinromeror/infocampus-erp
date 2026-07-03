@@ -18,6 +18,7 @@ const ProjectInfoModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (!isOpen || tab !== 'readme') return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- activa el loading antes del fetch async; patrón estándar de carga de datos
     setLoadingReadme(true);
     Promise.all([
       fetch('/README_ES.md').then(r => r.text()).catch(() => ''),

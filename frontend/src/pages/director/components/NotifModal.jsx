@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const panelVariants = {

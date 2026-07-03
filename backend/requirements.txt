@@ -22,8 +22,18 @@ pydantic==2.9.0
 pydantic-settings==2.5.2
 python-dotenv==1.0.1
 
+# Database migrations (RQ-03 — docs/PRD.md): SQLAlchemy Core aquí es solo el
+# motor síncrono que Alembic usa para versionar el esquema (CREATE/ALTER TABLE).
+# La app en runtime sigue usando exclusivamente asyncpg con SQL crudo — no hay
+# ORM ni SQLAlchemy en las queries de negocio.
+alembic==1.13.3
+SQLAlchemy==2.0.36
+
 # PDF Generation
 reportlab==4.0.8
 
 # AI/ML (Chatbot)
 groq==1.1.1
+
+# Observability (RQ-10 — docs/PRD.md): error tracking opcional, no-op sin SENTRY_DSN
+sentry-sdk==2.64.0

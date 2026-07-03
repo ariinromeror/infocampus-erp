@@ -14,6 +14,8 @@ import logging
 
 from auth.dependencies import require_roles, get_current_user
 from database import get_db
+from schemas.common import PaginationParams, pagination_params, paginated_payload
+from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +96,7 @@ async def dashboard_summary(
         raise
     except Exception as e:
         logger.error(f"Error en dashboard summary: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{user_id}/notas")
@@ -180,13 +182,14 @@ async def notas_estudiante(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo notas: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{user_id}/asistencias")
 async def asistencias_estudiante(
     user_id: int,
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    pagination: PaginationParams = Depends(pagination_params(default_limit=50, max_limit=200)),
 ) -> Dict[str, Any]:
 
     if not _can_access(current_user, user_id):
@@ -199,12 +202,20 @@ async def asistencias_estudiante(
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Estudiante no encontrado")
 
             asistencias = []
+            total = 0
             stats_default = {
                 "total": 0, "presentes": 0, "ausentes": 0,
                 "tardanzas": 0, "justificadas": 0, "porcentaje_asistencia": 0
             }
 
             try:
+                total = await conn.fetchval("""
+                    SELECT COUNT(*)
+                    FROM public.asistencias a
+                    JOIN public.inscripciones i ON a.inscripcion_id = i.id
+                    WHERE i.estudiante_id = $1
+                """, user_id)
+
                 asistencias_rows = await conn.fetch("""
                     SELECT
                         a.fecha, a.estado, a.observaciones,
@@ -215,7 +226,8 @@ async def asistencias_estudiante(
                     JOIN public.materias m ON s.materia_id = m.id
                     WHERE i.estudiante_id = $1
                     ORDER BY a.fecha DESC
-                """, user_id)
+                    LIMIT $2 OFFSET $3
+                """, user_id, pagination.limit, pagination.offset)
 
                 asistencias = [
                     {
@@ -253,24 +265,23 @@ async def asistencias_estudiante(
             except Exception as e_inner:
                 logger.warning(f"Tabla asistencias sin datos o error para estudiante {user_id}: {e_inner}")
 
-            return {
-                "data": {
-                    "asistencias":  asistencias,
-                    "estadisticas": stats_default
-                }
-            }
+            payload = paginated_payload("asistencias", asistencias, pagination, total)
+            payload["estadisticas"] = stats_default
+
+            return {"data": payload}
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error obteniendo asistencias: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{user_id}/pagos")
 async def pagos_estudiante(
     user_id: int,
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    pagination: PaginationParams = Depends(pagination_params(default_limit=50, max_limit=200)),
 ) -> Dict[str, Any]:
 
     if not _can_access(current_user, user_id):
@@ -290,12 +301,18 @@ async def pagos_estudiante(
 
             est_dict = dict(estudiante)
 
+            total = await conn.fetchval(
+                "SELECT COUNT(*) FROM public.pagos WHERE estudiante_id = $1",
+                user_id,
+            )
+
             pagos_rows = await conn.fetch("""
                 SELECT id, fecha_pago, monto, metodo_pago, estado, referencia, concepto
                 FROM public.pagos
                 WHERE estudiante_id = $1
                 ORDER BY fecha_pago DESC
-            """, user_id)
+                LIMIT $2 OFFSET $3
+            """, user_id, pagination.limit, pagination.offset)
 
             pagos = [
                 {
@@ -341,19 +358,17 @@ async def pagos_estudiante(
             if periodo_actual and periodo_actual['fecha_fin']:
                 proximo_vencimiento = periodo_actual['fecha_fin'].isoformat()
 
-            return {
-                "data": {
-                    "pagos": pagos,
-                    "resumen": {
-                        "total_pagado":        total_pagado,
-                        "deuda_pendiente":     round(deuda_pendiente, 2),
-                        "proximo_vencimiento": proximo_vencimiento
-                    }
-                }
+            payload = paginated_payload("pagos", pagos, pagination, total)
+            payload["resumen"] = {
+                "total_pagado":        total_pagado,
+                "deuda_pendiente":     round(deuda_pendiente, 2),
+                "proximo_vencimiento": proximo_vencimiento
             }
+
+            return {"data": payload}
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error obteniendo pagos: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)

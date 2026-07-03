@@ -107,7 +107,6 @@ const SecretariaEstudiantesPage = () => {
   }, [cargarDatos]);
 
   const totalPages = Math.ceil(total / LIMIT);
-  const hayFiltros = busqueda || carreraId || semestre || soloBecados;
 
   const limpiarFiltros = () => {
     setBusqueda('');

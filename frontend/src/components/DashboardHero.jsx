@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 
 /**
  * DashboardHero — Banner oscuro con decoraciones de cristal para cabeceras de dashboards.

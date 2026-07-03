@@ -9,13 +9,14 @@ Fixes:
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from typing import Dict, Any, List
-from datetime import datetime
+from typing import Dict, Any, List, Optional
+from datetime import datetime, date
 from decimal import Decimal
 import logging
 
 from auth.dependencies import require_roles
 from database import get_db
+from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,15 @@ class PagoRequest(BaseModel):
 
     class Config:
         json_schema_extra = {"example": {"metodo_pago": "transferencia", "comprobante": "TRX-2024-001"}}
+
+
+class ActualizarConvenioRequest(BaseModel):
+    """RQ-08 (docs/PRD.md): reemplaza el `data: dict` sin tipar que recibía este endpoint."""
+    convenio_activo: bool = False
+    fecha_limite_convenio: Optional[date] = None
+
+    class Config:
+        json_schema_extra = {"example": {"convenio_activo": True, "fecha_limite_convenio": "2026-12-31"}}
 
 
 @router.post("/{estudiante_id}/registrar-pago", summary="Registrar pago de estudiante")
@@ -123,7 +133,7 @@ async def registrar_pago(
         raise
     except Exception as e:
         logger.error(f"Error registrando pago: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{estudiante_id}", summary="Detalle de estudiante")
@@ -219,7 +229,7 @@ async def detalle_estudiante(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo detalle: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{estudiante_id}/estado-cuenta", summary="Estado de cuenta simplificado")
@@ -317,13 +327,13 @@ async def estado_cuenta(
         raise
     except Exception as e:
         logger.error(f"Error en estado de cuenta: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.put("/{estudiante_id}/convenio", summary="Actualizar convenio de pago")
 async def actualizar_convenio(
     estudiante_id: int,
-    data: dict,
+    data: ActualizarConvenioRequest,
     current_user: Dict[str, Any] = Depends(require_roles(['tesorero', 'director', 'admin']))
 ) -> Dict[str, Any]:
     try:
@@ -335,7 +345,7 @@ async def actualizar_convenio(
                 UPDATE public.usuarios
                 SET convenio_activo = $1, fecha_limite_convenio = $2
                 WHERE id = $3
-            """, data.get('convenio_activo', False), data.get('fecha_limite_convenio'), estudiante_id)
+            """, data.convenio_activo, data.fecha_limite_convenio, estudiante_id)
 
         return {"message": "Convenio actualizado correctamente"}
 
@@ -343,4 +353,4 @@ async def actualizar_convenio(
         raise
     except Exception as e:
         logger.error(f"Error actualizando convenio: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=GENERIC_ERROR_DETAIL)

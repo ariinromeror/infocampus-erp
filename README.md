@@ -11,6 +11,9 @@
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
 
+[![Backend CI](https://github.com/ariinromeror/infocampus-erp/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/ariinromeror/infocampus-erp/actions/workflows/backend-ci.yml)
+[![Frontend CI](https://github.com/ariinromeror/infocampus-erp/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/ariinromeror/infocampus-erp/actions/workflows/frontend-ci.yml)
+
 **Full-stack academic & financial ERP for educational institutions**
 
 **Live on Render · Vercel · Supabase — Installable as PWA**
@@ -125,13 +128,21 @@ infocampus-erp/
 │   │
 │   ├── services/
 │   │   ├── calculos_financieros.py  # Financial logic with Decimal precision
-│   │   └── pdf_generator.py         # ReportLab PDF builder
+│   │   ├── pdf_generator.py         # ReportLab PDF builder
+│   │   ├── tesoreria_service.py     # Payments, mora, scholarships (pulled out of tesorero.py)
+│   │   ├── academico_service.py     # Careers, subjects, sections, grades (pulled out of academico.py)
+│   │   ├── profesor_service.py      # Attendance, evaluations (pulled out of profesor_routes.py)
+│   │   └── errors.py                # ServiceError/NotFoundError/ValidationError/ForbiddenError
 │   │
-│   ├── migrations/
-│   │   └── 001_revoked_tokens.sql   # Idempotent, advisory-lock protected
+│   ├── schemas/
+│   │   └── common.py              # Shared pagination dependency + response builder
+│   │
+│   ├── alembic/
+│   │   └── versions/              # Versioned schema migrations (0001_initial_schema, 0002_revoked_tokens...)
 │   │
 │   ├── config.py                 # pydantic-settings, env vars
 │   ├── database.py               # asyncpg pool, pgbouncer fix
+│   ├── db_migrations.py          # Runs `alembic upgrade head` behind an advisory lock at startup
 │   └── main.py                   # App factory, CORS, middleware, routers
 │
 ├── frontend/
@@ -214,6 +225,17 @@ async def get_pagos(current_user = Depends(require_roles(['tesorero', 'director'
 - **Password hashing:** bcrypt via passlib
 - **Global 500 handler:** All unhandled exceptions return `{"detail": "Internal server error"}` — no stack traces in production
 
+### Demo credentials are public by design
+
+RQ-01 (`docs/PRD.md`): the [live demo](https://ariinromeror-infocampus-erp.vercel.app/login) exposes a one-click login panel for each of the 6 roles. All seed accounts created by `scripts_db/populate.py` share the same password (`UNIVERSAL_PASSWORD` there, `DEMO_PASSWORD` in `frontend/src/constants/demoUsuarios.js`), which is embedded in the public JS bundle — **this is intentional**, not a leaked secret. It exists so any recruiter or visitor can try every role without asking for credentials. Do not treat a `credenciales_*.txt` file surfacing in `scripts_db/` (a side effect of running the seed script locally) as a security incident: it never contained anything not already public in the compiled frontend, and `.gitignore` now excludes that filename pattern so it can't be committed again.
+
+If this codebase is ever reused for a real institution with real data, this behavior must be turned off before going live:
+
+- Backend: set `ENABLE_DEMO_LOGIN=false`. The `/api/auth/login` endpoint then rejects any login attempt using the shared demo password outright — before touching the database and with the same generic `401` message as any other failed login — regardless of which account it's attached to. Accounts with their own, non-shared password are unaffected.
+- Frontend: set `VITE_ENABLE_DEMO_LOGIN=false`. The one-click role panel on `Login.jsx` is no longer rendered, and the plain email/password form is shown by default instead.
+
+Both flags default to `true` (enabled) to match the current public-portfolio deployment.
+
 ---
 
 ## 🤖 AI Chatbot — Eva
@@ -271,15 +293,63 @@ _async_pool = await asyncpg.create_pool(
 
 ### Advisory lock on startup migrations
 
-When Gunicorn starts multiple workers simultaneously, each worker runs the lifespan hook. Without coordination, concurrent migrations cause deadlocks. The solution uses PostgreSQL advisory locks:
+When Gunicorn starts multiple workers simultaneously, each worker runs the lifespan hook. Without coordination, concurrent migrations cause deadlocks. `backend/db_migrations.py` wraps `alembic upgrade head` (run in a thread, since Alembic is synchronous) with the same PostgreSQL advisory lock pattern used before RQ-03 introduced versioned migrations:
 
 ```python
-await conn.execute(f"SELECT pg_advisory_lock({MIGRATION_LOCK_ID})")
+lock_conn.cursor().execute("SELECT pg_advisory_lock(%s)", (MIGRATION_LOCK_ID,))
 try:
-    await conn.execute(migration_sql)
+    command.upgrade(alembic_cfg, "head")
 finally:
-    await conn.execute(f"SELECT pg_advisory_unlock({MIGRATION_LOCK_ID})")
+    lock_conn.cursor().execute("SELECT pg_advisory_unlock(%s)", (MIGRATION_LOCK_ID,))
 ```
+
+### Consistent pagination across listing endpoints
+
+Before RQ-09, some list endpoints paginated with `page`/`limit`, others returned every row unbounded (`/academico/materias`, `/academico/secciones`, `/academico/carreras`, `/profesor/{id}/secciones`, `/estudiante/{id}/pagos`, `/estudiante/{id}/asistencias`, ...), and a couple had a hardcoded `LIMIT` with no way to page past it. `backend/schemas/common.py` centralizes the pattern into a reusable FastAPI dependency:
+
+```python
+from schemas.common import pagination_params, paginated_payload
+
+@router.get("/materias")
+async def listar_materias(
+    pagination: PaginationParams = Depends(pagination_params(default_limit=200, max_limit=500)),
+):
+    total = await conn.fetchval("SELECT COUNT(*) FROM public.materias")
+    rows = await conn.fetch(
+        "SELECT * FROM public.materias ORDER BY nombre LIMIT $1 OFFSET $2",
+        pagination.limit, pagination.offset,
+    )
+    return {"data": paginated_payload("materias", rows, pagination, total)}
+```
+
+Every listing endpoint now executes a real SQL `LIMIT`/`OFFSET` and returns the same response shape (`{<items_key>: [...], page, limit, total, total_pages}`). `default_limit`/`max_limit` are calibrated per endpoint: catalogs the frontend still renders in full without a paging UI (e.g. `/academico/secciones`) get a generous default well above current data volume so nothing is silently truncated, while `max_limit` remains a hard cap enforced by Pydantic (`Query(..., le=max_limit)`) as an abuse safety net regardless of the default.
+
+### Service layer separation
+
+Historically ~90% of the SQL and business rules lived directly inside router handlers, which made it impossible to unit-test logic without spinning up the full HTTP stack and encouraged duplicated queries across endpoints. The three routers with the highest financial/academic risk (`tesorero.py`, `academico.py`, `profesor_routes.py`) were extracted into `services/tesoreria_service.py`, `services/academico_service.py`, and `services/profesor_service.py`: the router keeps auth, request parsing, and response shaping, while every `SELECT`/`INSERT`/`UPDATE`/`DELETE` now lives in a service function that takes `conn: asyncpg.Connection` explicitly (no owned pool, same `async with get_db() as conn:` pattern) so it can be tested directly, with no HTTP layer involved:
+
+```python
+# router: auth + parsing + response shaping only
+@router.put("/carreras/{carrera_id}")
+async def actualizar_carrera(carrera_id: int, data: CarreraUpdateRequest, ...):
+    try:
+        async with get_db() as conn:
+            resultado = await academico_service.actualizar_carrera(conn, carrera_id, data.precio_credito)
+            return {"data": resultado, "message": "Carrera actualizada"}
+    except ServiceError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+# service: business logic + SQL, no FastAPI/HTTPException dependency
+async def actualizar_carrera(conn, carrera_id: int, precio_credito: float) -> dict:
+    if precio_credito < 0:
+        raise ValidationError("precio_credito debe ser >= 0")
+    row = await conn.fetchrow("UPDATE public.carreras SET precio_credito = $1 WHERE id = $2 RETURNING ...", ...)
+    if not row:
+        raise NotFoundError("Carrera no encontrada")
+    return {...}
+```
+
+Business errors are signaled with `services/errors.py` (`NotFoundError` → 404, `ValidationError` → 400, `ForbiddenError` → 403) instead of `fastapi.HTTPException`, since HTTP status codes are a transport detail the service layer shouldn't depend on. This extraction also surfaced a latent bug: `academico_service.corregir_nota` was writing a student's numeric user id into a `VARCHAR` column expected to hold that id *as text* (`director_router.py` joins on `modificado_por = u.id::TEXT`), caught by a new direct-service test and fixed alongside the refactor.
 
 ### Smart 401 handling on the frontend
 
@@ -328,6 +398,24 @@ uvicorn main:app --reload
 API available at: `http://127.0.0.1:8000`
 Interactive docs: `http://127.0.0.1:8000/docs`
 
+#### Running tests
+
+The suite runs against a real PostgreSQL database (no SQLite, no DB mocks) — the app uses `asyncpg` with raw SQL, so a mock would hide real query bugs.
+
+```bash
+cd backend
+pip install -r requirements-dev.txt   # adds pytest, pytest-asyncio, pytest-cov, httpx
+
+# One-time: create a dedicated test database (schema comes from Alembic — see below)
+createdb infocampus_test
+
+export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/infocampus_test"
+export SECRET_KEY_AUTH="local_test_secret_key_32_characters_min"
+pytest --cov=. --cov-report=term-missing
+```
+
+The test session applies pending Alembic migrations automatically (see `tests/conftest.py`), so the schema is always the same one used in production — no separate `schema.sql` to keep in sync. Test data (users, careers, sections, enrollments) is created and torn down per test via fixtures in `tests/conftest.py`; nothing is left behind in `infocampus_test` between runs.
+
 ### Frontend
 
 ```bash
@@ -338,6 +426,14 @@ npm run dev
 ```
 
 App available at: `http://localhost:5173`
+
+#### Running tests
+
+```bash
+cd frontend
+npm run test          # Vitest, single run (used in CI)
+npm run test:watch    # watch mode for local development
+```
 
 ### Environment Variables
 
@@ -358,15 +454,38 @@ App available at: `http://localhost:5173`
 |----------|-------------|
 | `VITE_API_URL` | Backend URL (e.g. `http://127.0.0.1:8000/api`) |
 
+### Database migrations (Alembic)
+
+RQ-03 (`docs/PRD.md`): the schema (~14 tables) is versioned with [Alembic](https://alembic.sqlalchemy.org/) instead of living only as a side effect of the seed script. A brand-new environment is set up by running migrations alone — `scripts_db/populate.py` only inserts demo data, it never creates or drops tables.
+
+```bash
+cd backend
+export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/infocampus_erp"
+
+alembic upgrade head        # apply all pending migrations (creates the schema on a new DB)
+alembic current             # show the currently applied revision
+alembic history             # list the full migration history
+alembic downgrade -1        # revert the last migration (reversible history)
+```
+
+To create a new migration, add a revision file under `backend/alembic/versions/` (either by hand with raw SQL via `op.execute(...)`, matching the style of the existing ones, or via `alembic revision -m "description"`) and implement both `upgrade()` and `downgrade()`.
+
+> **Note:** SQLAlchemy is a dependency of `backend/requirements.txt` **only** because Alembic needs it as its migration engine. The application itself still queries PostgreSQL exclusively through `asyncpg` with raw SQL — there is no ORM and no SQLAlchemy models in the request/response path.
+
 ### Populate with test data
 
 ```bash
+pip install -r requirements.txt   # root requirements.txt: only what populate.py needs (see file header)
 cd scripts_db
 cp .env.example .env    # Set DATABASE_URL
 python populate.py
 ```
 
 This generates realistic students, professors, sections, enrollments, grades, and payment records using Faker.
+
+> **Note:** the root `requirements.txt` is scoped to `scripts_db/populate.py` only (psycopg2, Faker, tqdm, passlib, python-dotenv). The API's dependencies live exclusively in `backend/requirements.txt`.
+>
+> **Prerequisite:** the target database must already have the schema applied via `alembic upgrade head` (see [Database migrations](#database-migrations-alembic) above) — `populate.py` only truncates and re-inserts data, it never creates tables.
 
 ---
 

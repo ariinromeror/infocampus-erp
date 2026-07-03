@@ -18,6 +18,7 @@ const AsistenciaPage = () => {
         setAsistencias(res.data.data.asistencias || []);
         setEstadisticas(res.data.data.estadisticas || null);
       } catch {
+        // Error silencioso: mantiene la UI en estado vacío en vez de romper el dashboard
       } finally {
         setLoading(false);
       }

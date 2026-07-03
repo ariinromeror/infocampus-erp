@@ -13,6 +13,7 @@ export function useMediaQuery(query) {
 
   useEffect(() => {
     const media = window.matchMedia(query);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resincroniza `matches` cuando `query` cambia después del montaje inicial
     setMatches(media.matches);
     const handler = (e) => setMatches(e.matches);
     media.addEventListener('change', handler);

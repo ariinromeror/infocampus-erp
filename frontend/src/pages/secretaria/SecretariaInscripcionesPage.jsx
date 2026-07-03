@@ -12,16 +12,12 @@ import { generarCertificadoInscripcion } from '../../utils/pdfGenerator';
 
 const SecretariaInscripcionesPage = () => {
   const {
-    busqueda, setBusqueda,
-    resultados, buscando,
-    estudianteSeleccionado, esNuevo,
+    estudianteSeleccionado,
     seccionesFiltradas, loadingSec,
     seccionesSeleccionadas, toggleSeccion,
     carreras,
     inscribiendo, creando, resultado,
     formNuevo, actualizarFormNuevo,
-    buscarEstudiante,
-    seleccionarEstudianteExistente,
     iniciarNuevoEstudiante,
     crearEstudiante,
     inscribirSeleccionadas,
@@ -65,6 +61,7 @@ const SecretariaInscripcionesPage = () => {
 
   useEffect(() => {
     if (resultado?.ok && estudianteSeleccionado && seccionesSeleccionadas.length > 0 && carreraSeleccionada) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- deriva datos del certificado a partir de otros estados
       setDatosCertificado({
         estudiante: {
           id: estudianteSeleccionado.id,
@@ -91,6 +88,7 @@ const SecretariaInscripcionesPage = () => {
 
   useEffect(() => {
     if (!estudianteSeleccionado && !resultado) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resetea el formulario cuando se limpia la selección
       setDatosCertificado(null);
       setMallaData(null);
       setCarreraSeleccionada(null);

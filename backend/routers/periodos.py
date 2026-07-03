@@ -10,6 +10,7 @@ import logging
 
 from auth.dependencies import require_roles
 from database import get_db
+from utils.errors import GENERIC_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
 
@@ -180,7 +181,7 @@ async def cerrar_ciclo_lectivo(
         logger.error(f"❌ Error cerrando ciclo: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error cerrando ciclo: {str(e)}"
+            detail=GENERIC_ERROR_DETAIL
         )
 
 
@@ -229,7 +230,7 @@ async def obtener_periodo_activo(
         logger.error(f"❌ Error obteniendo período activo: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error obteniendo período: {str(e)}"
+            detail=GENERIC_ERROR_DETAIL
         )
 
 
@@ -322,5 +323,5 @@ async def estadisticas_periodo(
         logger.error(f"❌ Error obteniendo estadísticas: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error obteniendo estadísticas: {str(e)}"
+            detail=GENERIC_ERROR_DETAIL
         )

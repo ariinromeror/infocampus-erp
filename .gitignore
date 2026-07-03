@@ -10,6 +10,11 @@ frontend/.env
 frontend/.env.local
 frontend/.env.production
 
+# RQ-01 (docs/PRD.md): archivos de credenciales generados por
+# scripts_db/populate.py al sembrar datos demo (no deben commitearse, aunque
+# la contraseña demo en sí sea pública por diseño — ver README.md).
+credenciales_*.txt
+
 # ── Python ──────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
@@ -25,6 +30,10 @@ venv/
 .venv/
 env/
 .env/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
 
 # ── Node / Frontend ─────────────────────────────────────────
 node_modules/

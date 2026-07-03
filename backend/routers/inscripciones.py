@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
 from decimal import Decimal
 import logging
 
 from auth.dependencies import require_roles, get_current_user
 from database import get_db
+from schemas.common import PaginationParams, pagination_params, paginated_payload
+from utils.errors import GENERIC_ERROR_DETAIL
 from services.calculos_financieros import calcular_en_mora, calcular_deuda_total
 
 logger = logging.getLogger(__name__)
@@ -149,7 +151,7 @@ async def actualizar_nota(
         raise
     except Exception as e:
         logger.error(f"Error actualizando nota: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error actualizando nota: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/seccion/{seccion_id}/notas", summary="Obtener notas de una sección")
@@ -222,16 +224,26 @@ async def obtener_notas_seccion(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo notas: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error obteniendo notas: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/estudiante/mis-inscripciones", summary="Mis inscripciones (estudiante)")
 async def mis_inscripciones(
+    # RQ-09: acotado a un solo estudiante (todas sus inscripciones a lo
+    # largo de su historia académica), por lo que un default generoso ya
+    # cubre el caso real sin necesidad de UI de paginación en el frontend.
+    pagination: PaginationParams = Depends(pagination_params(default_limit=100, max_limit=200)),
     current_user: Dict[str, Any] = Depends(require_roles(['estudiante']))
-) -> List[Dict[str, Any]]:
+) -> Dict[str, Any]:
 
     try:
         async with get_db() as conn:
+            total_row = await conn.fetchrow(
+                "SELECT COUNT(*) AS total FROM public.inscripciones WHERE estudiante_id = $1",
+                current_user['id'],
+            )
+            total = total_row['total']
+
             rows = await conn.fetch(
                 """
                 SELECT
@@ -247,8 +259,9 @@ async def mis_inscripciones(
                 LEFT JOIN public.pagos pg ON i.pago_id = pg.id
                 WHERE i.estudiante_id = $1
                 ORDER BY p.codigo DESC, m.nombre
+                LIMIT $2 OFFSET $3
                 """,
-                current_user['id'],
+                current_user['id'], pagination.limit, pagination.offset,
             )
 
             inscripciones = []
@@ -269,11 +282,11 @@ async def mis_inscripciones(
                     "fecha_inscripcion": row_dict['fecha_inscripcion'].isoformat() if row_dict['fecha_inscripcion'] else None
                 })
 
-            return inscripciones
+            return {"data": paginated_payload("inscripciones", inscripciones, pagination, total)}
 
     except Exception as e:
         logger.error(f"Error obteniendo inscripciones: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error obteniendo inscripciones: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)
 
 
 @router.get("/{inscripcion_id}", summary="Detalle de inscripción")
@@ -343,4 +356,4 @@ async def detalle_inscripcion(
         raise
     except Exception as e:
         logger.error(f"Error obteniendo detalle: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error obteniendo detalle: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=GENERIC_ERROR_DETAIL)

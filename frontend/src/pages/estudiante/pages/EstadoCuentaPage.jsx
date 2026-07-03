@@ -26,6 +26,7 @@ const EstadoCuentaPage = () => {
       link.click();
       window.URL.revokeObjectURL(url);
     } catch {
+      // Error silencioso: el botón de descarga simplemente vuelve a estado habilitado
     } finally {
       setDescargando(false);
     }
