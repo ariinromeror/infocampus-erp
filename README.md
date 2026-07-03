@@ -128,7 +128,11 @@ infocampus-erp/
 │   │
 │   ├── services/
 │   │   ├── calculos_financieros.py  # Financial logic with Decimal precision
-│   │   └── pdf_generator.py         # ReportLab PDF builder
+│   │   ├── pdf_generator.py         # ReportLab PDF builder
+│   │   ├── tesoreria_service.py     # Payments, mora, scholarships (pulled out of tesorero.py)
+│   │   ├── academico_service.py     # Careers, subjects, sections, grades (pulled out of academico.py)
+│   │   ├── profesor_service.py      # Attendance, evaluations (pulled out of profesor_routes.py)
+│   │   └── errors.py                # ServiceError/NotFoundError/ValidationError/ForbiddenError
 │   │
 │   ├── schemas/
 │   │   └── common.py              # Shared pagination dependency + response builder
@@ -308,6 +312,33 @@ async def listar_materias(
 ```
 
 Every listing endpoint now executes a real SQL `LIMIT`/`OFFSET` and returns the same response shape (`{<items_key>: [...], page, limit, total, total_pages}`). `default_limit`/`max_limit` are calibrated per endpoint: catalogs the frontend still renders in full without a paging UI (e.g. `/academico/secciones`) get a generous default well above current data volume so nothing is silently truncated, while `max_limit` remains a hard cap enforced by Pydantic (`Query(..., le=max_limit)`) as an abuse safety net regardless of the default.
+
+### Service layer separation
+
+Historically ~90% of the SQL and business rules lived directly inside router handlers, which made it impossible to unit-test logic without spinning up the full HTTP stack and encouraged duplicated queries across endpoints. The three routers with the highest financial/academic risk (`tesorero.py`, `academico.py`, `profesor_routes.py`) were extracted into `services/tesoreria_service.py`, `services/academico_service.py`, and `services/profesor_service.py`: the router keeps auth, request parsing, and response shaping, while every `SELECT`/`INSERT`/`UPDATE`/`DELETE` now lives in a service function that takes `conn: asyncpg.Connection` explicitly (no owned pool, same `async with get_db() as conn:` pattern) so it can be tested directly, with no HTTP layer involved:
+
+```python
+# router: auth + parsing + response shaping only
+@router.put("/carreras/{carrera_id}")
+async def actualizar_carrera(carrera_id: int, data: CarreraUpdateRequest, ...):
+    try:
+        async with get_db() as conn:
+            resultado = await academico_service.actualizar_carrera(conn, carrera_id, data.precio_credito)
+            return {"data": resultado, "message": "Carrera actualizada"}
+    except ServiceError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+# service: business logic + SQL, no FastAPI/HTTPException dependency
+async def actualizar_carrera(conn, carrera_id: int, precio_credito: float) -> dict:
+    if precio_credito < 0:
+        raise ValidationError("precio_credito debe ser >= 0")
+    row = await conn.fetchrow("UPDATE public.carreras SET precio_credito = $1 WHERE id = $2 RETURNING ...", ...)
+    if not row:
+        raise NotFoundError("Carrera no encontrada")
+    return {...}
+```
+
+Business errors are signaled with `services/errors.py` (`NotFoundError` → 404, `ValidationError` → 400, `ForbiddenError` → 403) instead of `fastapi.HTTPException`, since HTTP status codes are a transport detail the service layer shouldn't depend on. This extraction also surfaced a latent bug: `academico_service.corregir_nota` was writing a student's numeric user id into a `VARCHAR` column expected to hold that id *as text* (`director_router.py` joins on `modificado_por = u.id::TEXT`), caught by a new direct-service test and fixed alongside the refactor.
 
 ### Smart 401 handling on the frontend
 
