@@ -225,6 +225,17 @@ async def get_pagos(current_user = Depends(require_roles(['tesorero', 'director'
 - **Password hashing:** bcrypt via passlib
 - **Global 500 handler:** All unhandled exceptions return `{"detail": "Internal server error"}` — no stack traces in production
 
+### Demo credentials are public by design
+
+RQ-01 (`docs/PRD.md`): the [live demo](https://ariinromeror-infocampus-erp.vercel.app/login) exposes a one-click login panel for each of the 6 roles. All seed accounts created by `scripts_db/populate.py` share the same password (`UNIVERSAL_PASSWORD` there, `DEMO_PASSWORD` in `frontend/src/constants/demoUsuarios.js`), which is embedded in the public JS bundle — **this is intentional**, not a leaked secret. It exists so any recruiter or visitor can try every role without asking for credentials. Do not treat a `credenciales_*.txt` file surfacing in `scripts_db/` (a side effect of running the seed script locally) as a security incident: it never contained anything not already public in the compiled frontend, and `.gitignore` now excludes that filename pattern so it can't be committed again.
+
+If this codebase is ever reused for a real institution with real data, this behavior must be turned off before going live:
+
+- Backend: set `ENABLE_DEMO_LOGIN=false`. The `/api/auth/login` endpoint then rejects any login attempt using the shared demo password outright — before touching the database and with the same generic `401` message as any other failed login — regardless of which account it's attached to. Accounts with their own, non-shared password are unaffected.
+- Frontend: set `VITE_ENABLE_DEMO_LOGIN=false`. The one-click role panel on `Login.jsx` is no longer rendered, and the plain email/password form is shown by default instead.
+
+Both flags default to `true` (enabled) to match the current public-portfolio deployment.
+
 ---
 
 ## 🤖 AI Chatbot — Eva

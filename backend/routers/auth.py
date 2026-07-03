@@ -8,6 +8,7 @@ from slowapi.util import get_remote_address
 from auth.schemas import LoginRequest, TokenResponse
 from auth.jwt_handler import create_access_token, decode_access_token, revoke_token
 from auth.dependencies import get_current_user
+from config import settings
 from database import get_db
 
 logger = logging.getLogger(__name__)
@@ -38,6 +39,20 @@ router = APIRouter(
 @limiter.limit("5/minute")
 async def login(request: Request, response: Response, credentials: LoginRequest) -> TokenResponse:
     logger.info(f"🔐 Intento de login: {credentials.username}")
+
+    # RQ-01 (docs/PRD.md): con el acceso demo desactivado, cualquier intento
+    # de login con la contraseña universal se rechaza de entrada, sin
+    # importar qué cuenta la use ni si el hash almacenado coincide. Se
+    # comprueba antes de tocar la base de datos y con el mismo mensaje
+    # genérico que un login inválido normal, para no filtrar que existe un
+    # mecanismo de detección de la contraseña demo.
+    if not settings.ENABLE_DEMO_LOGIN and credentials.password == settings.DEMO_PASSWORD:
+        logger.warning(f"⚠️ Login con contraseña demo rechazado (ENABLE_DEMO_LOGIN=false): {credentials.username}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales inválidas",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     try:
         async with get_db() as conn:

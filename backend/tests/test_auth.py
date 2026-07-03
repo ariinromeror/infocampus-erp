@@ -114,3 +114,50 @@ async def test_logout_revoca_el_token(client, clean_db, seed):
 
     verify_response = client.get("/api/auth/verify", headers=auth_headers(token))
     assert verify_response.status_code == 401
+
+
+# --- RQ-01 (docs/PRD.md): apagador de la contraseña demo compartida ---------
+
+async def test_con_demo_login_activo_la_contrasena_compartida_funciona(client, clean_db, seed, monkeypatch):
+    from config import settings
+
+    monkeypatch.setattr(settings, "ENABLE_DEMO_LOGIN", True)
+    monkeypatch.setattr(settings, "DEMO_PASSWORD", "campus2026")
+    usuario = await seed.usuario("estudiante", password="campus2026")
+
+    response = client.post(
+        "/api/auth/login",
+        json={"username": usuario["cedula"], "password": "campus2026"},
+    )
+
+    assert response.status_code == 200
+
+
+async def test_con_demo_login_desactivado_la_contrasena_compartida_es_rechazada(client, clean_db, seed, monkeypatch):
+    from config import settings
+
+    monkeypatch.setattr(settings, "ENABLE_DEMO_LOGIN", False)
+    monkeypatch.setattr(settings, "DEMO_PASSWORD", "campus2026")
+    usuario = await seed.usuario("estudiante", password="campus2026")
+
+    response = client.post(
+        "/api/auth/login",
+        json={"username": usuario["cedula"], "password": "campus2026"},
+    )
+
+    assert response.status_code == 401
+
+
+async def test_con_demo_login_desactivado_una_contrasena_propia_sigue_funcionando(client, clean_db, seed, monkeypatch):
+    from config import settings
+
+    monkeypatch.setattr(settings, "ENABLE_DEMO_LOGIN", False)
+    monkeypatch.setattr(settings, "DEMO_PASSWORD", "campus2026")
+    usuario = await seed.usuario("estudiante", password="MiClavePropia123!")
+
+    response = client.post(
+        "/api/auth/login",
+        json={"username": usuario["cedula"], "password": "MiClavePropia123!"},
+    )
+
+    assert response.status_code == 200
